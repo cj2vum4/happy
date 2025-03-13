@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI工具价格比较</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://kit.fontawesome.com/YOUR_FA_KIT_CODE.js" crossorigin="anonymous"></script>
+    <style>
+        .btn-hover:hover {
+            transform: scale(1.1);
+            transition: transform 0.3s ease-in-out;
+        }
+        .card-hover:hover {
+            box-shadow: 0 10px 20px rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white flex items-center justify-center min-h-screen">
+    <div class="text-center">
+        <h1 class="text-3xl font-bold mb-6">AI工具价格比较</h1>
+        <div class="flex gap-6 justify-center">
+            <button onclick="showInfo('ChatGPT')" class="btn-hover bg-gray-800 px-6 py-3 rounded-lg shadow-lg text-xl flex items-center gap-3">
+                <i class="fas fa-robot"></i> ChatGPT
+            </button>
+            <button onclick="showInfo('Claude')" class="btn-hover bg-gray-800 px-6 py-3 rounded-lg shadow-lg text-xl flex items-center gap-3">
+                <i class="fas fa-brain"></i> Claude
+            </button>
+            <button onclick="showInfo('Gemini')" class="btn-hover bg-gray-800 px-6 py-3 rounded-lg shadow-lg text-xl flex items-center gap-3">
+                <i class="fas fa-star"></i> Gemini
+            </button>
+        </div>
+        
+        <div id="info-box" class="hidden mt-6 p-6 bg-gray-800 rounded-lg card-hover shadow-lg w-3/4 mx-auto text-center">
+            <h2 id="model-title" class="text-2xl font-bold mb-3"></h2>
+            <table id="model-table" class="w-full border-collapse border border-gray-700 text-white">
+                <thead>
+                    <tr class="bg-gray-700">
+                        <th class="p-3 border border-gray-600">方案名称</th>
+                        <th class="p-3 border border-gray-600">价格</th>
+                        <th class="p-3 border border-gray-600">优点</th>
+                        <th class="p-3 border border-gray-600">缺点</th>
+                    </tr>
+                </thead>
+                <tbody id="table-body" class="text-gray-300"></tbody>
+            </table>
+            <button onclick="hideInfo()" class="mt-4 bg-red-600 px-4 py-2 rounded-lg">返回</button>
+        </div>
+    </div>
+
+    <script>
+        const modelData = {
+            'ChatGPT': [
+                ['ChatGPT 免费方案', '免费', '一般使用者、学生', '可使用 GPT-3.5 模型；适合日常对话和基础文本生成任务。', '在高峰时段可能遇到使用限制；无法使用 GPT-4 模型；功能有限。'],
+                ['ChatGPT Plus', '每月 20 美元', '频繁使用者、专业人士', '可使用 GPT-4 Turbo 模型；更快的回应速度；在高峰时段具有优先权；可自由切换 GPT-3.5 和 GPT-4 Turbo。', '每月需支付订阅费用；使用 GPT-4 Turbo 模型有次数限制，每 4 小时可提问 50 次。'],
+                ['ChatGPT Pro', '每月 200 美元', '企业、专业用户，或需要大规模应用和高效能需求的人', '使用 GPT-4 Turbo 模型；高使用配额，支持更大量的内容生成；高速回应；自定义功能，可能包括 API 增强、专业技术支援等。', '价格较高，适合需要高级功能和高使用量的用户。'],
+            ],
+            'Claude': [
+                ['Claude 免费版', '免费', '提供基本的 AI 互动功能；可处理和总结大型文件；适合个人使用。', '功能有限；可能存在回应速度较慢的情况。'],
+                ['Claude Pro', '每月 20 美元', '提供更高效能的 AI 互动；更快的回应速度；适合需要高频次使用的专业人士。', '每月需支付订阅费用；可能包含过多功能，对于仅需基本功能的用户而言可能不必要。'],
+            ],
+            'Gemini': [
+                ['Gemini 免费版', '免费', '提供基本的 AI 功能；可处理文本生成、翻译、问答等任务；适合一般使用者。', '功能有限；无法使用高级模型；上下文处理能力较低。'],
+                ['Gemini Advanced', '每月 19.99 美元', '使用 Gemini 1.5 Pro 模型；更高的上下文处理能力（1 百万 tokens）；可生成图像和执行程式码；与 Google 服务（如 Docs、Sheets、Gmail）整合；额外提供 2TB 的 Google One 云端存储。', '每月需支付订阅费用；回应速度可能较慢。'],
+            ]
+        };
+
+        function showInfo(model) {
+            document.getElementById('model-title').innerText = model;
+            const tableBody = document.getElementById('table-body');
+            tableBody.innerHTML = '';
+            modelData[model].forEach(row => {
+                let tr = '<tr>' + row.map(cell => `<td class='p-3 border border-gray-600'>${cell}</td>`).join('') + '</tr>';
+                tableBody.innerHTML += tr;
+            });
+            document.getElementById('info-box').classList.remove('hidden');
+        }
+
+        function hideInfo() {
+            document.getElementById('info-box').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
