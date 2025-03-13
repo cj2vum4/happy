@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI工具价格比较</title>
+    <title>AI工具價格比較</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://kit.fontawesome.com/YOUR_FA_KIT_CODE.js" crossorigin="anonymous"></script>
     <style>
@@ -18,7 +18,7 @@
 </head>
 <body class="bg-gray-900 text-white flex items-center justify-center min-h-screen">
     <div class="text-center">
-        <h1 class="text-3xl font-bold mb-6">AI工具价格比较</h1>
+        <h1 class="text-3xl font-bold mb-6">AI工具價格比較</h1>
         <div class="flex gap-6 justify-center">
             <button onclick="showInfo('ChatGPT')" class="btn-hover bg-gray-800 px-6 py-3 rounded-lg shadow-lg text-xl flex items-center gap-3">
                 <i class="fas fa-robot"></i> ChatGPT
@@ -36,10 +36,10 @@
             <table id="model-table" class="w-full border-collapse border border-gray-700 text-white">
                 <thead>
                     <tr class="bg-gray-700">
-                        <th class="p-3 border border-gray-600">方案名称</th>
-                        <th class="p-3 border border-gray-600">价格</th>
-                        <th class="p-3 border border-gray-600">优点</th>
-                        <th class="p-3 border border-gray-600">缺点</th>
+                        <th class="p-3 border border-gray-600">方案名稱</th>
+                        <th class="p-3 border border-gray-600">價格</th>
+                        <th class="p-3 border border-gray-600">優點</th>
+                        <th class="p-3 border border-gray-600">缺點</th>
                     </tr>
                 </thead>
                 <tbody id="table-body" class="text-gray-300"></tbody>
@@ -51,17 +51,17 @@
     <script>
         const modelData = {
             'ChatGPT': [
-                ['ChatGPT 免费方案', '免费', '一般使用者、学生', '可使用 GPT-3.5 模型；适合日常对话和基础文本生成任务。', '在高峰时段可能遇到使用限制；无法使用 GPT-4 模型；功能有限。'],
-                ['ChatGPT Plus', '每月 20 美元', '频繁使用者、专业人士', '可使用 GPT-4 Turbo 模型；更快的回应速度；在高峰时段具有优先权；可自由切换 GPT-3.5 和 GPT-4 Turbo。', '每月需支付订阅费用；使用 GPT-4 Turbo 模型有次数限制，每 4 小时可提问 50 次。'],
-                ['ChatGPT Pro', '每月 200 美元', '企业、专业用户，或需要大规模应用和高效能需求的人', '使用 GPT-4 Turbo 模型；高使用配额，支持更大量的内容生成；高速回应；自定义功能，可能包括 API 增强、专业技术支援等。', '价格较高，适合需要高级功能和高使用量的用户。'],
+                ['ChatGPT 免費方案', '免費', '一般使用者、學生', '可使用 GPT-3.5 模型；適合日常對話和基礎文本生成任務。', '在高峰時段可能遇到使用限制；無法使用 GPT-4 模型；功能有限。'],
+                ['ChatGPT Plus', '每月 20 美元', '頻繁使用者、專業人士', '可使用 GPT-4 Turbo 模型；更快的回應速度；在高峰時段具有優先權；可自由切換 GPT-3.5 和 GPT-4 Turbo。', '每月需支付訂閱費用；使用 GPT-4 Turbo 模型有次數限制，每 4 小時可提問 50 次。'],
+                ['ChatGPT Pro', '每月 200 美元', '企業、專業用戶，或需要大規模應用和高效能需求的人', '使用 GPT-4 Turbo 模型；高使用配額，支持更大量的內容生成；高速回應；自定義功能，可能包括 API 增強、專業技術支援等。', '價格較高，適合需要高級功能和高使用量的用戶。'],
             ],
             'Claude': [
-                ['Claude 免费版', '免费', '提供基本的 AI 互动功能；可处理和总结大型文件；适合个人使用。', '功能有限；可能存在回应速度较慢的情况。'],
-                ['Claude Pro', '每月 20 美元', '提供更高效能的 AI 互动；更快的回应速度；适合需要高频次使用的专业人士。', '每月需支付订阅费用；可能包含过多功能，对于仅需基本功能的用户而言可能不必要。'],
+                ['Claude 免費版', '免費', '提供基本的 AI 互動功能；可處理和總結大型文件；適合個人使用。', '功能有限；可能存在回應速度較慢的情況。'],
+                ['Claude Pro', '每月 20 美元', '提供更高效能的 AI 互動；更快的回應速度；適合需要高頻次使用的專業人士。', '每月需支付訂閱費用；可能包含過多功能，對於僅需基本功能的用戶而言可能不必要。'],
             ],
             'Gemini': [
-                ['Gemini 免费版', '免费', '提供基本的 AI 功能；可处理文本生成、翻译、问答等任务；适合一般使用者。', '功能有限；无法使用高级模型；上下文处理能力较低。'],
-                ['Gemini Advanced', '每月 19.99 美元', '使用 Gemini 1.5 Pro 模型；更高的上下文处理能力（1 百万 tokens）；可生成图像和执行程式码；与 Google 服务（如 Docs、Sheets、Gmail）整合；额外提供 2TB 的 Google One 云端存储。', '每月需支付订阅费用；回应速度可能较慢。'],
+                ['Gemini 免費版', '免費', '提供基本的 AI 功能；可處理文本生成、翻譯、問答等任務；適合一般使用者。', '功能有限；無法使用高級模型；上下文處理能力較低。'],
+                ['Gemini Advanced', '每月 19.99 美元', '使用 Gemini 1.5 Pro 模型；更高的上下文處理能力（1 百萬 tokens）；可生成圖像和執行程式碼；與 Google 服務（如 Docs、Sheets、Gmail）整合；額外提供 2TB 的 Google One 雲端存儲。', '每月需支付訂閱費用；回應速度可能較慢。'],
             ]
         };
 
