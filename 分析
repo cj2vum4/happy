@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>5月份與6月份業績比較</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        body {
+            font-family: 'Microsoft JhengHei', Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            font-weight: 300;
+        }
+        
+        .header p {
+            margin: 10px 0 0;
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        
+        .summary-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .summary-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .summary-card h3 {
+            margin: 0 0 10px;
+            font-size: 1.4em;
+        }
+        
+        .summary-card .value {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .summary-card .change {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .positive { color: #4CAF50; }
+        .negative { color: #f44336; }
+        
+        .chart-container {
+            margin: 40px 0;
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+        
+        .chart-title {
+            text-align: center;
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+        
+        .comparison-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 10px;
+            text-align: center;
+            font-weight: 600;
+        }
+        
+        .comparison-table td {
+            padding: 12px 10px;
+            text-align: center;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .comparison-table tr:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .store-name {
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .metric-positive {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+        
+        .metric-negative {
+            color: #f44336;
+            font-weight: bold;
+        }
+        
+        .metric-neutral {
+            color: #333;
+        }
+        
+        .tabs {
+            display: flex;
+            justify-content: center;
+            margin: 30px 0;
+            border-bottom: 2px solid #eee;
+        }
+        
+        .tab {
+            padding: 15px 30px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-size: 1.1em;
+            color: #666;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+        
+        .tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .chart-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 30px;
+            margin: 30px 0;
+        }
+        
+        @media (max-width: 768px) {
+            .chart-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .comparison-table {
+                font-size: 0.9em;
+            }
+            
+            .comparison-table th,
+            .comparison-table td {
+                padding: 8px 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>業績比較分析</h1>
+            <p>5月份整月 vs 6月份（至6月9日）</p>
+        </div>
+        
+        <div class="content">
+            <div class="summary-cards">
+                <div class="summary-card">
+                    <h3>AQ.MB點數</h3>
+                    <div class="value">488.5 → 172.9</div>
+                    <div class="change negative">-64.6%</div>
+                </div>
+                <div class="summary-card">
+                    <h3>手機銷售數</h3>
+                    <div class="value">294 → 76</div>
+                    <div class="change negative">-74.1%</div>
+                </div>
+                <div class="summary-card">
+                    <h3>Max+Disney+</h3>
+                    <div class="value">30 → 5</div>
+                    <div class="change negative">-83.3%</div>
+                </div>
+                <div class="summary-card">
+                    <h3>凱擘點數</h3>
+                    <div class="value">52.75 → 23</div>
+                    <div class="change negative">-56.4%</div>
+                </div>
+            </div>
+            
+            <div class="tabs">
+                <button class="tab active" onclick="showTab('overview')">總覽</button>
+                <button class="tab" onclick="showTab('detailed')">詳細比較</button>
+                <button class="tab" onclick="showTab('charts')">圖表分析</button>
+            </div>
+            
+            <div id="overview" class="tab-content active">
+                <h2 style="text-align: center; color: #333; margin-bottom: 30px;">各分店業績總覽</h2>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>分店</th>
+                            <th>期間</th>
+                            <th>AQ.MB點數達成</th>
+                            <th>手機銷售數</th>
+                            <th>Max+Disney+數量</th>
+                            <th>凱擘點數</th>
+                            <th>復原者點數</th>
+                        </tr>
+                    </thead>
+                    <tbody id="overview-table-body">
+                    </tbody>
+                </table>
+            </div>
+            
+            <div id="detailed" class="tab-content">
+                <h2 style="text-align: center; color: #333; margin-bottom: 30px;">詳細達成率比較</h2>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>分店</th>
+                            <th>期間</th>
+                            <th>AQ.MB達成率</th>
+                            <th>AQ999↑達成率</th>
+                            <th>AQ1399↑達成率</th>
+                            <th>復原者達成率</th>
+                            <th>手機銷售達成率</th>
+                            <th>凱擘達成率</th>
+                            <th>Max+Disney+達成率</th>
+                        </tr>
+                    </thead>
+                    <tbody id="detailed-table-body">
+                    </tbody>
+                </table>
+            </div>
+            
+            <div id="charts" class="tab-content">
+                <div class="chart-grid">
+                    <div class="chart-container">
+                        <h3 class="chart-title">AQ.MB點數達成比較</h3>
+                        <canvas id="aqmbChart"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <h3 class="chart-title">手機銷售數比較</h3>
+                        <canvas id="phoneChart"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <h3 class="chart-title">Max+Disney+數量比較</h3>
+                        <canvas id="disneyChart"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <h3 class="chart-title">各分店達成率比較</h3>
+                        <canvas id="rateChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 資料定義
+        const juneData = {
+            stores: ['H', 'F', 'G', 'K', 'J'],
+            aqmb: [26.8, 56.5, 43.6, 23, 23],
+            aqmbRate: [0.71, 1.73, 1.15, 0.61, 0.81],
+            aq999Rate: [0.61, 1.67, 0.91, 0.61, 0.83],
+            aq1399Rate: [0.83, 2.38, 1.25, 0.83, 1.11],
+            phonesSold: [13, 19, 18, 17, 9],
+            phoneRate: [0.42, 0.70, 0.58, 0.54, 0.41],
+            maxDisney: [1, 1, 2, 0, 1],
+            maxDisneyRate: [0.28, 0.28, 0.56, 0, 0.37],
+            cable: [9.5, 4.75, 4, 1, 3.75],
+            cableRate: [2.88, 1.58, 1.21, 0.42, 2.08],
+            recovery: [7, 15, 14.5, 12.75, 4.25],
+            recoveryRate: [0.43, 1.06, 0.90, 0.79, 0.35]
+        };
+        
+        const mayData = {
+            stores: ['H', 'F', 'G', 'K', 'J'],
+            aqmb: [97.6, 144.1, 83.5, 96, 67.3],
+            aqmbRate: [0.75, 1.11, 0.61, 0.76, 0.82],
+            aq999Rate: [0.83, 1.18, 0.73, 0.82, 0.86],
+            aq1399Rate: [1.29, 1.38, 1.00, 0.50, 1.25],
+            phonesSold: [44, 66, 66, 66, 52],
+            phoneRate: [0.47, 0.67, 0.63, 0.69, 0.81],
+            maxDisney: [9, 8, 6, 4, 3],
+            maxDisneyRate: [0.90, 0.67, 0.50, 0.25, 0.30],
+            cable: [13.75, 14, 13.5, 6.5, 5],
+            cableRate: [1.15, 1.40, 1.35, 0.65, 0.71],
+            recovery: [38.75, 44, 40.5, 43, 31.25],
+            recoveryRate: [0.63, 0.70, 0.64, 0.70, 0.78]
+        };
+        
+        function populateOverviewTable() {
+            const tbody = document.getElementById('overview-table-body');
+            tbody.innerHTML = '';
+            
+            // 添加各分店數據
+            juneData.stores.forEach((store, index) => {
+                // 6月份數據
+                const juneRow = document.createElement('tr');
+                juneRow.innerHTML = `
+                    <td class="store-name">${store}</td>
+                    <td>6月份</td>
+                    <td>${juneData.aqmb[index]}</td>
+                    <td>${juneData.phonesSold[index]}</td>
+                    <td>${juneData.maxDisney[index]}</td>
+                    <td>${juneData.cable[index]}</td>
+                    <td>${juneData.recovery[index]}</td>
+                `;
+                tbody.appendChild(juneRow);
+                
+                // 5月份數據
+                const mayRow = document.createElement('tr');
+                mayRow.innerHTML = `
+                    <td class="store-name">${store}</td>
+                    <td>5月份</td>
+                    <td>${mayData.aqmb[index]}</td>
+                    <td>${mayData.phonesSold[index]}</td>
+                    <td>${mayData.maxDisney[index]}</td>
+                    <td>${mayData.cable[index]}</td>
+                    <td>${mayData.recovery[index]}</td>
+                `;
+                tbody.appendChild(mayRow);
+            });
+        }
+        
+        function populateDetailedTable() {
+            const tbody = document.getElementById('detailed-table-body');
+            tbody.innerHTML = '';
+            
+            juneData.stores.forEach((store, index) => {
+                // 6月份達成率
+                const juneRow = document.createElement('tr');
+                juneRow.innerHTML = `
+                    <td class="store-name">${store}</td>
+                    <td>6月份</td>
+                    <td class="${getPerformanceClass(juneData.aqmbRate[index])}">${(juneData.aqmbRate[index] * 100).toFixed(1)}%</td>
+                    <td class="${getPerformanceClass(juneData.aq999Rate[index])}">${(juneData.aq999Rate[index] * 100).toFixed(1)}%</td>
+                    <td class="${getPerformanceClass(juneData.aq1399Rate[index])}">${(juneData.aq1399Rate[index] * 100).toFixed(1)}%</td>
+                    <td class="${getPerformanceClass(juneData.recoveryRate[index])}">${(juneData.recoveryRate[index] * 100).toFixed(1)}%</td>
+                    <td class="${getPerformanceClass(juneData.phoneRate[index])}">${(juneData.phoneRate[index] * 100).toFixed(1)}%</td>
+                    <td class="${getPerformanceClass(juneData.cableRate[index])}">${(juneData.cableRate[index] * 100).toFixed(1)}%</td>
+                    <td class="${getPerformanceClass(juneData.maxDisneyRate[index])}">${(juneData.maxDisneyRate[index] * 100).toFixed(1)}%</td>
+                `;
+                tbody.appendChild(juneRow);
+                
+                // 5月份達成率
+                const mayRow = document.createElement('tr');
+                mayRow.innerHTML = `
+                    <td class="store-name">${store}</td>
+                    <td>5月份</td>
+                    <td class="${getPerformanceClass(mayData.aqmbRate[index])}">${(mayData.aqmbRate[index] * 100).toFixed(1)}%</td>
+                    <td class="${getPerformanceClass(mayData.aq999Rate[index])}">${(mayData.aq999Rate[index] * 100).toFixed(1)}%</td>
+                    <td class="${getPerformanceClass(mayData.aq1399Rate[index])}">${(mayData.aq1399Rate[index] * 100).toFixed(1)}%</td>
+                    <td class="${getPerformanceClass(mayData.recoveryRate[index])}">${(mayData.recoveryRate[index] * 100).toFixed(1)}%</td>
+                    <td class="${getPerformanceClass(mayData.phoneRate[index])}">${(mayData.phoneRate[index] * 100).toFixed(1)}%</td>
+                    <td class="${getPerformanceClass(mayData.cableRate[index])}">${(mayData.cableRate[index] * 100).toFixed(1)}%</td>
+                    <td class="${getPerformanceClass(mayData.maxDisneyRate[index])}">${(mayData.maxDisneyRate[index] * 100).toFixed(1)}%</td>
+                `;
+                tbody.appendChild(mayRow);
+            });
+        }
+        
+        function getPerformanceClass(rate) {
+            if (rate >= 1.0) return 'metric-positive';
+            if (rate >= 0.8) return 'metric-neutral';
+            return 'metric-negative';
+        }
+        
+        function createCharts() {
+            // AQ.MB點數達成比較圖
+            const aqmbCtx = document.getElementById('aqmbChart').getContext('2d');
+            new Chart(aqmbCtx, {
+                type: 'bar',
+                data: {
+                    labels: juneData.stores,
+                    datasets: [{
+                        label: '5月份',
+                        data: mayData.aqmb,
+                        backgroundColor: 'rgba(102, 126, 234, 0.8)',
+                        borderColor: 'rgb(102, 126, 234)',
+                        borderWidth: 1
+                    }, {
+                        label: '6月份',
+                        data: juneData.aqmb,
+                        backgroundColor: 'rgba(245, 87, 108, 0.8)',
+                        borderColor: 'rgb(245, 87, 108)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+            
+            // 手機銷售數比較圖
+            const phoneCtx = document.getElementById('phoneChart').getContext('2d');
+            new Chart(phoneCtx, {
+                type: 'bar',
+                data: {
+                    labels: juneData.stores,
+                    datasets: [{
+                        label: '5月份',
+                        data: mayData.phonesSold,
+                        backgroundColor: 'rgba(102, 126, 234, 0.8)',
+                        borderColor: 'rgb(102, 126, 234)',
+                        borderWidth: 1
+                    }, {
+                        label: '6月份',
+                        data: juneData.phonesSold,
+                        backgroundColor: 'rgba(245, 87, 108, 0.8)',
+                        borderColor: 'rgb(245, 87, 108)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+            
+            // Max+Disney+數量比較圖
+            const disneyCtx = document.getElementById('disneyChart').getContext('2d');
+            new Chart(disneyCtx, {
+                type: 'bar',
+                data: {
+                    labels: juneData.stores,
+                    datasets: [{
+                        label: '5月份',
+                        data: mayData.maxDisney,
+                        backgroundColor: 'rgba(102, 126, 234, 0.8)',
+                        borderColor: 'rgb(102, 126, 234)',
+                        borderWidth: 1
+                    }, {
+                        label: '6月份',
+                        data: juneData.maxDisney,
+                        backgroundColor: 'rgba(245, 87, 108, 0.8)',
+                        borderColor: 'rgb(245, 87, 108)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+            
+            // 各分店達成率比較圖
+            const rateCtx = document.getElementById('rateChart').getContext('2d');
+            new Chart(rateCtx, {
+                type: 'radar',
+                data: {
+                    labels: ['AQ.MB達成率', 'AQ999↑達成率', 'AQ1399↑達成率', '復原者達成率', '手機銷售達成率'],
+                    datasets: [{
+                        label: '5月份平均',
+                        data: [
+                            mayData.aqmbRate.reduce((a, b) => a + b, 0) / mayData.aqmbRate.length,
+                            mayData.aq999Rate.reduce((a, b) => a + b, 0) / mayData.aq999Rate.length,
+                            mayData.aq1399Rate.reduce((a, b) => a + b, 0) / mayData.aq1399Rate.length,
+                            mayData.recoveryRate.reduce((a, b) => a + b, 0) / mayData.recoveryRate.length,
+                            mayData.phoneRate.reduce((a, b) => a + b, 0) / mayData.phoneRate.length
+                        ],
+                        backgroundColor: 'rgba(102, 126, 234, 0.2)',
+                        borderColor: 'rgb(102, 126, 234)',
+                        pointBackgroundColor: 'rgb(102, 126, 234)',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: 'rgb(102, 126, 234)'
+                    }, {
+                        label: '6月份平均',
+                        data: [
+                            juneData.aqmbRate.reduce((a, b) => a + b, 0) / juneData.aqmbRate.length,
+                            juneData.aq999Rate.reduce((a, b) => a + b, 0) / juneData.aq999Rate.length,
+                            juneData.aq1399Rate.reduce((a, b) => a + b, 0) / juneData.aq1399Rate.length,
+                            juneData.recoveryRate.reduce((a, b) => a + b, 0) / juneData.recoveryRate.length,
+                            juneData.phoneRate.reduce((a, b) => a + b, 0) / juneData.phoneRate.length
+                        ],
+                        backgroundColor: 'rgba(245, 87, 108, 0.2)',
+                        borderColor: 'rgb(245, 87, 108)',
+                        pointBackgroundColor: 'rgb(245, 87, 108)',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: 'rgb(245, 87, 108)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        }
+                    },
+                    scales: {
+                        r: {
+                            beginAtZero: true,
+                            max: 2
+                        }
+                    }
+                }
+            });
+        }
+        
+        function showTab(tabName) {
+            // 隱藏所有tab內容
+            const tabContents = document.querySelectorAll('.tab-content');
+            tabContents.forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // 移除所有tab的active class
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // 顯示選中的tab內容
+            document.getElementById(tabName).classList.add('active');
+            
+            // 添加active class到選中的tab
+            event.target.classList.add('active');
+        }
+        
+        // 初始化頁面
+        document.addEventListener('DOMContentLoaded', function() {
+            populateOverviewTable();
+            populateDetailedTable();
+            createCharts();
+        });
+    </script>
+</body>
+</html>
