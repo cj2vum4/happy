@@ -14,18 +14,9 @@
         body {
             font-family: 'Comic Sans MS', '微軟正黑體', 'Arial', sans-serif;
             line-height: 1.6;
-            color: #333;
-            background: linear-gradient(135deg, #FFB6C1 0%, #FFE4E1 25%, #F0FFF0 50%, #E6E6FA 75%, #FFE4B5 100%);
+            color: #2c3e50;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 50%, #f8f9fa 100%);
             min-height: 100vh;
-            animation: gradientShift 8s ease infinite;
-        }
-
-        @keyframes gradientShift {
-            0% { background: linear-gradient(135deg, #FFB6C1 0%, #FFE4E1 25%, #F0FFF0 50%, #E6E6FA 75%, #FFE4B5 100%); }
-            25% { background: linear-gradient(135deg, #FFE4E1 0%, #F0FFF0 25%, #E6E6FA 50%, #FFE4B5 75%, #FFB6C1 100%); }
-            50% { background: linear-gradient(135deg, #F0FFF0 0%, #E6E6FA 25%, #FFE4B5 50%, #FFB6C1 75%, #FFE4E1 100%); }
-            75% { background: linear-gradient(135deg, #E6E6FA 0%, #FFE4B5 25%, #FFB6C1 50%, #FFE4E1 75%, #F0FFF0 100%); }
-            100% { background: linear-gradient(135deg, #FFE4B5 0%, #FFB6C1 25%, #FFE4E1 50%, #F0FFF0 75%, #E6E6FA 100%); }
         }
 
         .container {
@@ -36,17 +27,20 @@
 
         .header {
             text-align: center;
-            color: white;
+            color: #2c3e50;
             margin-bottom: 40px;
             padding: 40px 0;
+            background: linear-gradient(135deg, #FFB6C1, #FFC0CB);
+            border-radius: 25px;
+            box-shadow: 0 10px 30px rgba(255, 182, 193, 0.3);
         }
 
         .header h1 {
             font-size: 3em;
             margin-bottom: 10px;
-            text-shadow: 3px 3px 6px rgba(255,182,193,0.5);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
             animation: bounce 2s ease infinite;
-            color: #FF69B4;
+            color: #2c3e50;
         }
 
         @keyframes bounce {
@@ -57,30 +51,19 @@
 
         .header p {
             font-size: 1.2em;
-            opacity: 0.9;
+            color: #34495e;
+            font-weight: 500;
         }
 
         .trip-info {
-            background: rgba(255,255,255,0.95);
+            background: rgba(255,255,255,0.98);
             border-radius: 25px;
             padding: 30px;
             margin-bottom: 30px;
-            box-shadow: 0 15px 35px rgba(255,182,193,0.3);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
             backdrop-filter: blur(10px);
             border: 3px solid #FFB6C1;
             position: relative;
-        }
-
-        .trip-info::before {
-            content: "✨";
-            position: absolute;
-            top: -15px;
-            left: 20px;
-            font-size: 2em;
-            background: white;
-            padding: 5px 10px;
-            border-radius: 50%;
-            border: 3px solid #FFB6C1;
         }
 
         .day-section {
@@ -88,7 +71,7 @@
             border-radius: 20px;
             margin-bottom: 25px;
             overflow: hidden;
-            box-shadow: 0 8px 25px rgba(255,182,193,0.2);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
             transition: all 0.3s ease;
             border: 2px solid #FFE4E1;
         }
@@ -100,11 +83,11 @@
 
         .day-header {
             background: linear-gradient(45deg, #FF69B4, #FFB6C1, #FFE4E1);
-            color: white;
+            color: #2c3e50;
             padding: 20px 30px;
             font-size: 1.5em;
             font-weight: bold;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
             position: relative;
         }
 
@@ -186,12 +169,12 @@
             font-weight: bold;
             font-size: 1.1em;
             margin-bottom: 5px;
-            color: #FF1493;
-            text-shadow: 1px 1px 2px rgba(255,20,147,0.2);
+            color: #2c3e50;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
         }
 
         .activity-detail {
-            color: #666;
+            color: #34495e;
             font-size: 0.9em;
         }
 
@@ -242,13 +225,13 @@
         }
 
         .section-title {
-            color: #FF1493;
+            color: #2c3e50;
             font-size: 1.8em;
             margin-bottom: 20px;
             text-align: center;
             border-bottom: 3px solid #FF69B4;
             padding-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(255,20,147,0.2);
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
         }
 
         .accommodation-grid, .food-grid {
@@ -292,10 +275,10 @@
         }
 
         .card h4 {
-            color: #FF1493;
+            color: #2c3e50;
             margin-bottom: 10px;
             font-size: 1.2em;
-            text-shadow: 1px 1px 2px rgba(255,20,147,0.2);
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
         }
 
         .price {
@@ -520,150 +503,78 @@
             position: relative;
         }
 
-        .massage-highlight::before {
-            content: "💆‍♀️";
-            position: absolute;
-            left: -10px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 1.5em;
-            background: white;
-            padding: 5px;
-            border-radius: 50%;
-            border: 2px solid #FF69B4;
-        }
-
-        /* 投票系統樣式 */
-        .voting-section {
-            background: white;
-            border-radius: 20px;
-            padding: 25px;
-            margin-bottom: 25px;
-            box-shadow: 0 8px 25px rgba(255,182,193,0.2);
-            border: 2px solid #FFE4E1;
+        .accommodation-option {
             position: relative;
-        }
-
-        .voting-section::before {
-            content: "🗳️";
-            position: absolute;
-            top: -10px;
-            left: 20px;
-            font-size: 1.5em;
-            background: white;
-            padding: 5px 10px;
-            border-radius: 50%;
-            border: 2px solid #FFB6C1;
-        }
-
-        .vote-options {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 15px;
-            margin: 20px 0;
-        }
-
-        .vote-option {
-            background: linear-gradient(135deg, #FFF0F5, #F0FFF0);
-            border-radius: 15px;
-            padding: 15px;
-            border: 2px solid #FFE4E1;
             transition: all 0.3s ease;
-            position: relative;
         }
 
-        .vote-option:hover {
-            border-color: #FF69B4;
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(255,105,180,0.3);
+        .accommodation-option:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 15px 30px rgba(255, 182, 193, 0.3);
         }
 
-        .vote-option h4 {
-            color: #FF1493;
-            margin-bottom: 10px;
-            font-size: 1.1em;
+        .website-link {
+            display: inline-block;
+            background: linear-gradient(45deg, #FFB6C1, #FFC0CB);
+            color: #333;
+            text-decoration: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            margin: 10px 0;
+            transition: all 0.3s ease;
+        }
+
+        .website-link:hover {
+            background: linear-gradient(45deg, #FFC0CB, #FFB6C1);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 182, 193, 0.4);
         }
 
         .vote-button {
-            background: linear-gradient(45deg, #FF69B4, #FFB6C1);
+            background: linear-gradient(45deg, #FF69B4, #FF1493);
             color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 20px;
+            padding: 10px 20px;
+            border-radius: 25px;
             cursor: pointer;
-            font-size: 0.9em;
+            text-align: center;
             font-weight: bold;
+            margin: 10px 0;
             transition: all 0.3s ease;
-            margin-top: 10px;
+            user-select: none;
         }
 
         .vote-button:hover {
             background: linear-gradient(45deg, #FF1493, #FF69B4);
-            transform: scale(1.05);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 20, 147, 0.4);
         }
 
-        .vote-button:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .vote-results {
-            margin-top: 20px;
-            padding: 15px;
-            background: linear-gradient(135deg, #FFF0F5, #F0FFF0);
-            border-radius: 15px;
-            border: 2px solid #FFE4E1;
-        }
-
-        .vote-bar {
-            background: #e0e0e0;
-            border-radius: 10px;
-            height: 20px;
-            margin: 8px 0;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .vote-fill {
-            background: linear-gradient(45deg, #FF69B4, #FFB6C1);
-            height: 100%;
-            border-radius: 10px;
-            transition: width 0.5s ease;
-            position: relative;
-        }
-
-        .vote-fill::after {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-            animation: shimmer 2s infinite;
-        }
-
-        @keyframes shimmer {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(100%); }
+        .vote-button:active {
+            transform: translateY(0);
+            box-shadow: 0 4px 10px rgba(255, 20, 147, 0.4);
         }
 
         .vote-count {
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #FF1493;
+            background: linear-gradient(45deg, #98FB98, #90EE90);
+            color: #333;
+            padding: 8px 15px;
+            border-radius: 20px;
+            text-align: center;
             font-weight: bold;
+            margin-top: 10px;
             font-size: 0.9em;
         }
 
-        .total-votes {
-            text-align: center;
-            margin-top: 15px;
-            color: #FF1493;
-            font-weight: bold;
+        .voted {
+            background: linear-gradient(45deg, #32CD32, #00FF00) !important;
+            animation: pulse 0.6s ease-in-out;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
         }
     </style>
 </head>
@@ -677,86 +588,9 @@
         <div class="trip-info">
             <div class="highlight">
                 <h3>🚗💨 自駕交通重點提醒 💨🚗</h3>
-                <p><strong>🌅 出發：</strong>週六早上 7:00 集合出發（避開塞車地獄）</p>
-                <p><strong>🌇 回程：</strong>週日下午 2:00 前出發（避開塞車高峰）</p>
+                <p><strong>🌅 出發：</strong>週六早上 8:00 集合出發（避開塞車地獄）</p>
+                <p><strong>🌇 回程：</strong>週日下午 4:00 前出發（避開塞車高峰）</p>
                 <p><strong>🚙 車輛安排：</strong> 4 台車，每台約 4 人</p>
-            </div>
-        </div>
-
-        <!-- 投票系統 -->
-        <div class="voting-section">
-            <h2 class="section-title">🗳️✨ 行程投票系統 ✨🗳️</h2>
-            <p style="text-align: center; color: #666; margin-bottom: 20px;">大家一起來決定行程安排吧！投票結果會永久保存 📊</p>
-            
-            <!-- 晚餐選擇投票 -->
-            <div style="margin-bottom: 30px;">
-                <h3 style="color: #FF1493; margin-bottom: 15px;">🍽️ 晚餐選擇投票</h3>
-                <div class="vote-options">
-                    <div class="vote-option">
-                        <h4>🍜 夜市美食</h4>
-                        <p>體驗在地小吃，價格實惠</p>
-                        <button class="vote-button" onclick="vote('dinner', 'night_market')">投我一票！</button>
-                    </div>
-                    <div class="vote-option">
-                        <h4>🍲 皇泰火鍋城</h4>
-                        <p>吃到飽火鍋，適合大團體</p>
-                        <button class="vote-button" onclick="vote('dinner', 'hotpot')">投我一票！</button>
-                    </div>
-                </div>
-                <div class="vote-results" id="dinner-results">
-                    <h4 style="color: #FF1493; margin-bottom: 10px;">📊 投票結果</h4>
-                    <div id="dinner-bars"></div>
-                    <div class="total-votes" id="dinner-total">總投票數：0</div>
-                </div>
-            </div>
-
-            <!-- 溫泉後活動投票 -->
-            <div style="margin-bottom: 30px;">
-                <h3 style="color: #FF1493; margin-bottom: 15px;">🛁 溫泉後活動投票</h3>
-                <div class="vote-options">
-                    <div class="vote-option">
-                        <h4>💆‍♀️ 按摩放鬆</h4>
-                        <p>專業按摩，消除疲勞</p>
-                        <button class="vote-button" onclick="vote('after_spa', 'massage')">投我一票！</button>
-                    </div>
-                    <div class="vote-option">
-                        <h4>🏨 回飯店休息</h4>
-                        <p>節省開支，早點休息</p>
-                        <button class="vote-button" onclick="vote('after_spa', 'rest')">投我一票！</button>
-                    </div>
-                </div>
-                <div class="vote-results" id="after_spa-results">
-                    <h4 style="color: #FF1493; margin-bottom: 10px;">📊 投票結果</h4>
-                    <div id="after_spa-bars"></div>
-                    <div class="total-votes" id="after_spa-total">總投票數：0</div>
-                </div>
-            </div>
-
-            <!-- 第二天午餐投票 -->
-            <div>
-                <h3 style="color: #FF1493; margin-bottom: 15px;">🍽️ 第二天午餐投票</h3>
-                <div class="vote-options">
-                    <div class="vote-option">
-                        <h4>🥩 天牛私廚牛排</h4>
-                        <p>高級牛排，享受美食</p>
-                        <button class="vote-button" onclick="vote('lunch', 'steak')">投我一票！</button>
-                    </div>
-                    <div class="vote-option">
-                        <h4>🥟 正好小籠包</h4>
-                        <p>經典小籠包，在地美味</p>
-                        <button class="vote-button" onclick="vote('lunch', 'dumplings')">投我一票！</button>
-                    </div>
-                    <div class="vote-option">
-                        <h4>🍜 昱霖辣担麵</h4>
-                        <p>辣味担担麵，刺激味蕾</p>
-                        <button class="vote-button" onclick="vote('lunch', 'noodles')">投我一票！</button>
-                    </div>
-                </div>
-                <div class="vote-results" id="lunch-results">
-                    <h4 style="color: #FF1493; margin-bottom: 10px;">📊 投票結果</h4>
-                    <div id="lunch-bars"></div>
-                    <div class="total-votes" id="lunch-total">總投票數：0</div>
-                </div>
             </div>
         </div>
 
@@ -767,7 +601,7 @@
             </div>
             <div class="day-content">
                 <div class="time-item">
-                    <div class="time">07:00</div>
+                    <div class="time">08:00</div>
                     <div class="activity">
                         <div class="activity-title">台北出發</div>
                         <div class="activity-detail">集合出發，預計1.5小時車程到宜蘭</div>
@@ -816,8 +650,9 @@
                     <div class="activity">
                         <div class="activity-title">🛁 礁溪溫泉療癒時光</div>
                         <div class="activity-detail">
-                            選擇湯屋泡湯（建議 60-90 分鐘），洗去一身疲憊<br>
-                            也可以去按摩！或是不想花錢的話可先回飯店休息！
+                            選擇湯屋泡湯，洗去一身疲憊<br>
+                            或是可以去腳底按摩！<br>
+                            也可以先回民宿休息！
                         </div>
                     </div>
                 </div>
@@ -827,22 +662,23 @@
                     <div class="activity">
                         <div class="activity-title">🍽️ 豪華晚餐慶祝</div>
                         <div class="activity-detail">
-                            <strong>選擇一：</strong>夜市美食<br>
-                            <strong>選擇二：</strong>皇泰火鍋城（吃到飽，適合大團體）
+                            <strong>選擇一：</strong>明水然鐵板燒（連續3年高CP值冠軍）<br>
+                            <strong>選擇二：</strong>皇泰火鍋城（吃到飽）<br>
+                            <strong>選擇三：</strong>吃夜市開開心心！
                         </div>
                     </div>
                 </div>
 
                 <div class="massage-highlight">
-                    <strong>💆‍♀️ 晚間加碼：按摩放鬆</strong><br>
-                    礁溪多家專業按摩店，推薦全身指壓或腳底按摩，完美結束充實的一天
+                    <strong>💆‍♀️ 重點行程：區塊鏈發財講座</strong><br>
+                    浩崴老師帶你發大財！
                 </div>
 
                 <div class="time-item">
-                    <div class="time">21:30</div>
+                    <div class="time">24:30</div>
                     <div class="activity">
-                        <div class="activity-title">入住飯店休息</div>
-                        <div class="activity-detail">早點休息，為明天儲備精神</div>
+                        <div class="activity-title">民宿休息</div>
+                        <div class="activity-detail">喝酒聊天，大家一啟發財！</div>
                     </div>
                 </div>
             </div>
@@ -851,14 +687,14 @@
         <!-- 第二天行程 -->
         <div class="day-section">
             <div class="day-header">
-                📅✨ 第二天：慢活購物日 ✨📅
+                📅✨ 第二天：慢活慵懶日 ✨📅
             </div>
             <div class="day-content">
                 <div class="time-item">
                     <div class="time">11:00</div>
                     <div class="activity">
                         <div class="activity-title">睡到自然醒 + 退房</div>
-                        <div class="activity-detail">慢慢享受飯店早餐，悠閒退房</div>
+                        <div class="activity-detail">慢慢享受宜蘭美景，悠閒退房</div>
                     </div>
                 </div>
 
@@ -890,7 +726,7 @@
                 </div>
 
                 <div class="time-item">
-                    <div class="time">14:00</div>
+                    <div class="time">15:30</div>
                     <div class="activity">
                         <div class="activity-title">🚗 北上返程</div>
                         <div class="activity-detail">避開塞車時段，愉快結束兩天一夜之旅</div>
@@ -903,29 +739,39 @@
         <div class="accommodation-section">
             <h2 class="section-title">🏨✨ 住宿推薦 ✨🏨</h2>
             <div class="accommodation-grid">
-                <div class="card">
-                    <h4>礁溪老爺酒店</h4>
-                    <p>豪華首選，設施完善，有大型房型</p>
-                    <p>溫泉、SPA、餐廳一應俱全</p>
-                    <div class="price">約 $6,000-8,000/間</div>
+                <div class="card accommodation-option" data-option="yangshen">
+                    <h4>🏡 仰森水畔民宿</h4>
+                    <p>鄰近礁溪市區與水鳥保護區，戶外烤肉歡聚</p>
+                    <p>親子遊戲玩樂，家庭旅遊優質選擇</p>
+                    <div class="price">$1100/人</div>
+                    <a href="https://tw-bnb.com/web/forestriver/" target="_blank" class="website-link">查看官網</a>
+                    <div class="vote-button" onclick="vote('yangshen')">👍 投票</div>
+                    <div class="vote-count" id="count-yangshen">0 票</div>
                 </div>
-                <div class="card">
-                    <h4>品文旅礁溪</h4>
-                    <p>現代設計感，年輕人喜愛</p>
-                    <p>Instagram 熱門打卡點</p>
-                    <div class="price">約 $4,000-6,000/間</div>
+                <div class="card accommodation-option" data-option="qingmi">
+                    <h4>🌿 青覓礁溪</h4>
+                    <p>現代設計感民宿，年輕人喜愛</p>
+                    <p>Instagram 熱門打卡點，環境優美</p>
+                    <div class="price">$1200/人</div>
+                    <a href="https://www.instagram.com/cmjs3915?utm_source=ig_web_button_share_sheet&igsh=eHpocDVjem53MmE2" target="_blank" class="website-link">查看官網</a>
+                    <div class="vote-button" onclick="vote('qingmi')">👍 投票</div>
+                    <div class="vote-count" id="count-qingmi">0 票</div>
                 </div>
-                <div class="card">
-                    <h4>山水商務飯店</h4>
-                    <p>高CP值選擇，服務優質</p>
-                    <p>可預訂多間房，團體優惠</p>
-                    <div class="price">約 $2,500-3,500/間</div>
+                <div class="card accommodation-option" data-option="expensive">
+                    <h4>💎 想住貴一點</h4>
+                    <p>追求豪華住宿體驗</p>
+                    <p>享受頂級服務和設施</p>
+                    <div class="price">$2000+/人</div>
+                    <div class="vote-button" onclick="vote('expensive')">👍 投票</div>
+                    <div class="vote-count" id="count-expensive">0 票</div>
                 </div>
-                <div class="card">
-                    <h4>礁溪特色民宿組合</h4>
-                    <p>多間民宿分散住宿</p>
-                    <p>體驗在地生活風情</p>
-                    <div class="price">約 $1,500-2,500/間</div>
+                <div class="card accommodation-option" data-option="cheap">
+                    <h4>💰 想住便宜一點</h4>
+                    <p>經濟實惠的住宿選擇</p>
+                    <p>省錢也能玩得開心</p>
+                    <div class="price">$800-/人</div>
+                    <div class="vote-button" onclick="vote('cheap')">👍 投票</div>
+                    <div class="vote-count" id="count-cheap">0 票</div>
                 </div>
             </div>
         </div>
@@ -962,191 +808,144 @@
             <h2 class="section-title">💡✨ 重要提醒事項 ✨💡</h2>
             <ul class="tips-list">
                 <li><strong>登山裝備必備：</strong>登山鞋、充足飲水（每人至少2L）、雨具、頭燈、行動電源</li>
-                <li><strong>體力分配：</strong>15人團體建議分成2-3小隊，依個人體力調整速度</li>
-                <li><strong>天氣查詢：</strong>出發前確認步道開放狀況，避免颱風雨天</li>
-                <li><strong>住宿預訂：</strong>15人團體建議提前2週預訂，週末房源較緊張</li>
+                <li><strong>體力分配：</strong>15人團體行動，依個人體力調整速度，大家一起加油！</li>
+                <li><strong>天氣查詢：</strong>出發前確認步道開放狀況，避免颱風雨天，有天使幫忙找雨備興煜會很開心</li>
+                <li><strong>住宿預訂：</strong>給我趕快投票，算我求大家了</li>
                 <li><strong>餐廳訂位：</strong>熱門餐廳需提前電話預約，特別是明水然鐵板燒</li>
-                <li><strong>按摩預約：</strong>登山後按摩需求高，建議提前預約時段</li>
-                <li><strong>停車規劃：</strong>五峰旗瀑布停車場週末會滿，可考慮停遠一點步行</li>
+                <li><strong>按摩預約：</strong>登山後按摩需求高，有很想按摩可以早點預約時段</li>
+                <li><strong>停車規劃：</strong>五峰旗瀑布停車場週末會滿，可能會需要停遠一點步行，誰曉得</li>
             </ul>
         </div>
 
         <!-- 費用總覽 -->
         <div class="cost-summary">
             <h2>💰✨ 費用預估總覽（每人）✨💰</h2>
-            <div class="cost-item">交通費：$600-800</div>
-            <div class="cost-item">住宿費：$1,500-4,000</div>
-            <div class="cost-item">餐費：$1,500-2,500</div>
+            <div class="cost-item">交通費：$100-200</div>
+            <div class="cost-item">住宿費：$1,000-2,000</div>
+            <div class="cost-item">餐費：$500-1,000</div>
             <div class="cost-item">按摩：$800-1,200</div>
             <div class="cost-item">其他：$300-500</div>
             <div style="margin-top: 20px; font-size: 1.2em;">
-                <strong>總計：約 $4,700-9,000 / 人</strong>
+                <strong>總計：約 $2,700-4,900 / 人</strong>
             </div>
         </div>
     </div>
 
     <script>
-        // 投票系統數據結構
-        const voteData = {
-            dinner: {
-                night_market: { name: '🍜 夜市美食', votes: 0 },
-                hotpot: { name: '🍲 皇泰火鍋城', votes: 0 }
-            },
-            after_spa: {
-                massage: { name: '💆‍♀️ 按摩放鬆', votes: 0 },
-                rest: { name: '🏨 回飯店休息', votes: 0 }
-            },
-            lunch: {
-                steak: { name: '🥩 天牛私廚牛排', votes: 0 },
-                dumplings: { name: '🥟 正好小籠包', votes: 0 },
-                noodles: { name: '🍜 昱霖辣担麵', votes: 0 }
-            }
-        };
-
-        // 從localStorage載入投票數據
-        function loadVoteData() {
-            const saved = localStorage.getItem('tripVoteData');
-            if (saved) {
-                const savedData = JSON.parse(saved);
-                // 合併保存的數據
-                for (let category in savedData) {
-                    if (voteData[category]) {
-                        for (let option in savedData[category]) {
-                            if (voteData[category][option]) {
-                                voteData[category][option].votes = savedData[category][option].votes;
-                            }
-                        }
-                    }
-                }
-            }
-            updateAllResults();
-        }
-
-        // 保存投票數據到localStorage
-        function saveVoteData() {
-            localStorage.setItem('tripVoteData', JSON.stringify(voteData));
-        }
-
         // 投票功能
-        function vote(category, option) {
-            if (!voteData[category] || !voteData[category][option]) {
-                console.error('Invalid vote category or option');
-                return;
-            }
-
+        function vote(option) {
+            // 從localStorage獲取投票數據
+            let votes = JSON.parse(localStorage.getItem('accommodationVotes')) || {
+                yangshen: 0,
+                qingmi: 0,
+                expensive: 0,
+                cheap: 0
+            };
+            
             // 增加投票數
-            voteData[category][option].votes++;
+            votes[option]++;
             
             // 保存到localStorage
-            saveVoteData();
+            localStorage.setItem('accommodationVotes', JSON.stringify(votes));
             
             // 更新顯示
-            updateResults(category);
+            updateVoteCounts(votes);
             
-            // 顯示投票成功動畫
-            showVoteSuccess(category, option);
-        }
-
-        // 顯示投票成功動畫
-        function showVoteSuccess(category, option) {
+            // 添加投票動畫效果
             const button = event.target;
-            const originalText = button.textContent;
-            
-            button.textContent = '✅ 投票成功！';
-            button.style.background = 'linear-gradient(45deg, #4CAF50, #81C784)';
-            button.disabled = true;
+            button.classList.add('voted');
+            button.textContent = '✅ 已投票';
             
             setTimeout(() => {
-                button.textContent = originalText;
-                button.style.background = 'linear-gradient(45deg, #FF69B4, #FFB6C1)';
-                button.disabled = false;
-            }, 2000);
-        }
-
-        // 更新單個類別的投票結果
-        function updateResults(category) {
-            const data = voteData[category];
-            const totalVotes = Object.values(data).reduce((sum, option) => sum + option.votes, 0);
+                button.classList.remove('voted');
+                button.textContent = '👍 投票';
+            }, 1000);
             
-            // 更新總投票數
-            document.getElementById(`${category}-total`).textContent = `總投票數：${totalVotes}`;
-            
-            // 更新投票條
-            const barsContainer = document.getElementById(`${category}-bars`);
-            barsContainer.innerHTML = '';
-            
-            Object.entries(data).forEach(([key, option]) => {
-                const percentage = totalVotes > 0 ? (option.votes / totalVotes) * 100 : 0;
-                
-                const barDiv = document.createElement('div');
-                barDiv.innerHTML = `
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
-                        <span style="font-weight: bold; color: #FF1493;">${option.name}</span>
-                        <span style="color: #666; font-size: 0.9em;">${option.votes} 票</span>
-                    </div>
-                    <div class="vote-bar">
-                        <div class="vote-fill" style="width: ${percentage}%"></div>
-                        <div class="vote-count">${percentage.toFixed(1)}%</div>
-                    </div>
-                `;
-                barsContainer.appendChild(barDiv);
-            });
+            // 顯示感謝訊息
+            showThankYouMessage(option);
         }
-
-        // 更新所有投票結果
-        function updateAllResults() {
-            Object.keys(voteData).forEach(category => {
-                updateResults(category);
-            });
+        
+        // 更新投票計數顯示
+        function updateVoteCounts(votes) {
+            document.getElementById('count-yangshen').textContent = votes.yangshen + ' 票';
+            document.getElementById('count-qingmi').textContent = votes.qingmi + ' 票';
+            document.getElementById('count-expensive').textContent = votes.expensive + ' 票';
+            document.getElementById('count-cheap').textContent = votes.cheap + ' 票';
         }
-
-        // 重置投票數據（可選功能）
-        function resetVotes() {
-            if (confirm('確定要重置所有投票數據嗎？此操作無法復原！')) {
-                localStorage.removeItem('tripVoteData');
-                // 重置內存中的數據
-                Object.keys(voteData).forEach(category => {
-                    Object.keys(voteData[category]).forEach(option => {
-                        voteData[category][option].votes = 0;
-                    });
-                });
-                updateAllResults();
-                alert('投票數據已重置！');
-            }
-        }
-
-        // 頁面載入時初始化
-        document.addEventListener('DOMContentLoaded', function() {
-            loadVoteData();
+        
+        // 顯示感謝訊息
+        function showThankYouMessage(option) {
+            const messages = {
+                yangshen: '謝謝您支持仰森水畔民宿！🏡',
+                qingmi: '謝謝您支持青覓礁溪！🌿',
+                expensive: '謝謝您選擇豪華住宿！💎',
+                cheap: '謝謝您選擇經濟實惠！💰'
+            };
             
-            // 添加重置按鈕（可選）
-            const votingSection = document.querySelector('.voting-section');
-            const resetButton = document.createElement('button');
-            resetButton.textContent = '🔄 重置投票';
-            resetButton.style.cssText = `
-                background: linear-gradient(45deg, #FF6B6B, #FF8E8E);
+            // 創建臨時提示訊息
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: linear-gradient(45deg, #FF69B4, #FFB6C1);
                 color: white;
-                border: none;
-                padding: 8px 16px;
-                border-radius: 20px;
-                cursor: pointer;
-                font-size: 0.9em;
+                padding: 15px 25px;
+                border-radius: 25px;
                 font-weight: bold;
-                margin-top: 20px;
-                display: block;
-                margin-left: auto;
-                margin-right: auto;
-                transition: all 0.3s ease;
+                z-index: 1000;
+                box-shadow: 0 8px 25px rgba(255, 105, 180, 0.4);
+                animation: slideIn 0.5s ease-out;
             `;
-            resetButton.onmouseover = function() {
-                this.style.transform = 'scale(1.05)';
+            toast.textContent = messages[option];
+            document.body.appendChild(toast);
+            
+            // 3秒後移除提示訊息
+            setTimeout(() => {
+                toast.style.animation = 'slideOut 0.5s ease-in';
+                setTimeout(() => {
+                    document.body.removeChild(toast);
+                }, 500);
+            }, 3000);
+        }
+        
+        // 頁面載入時初始化投票計數
+        document.addEventListener('DOMContentLoaded', function() {
+            let votes = JSON.parse(localStorage.getItem('accommodationVotes')) || {
+                yangshen: 0,
+                qingmi: 0,
+                expensive: 0,
+                cheap: 0
             };
-            resetButton.onmouseout = function() {
-                this.style.transform = 'scale(1)';
-            };
-            resetButton.onclick = resetVotes;
-            votingSection.appendChild(resetButton);
+            updateVoteCounts(votes);
         });
+        
+        // 添加CSS動畫
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+            
+            @keyframes slideOut {
+                from {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+                to {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
     </script>
 </body>
 </html>
