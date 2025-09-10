@@ -582,7 +582,7 @@
     <div class="container">
         <div class="header">
             <h1>🏔️✨ 宜蘭兩天一夜 ✨🏔️</h1>
-            <p>🌸 123抹茶山 × 溫泉療癒之旅 🌸 <br> 
+            <p>🌸 抹茶山 × 溫泉療癒之旅 🌸 <br> 
                 💖 15人團體專案 💖</p>
             <div style="margin-top: 20px;">
                 <button onclick="refreshVotes()" style="
@@ -964,57 +964,63 @@
         }
         
         // 獲取所有投票數據
-        async function fetchAllVotesFromAPI() {
+        function fetchAllVotesFromAPI() {
             console.log('開始獲取投票數據...');
             
-            try {
-                // 使用您提供的具體URL
-                const urls = [
-                    'https://script.google.com/macros/s/AKfycbzhF6spxU9cuniq71jA8foDIVK9X9iwvaoCozBtIo3-7PhwMsUKZ1M63MaJn3vy0Itq/exec?action=get&sheet=住宿投票',
-                    'https://script.google.com/macros/s/AKfycbzhF6spxU9cuniq71jA8foDIVK9X9iwvaoCozBtIo3-7PhwMsUKZ1M63MaJn3vy0Itq/exec?action=get&sheet=餐廳投票',
-                    'https://script.google.com/macros/s/AKfycbzhF6spxU9cuniq71jA8foDIVK9X9iwvaoCozBtIo3-7PhwMsUKZ1M63MaJn3vy0Itq/exec?action=get&sheet=上車地點投票'
-                ];
-                
-                const [accommodationResponse, dinnerResponse, transportResponse] = await Promise.all([
-                    fetch(urls[0]),
-                    fetch(urls[1]),
-                    fetch(urls[2])
-                ]);
-                
-                const [accommodationData, dinnerData, transportData] = await Promise.all([
-                    accommodationResponse.ok ? accommodationResponse.json() : null,
-                    dinnerResponse.ok ? dinnerResponse.json() : null,
-                    transportResponse.ok ? transportResponse.json() : null
-                ]);
-                
-                console.log('成功獲取到的投票數據:', {
-                    accommodation: accommodationData,
-                    dinner: dinnerData,
-                    transport: transportData
-                });
-                
-                // 更新顯示
-                if (accommodationData && accommodationData.options) {
-                    updateVoteCountsFromAPI(accommodationData, 'accommodation');
+            // 使用iframe方式獲取數據，避免CORS問題
+            const urls = [
+                'https://script.google.com/macros/s/AKfycbzhF6spxU9cuniq71jA8foDIVK9X9iwvaoCozBtIo3-7PhwMsUKZ1M63MaJn3vy0Itq/exec?action=get&sheet=住宿投票',
+                'https://script.google.com/macros/s/AKfycbzhF6spxU9cuniq71jA8foDIVK9X9iwvaoCozBtIo3-7PhwMsUKZ1M63MaJn3vy0Itq/exec?action=get&sheet=餐廳投票',
+                'https://script.google.com/macros/s/AKfycbzhF6spxU9cuniq71jA8foDIVK9X9iwvaoCozBtIo3-7PhwMsUKZ1M63MaJn3vy0Itq/exec?action=get&sheet=上車地點投票'
+            ];
+            
+            let completedRequests = 0;
+            const totalRequests = urls.length;
+            
+            // 設置消息監聽器
+            window.addEventListener('message', function(event) {
+                if (event.data && event.data.type === 'api_response') {
+                    console.log('收到API響應:', event.data.data);
+                    
+                    // 根據數據內容判斷是哪個投票表
+                    if (event.data.data.sheet === '住宿投票') {
+                        updateVoteCountsFromAPI(event.data.data, 'accommodation');
+                    } else if (event.data.data.sheet === '餐廳投票') {
+                        updateDinnerVoteCountsFromAPI(event.data.data);
+                    } else if (event.data.data.sheet === '上車地點投票') {
+                        updateTransportVoteCountsFromAPI(event.data.data);
+                    }
+                    
+                    completedRequests++;
+                    if (completedRequests >= totalRequests) {
+                        console.log('所有投票數據獲取完成');
+                    }
                 }
-                if (dinnerData && dinnerData.options) {
-                    updateDinnerVoteCountsFromAPI(dinnerData);
-                }
-                if (transportData && transportData.options) {
-                    updateTransportVoteCountsFromAPI(transportData);
-                }
-                
-                return {
-                    accommodation: accommodationData,
-                    dinner: dinnerData,
-                    transport: transportData
+            });
+            
+            // 創建iframe獲取數據
+            urls.forEach((url, index) => {
+                const iframe = document.createElement('iframe');
+                iframe.style.display = 'none';
+                iframe.src = url;
+                iframe.onload = function() {
+                    console.log(`iframe ${index + 1} 載入完成`);
                 };
-            } catch (error) {
-                console.error('獲取投票數據時發生錯誤:', error);
-                console.log('使用本地數據作為備用');
-                loadLocalVotes();
-                return null;
-            }
+                iframe.onerror = function() {
+                    console.error(`iframe ${index + 1} 載入失敗`);
+                    completedRequests++;
+                };
+                document.body.appendChild(iframe);
+                
+                // 5秒後移除iframe
+                setTimeout(() => {
+                    if (document.body.contains(iframe)) {
+                        document.body.removeChild(iframe);
+                    }
+                }, 5000);
+            });
+            
+            return null; // iframe方式無法直接返回數據
         }
         
         // 發送投票數據到Google Apps Script
