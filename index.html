@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>宜蘭兩天一夜 - 抹茶山123溫泉之旅</title>
+    <title>宜蘭兩天一夜 - 抹茶山溫泉之旅</title>
     <style>
         * {
             margin: 0;
@@ -582,7 +582,7 @@
     <div class="container">
         <div class="header">
             <h1>🏔️✨ 宜蘭兩天一夜 ✨🏔️</h1>
-            <p>🌸 抹茶山 × 溫泉療癒之旅 🌸 <br> 
+            <p>🌸 123抹茶山 × 溫泉療癒之旅 🌸 <br> 
                 💖 15人團體專案 💖</p>
             <div style="margin-top: 20px;">
                 <button onclick="refreshVotes()" style="
@@ -964,45 +964,57 @@
         }
         
         // 獲取所有投票數據
-        function fetchAllVotesFromAPI() {
+        async function fetchAllVotesFromAPI() {
             console.log('開始獲取投票數據...');
             
-            // 使用iframe方式獲取數據
-            const urls = [
-                'https://script.google.com/macros/s/AKfycbzhF6spxU9cuniq71jA8foDIVK9X9iwvaoCozBtIo3-7PhwMsUKZ1M63MaJn3vy0Itq/exec?action=get&sheet=住宿投票',
-                'https://script.google.com/macros/s/AKfycbzhF6spxU9cuniq71jA8foDIVK9X9iwvaoCozBtIo3-7PhwMsUKZ1M63MaJn3vy0Itq/exec?action=get&sheet=餐廳投票',
-                'https://script.google.com/macros/s/AKfycbzhF6spxU9cuniq71jA8foDIVK9X9iwvaoCozBtIo3-7PhwMsUKZ1M63MaJn3vy0Itq/exec?action=get&sheet=上車地點投票'
-            ];
-            
-            let completedRequests = 0;
-            const results = { accommodation: null, dinner: null, transport: null };
-            
-            urls.forEach((url, index) => {
-                const iframe = document.createElement('iframe');
-                iframe.style.display = 'none';
-                iframe.src = url;
-                iframe.onload = function() {
-                    console.log(`成功獲取數據 ${index + 1}/3`);
-                    completedRequests++;
-                    if (completedRequests === 3) {
-                        console.log('所有數據獲取完成');
-                        // 這裡我們無法直接獲取iframe內容，所以使用本地數據作為備用
-                        loadLocalVotes();
-                    }
-                    document.body.removeChild(iframe);
+            try {
+                // 使用您提供的具體URL
+                const urls = [
+                    'https://script.google.com/macros/s/AKfycbzhF6spxU9cuniq71jA8foDIVK9X9iwvaoCozBtIo3-7PhwMsUKZ1M63MaJn3vy0Itq/exec?action=get&sheet=住宿投票',
+                    'https://script.google.com/macros/s/AKfycbzhF6spxU9cuniq71jA8foDIVK9X9iwvaoCozBtIo3-7PhwMsUKZ1M63MaJn3vy0Itq/exec?action=get&sheet=餐廳投票',
+                    'https://script.google.com/macros/s/AKfycbzhF6spxU9cuniq71jA8foDIVK9X9iwvaoCozBtIo3-7PhwMsUKZ1M63MaJn3vy0Itq/exec?action=get&sheet=上車地點投票'
+                ];
+                
+                const [accommodationResponse, dinnerResponse, transportResponse] = await Promise.all([
+                    fetch(urls[0]),
+                    fetch(urls[1]),
+                    fetch(urls[2])
+                ]);
+                
+                const [accommodationData, dinnerData, transportData] = await Promise.all([
+                    accommodationResponse.ok ? accommodationResponse.json() : null,
+                    dinnerResponse.ok ? dinnerResponse.json() : null,
+                    transportResponse.ok ? transportResponse.json() : null
+                ]);
+                
+                console.log('成功獲取到的投票數據:', {
+                    accommodation: accommodationData,
+                    dinner: dinnerData,
+                    transport: transportData
+                });
+                
+                // 更新顯示
+                if (accommodationData && accommodationData.options) {
+                    updateVoteCountsFromAPI(accommodationData, 'accommodation');
+                }
+                if (dinnerData && dinnerData.options) {
+                    updateDinnerVoteCountsFromAPI(dinnerData);
+                }
+                if (transportData && transportData.options) {
+                    updateTransportVoteCountsFromAPI(transportData);
+                }
+                
+                return {
+                    accommodation: accommodationData,
+                    dinner: dinnerData,
+                    transport: transportData
                 };
-                iframe.onerror = function() {
-                    console.error(`獲取數據失敗 ${index + 1}/3`);
-                    completedRequests++;
-                    if (completedRequests === 3) {
-                        loadLocalVotes();
-                    }
-                    document.body.removeChild(iframe);
-                };
-                document.body.appendChild(iframe);
-            });
-            
-            return null; // iframe方式無法直接返回數據
+            } catch (error) {
+                console.error('獲取投票數據時發生錯誤:', error);
+                console.log('使用本地數據作為備用');
+                loadLocalVotes();
+                return null;
+            }
         }
         
         // 發送投票數據到Google Apps Script
@@ -1169,7 +1181,7 @@
             showTransportThankYouMessage(option);
         }
         
-        // 更新住宿投票計數顯示
+        // 更新住宿投票計數顯示（本地數據格式）
         function updateVoteCounts(votes) {
             if (!votes) {
                 console.log('住宿投票數據為空');
@@ -1183,7 +1195,26 @@
             document.getElementById('count-cheap').textContent = (votes.cheap || 0) + ' 票';
         }
         
-        // 更新晚餐投票計數顯示
+        // 更新住宿投票計數顯示（API數據格式）
+        function updateVoteCountsFromAPI(apiData, type) {
+            if (!apiData || !apiData.options) {
+                console.log('住宿投票API數據格式不正確:', apiData);
+                return;
+            }
+            
+            // 根據API返回的選項順序更新顯示
+            const optionIds = ['count-yangshen', 'count-qingmi', 'count-expensive', 'count-cheap'];
+            
+            apiData.options.forEach((option, index) => {
+                if (optionIds[index]) {
+                    document.getElementById(optionIds[index]).textContent = option.votes + ' 票';
+                }
+            });
+            
+            console.log('已更新住宿投票顯示:', apiData);
+        }
+        
+        // 更新晚餐投票計數顯示（本地數據格式）
         function updateDinnerVoteCounts(votes) {
             if (!votes) {
                 console.log('晚餐投票數據為空');
@@ -1198,7 +1229,26 @@
             document.getElementById('count-pizza').textContent = (votes.pizza || 0) + ' 票';
         }
         
-        // 更新交通投票計數顯示
+        // 更新晚餐投票計數顯示（API數據格式）
+        function updateDinnerVoteCountsFromAPI(apiData) {
+            if (!apiData || !apiData.options) {
+                console.log('晚餐投票API數據格式不正確:', apiData);
+                return;
+            }
+            
+            // 根據API返回的選項順序更新顯示
+            const optionIds = ['count-mingshuiran', 'count-huangtai', 'count-keshi', 'count-nightmarket', 'count-pizza'];
+            
+            apiData.options.forEach((option, index) => {
+                if (optionIds[index]) {
+                    document.getElementById(optionIds[index]).textContent = option.votes + ' 票';
+                }
+            });
+            
+            console.log('已更新晚餐投票顯示:', apiData);
+        }
+        
+        // 更新交通投票計數顯示（本地數據格式）
         function updateTransportVoteCounts(votes) {
             if (!votes) {
                 console.log('交通投票數據為空');
@@ -1210,6 +1260,25 @@
             document.getElementById('count-zhonghe').textContent = (votes.zhonghe || 0) + ' 票';
             document.getElementById('count-nangang').textContent = (votes.nangang || 0) + ' 票';
             document.getElementById('count-keelung').textContent = (votes.keelung || 0) + ' 票';
+        }
+        
+        // 更新交通投票計數顯示（API數據格式）
+        function updateTransportVoteCountsFromAPI(apiData) {
+            if (!apiData || !apiData.options) {
+                console.log('交通投票API數據格式不正確:', apiData);
+                return;
+            }
+            
+            // 根據API返回的選項順序更新顯示
+            const optionIds = ['count-taipei', 'count-zhonghe', 'count-nangang', 'count-keelung'];
+            
+            apiData.options.forEach((option, index) => {
+                if (optionIds[index]) {
+                    document.getElementById(optionIds[index]).textContent = option.votes + ' 票';
+                }
+            });
+            
+            console.log('已更新交通投票顯示:', apiData);
         }
         
         // 顯示住宿感謝訊息
@@ -1278,15 +1347,18 @@
         }
         
         // 從API載入投票數據並更新顯示
-        function loadVotesFromAPI() {
+        async function loadVotesFromAPI() {
             console.log('開始載入投票數據...');
             
-            // 直接使用本地數據，因為iframe方式無法直接獲取API數據
-            // 但投票功能已經正常工作，所以我們可以手動更新本地數據
-            loadLocalVotes();
+            // 首先嘗試從API獲取真實數據
+            const apiData = await fetchAllVotesFromAPI();
             
-            // 嘗試使用fetch獲取數據（可能會失敗，但不影響功能）
-            fetchAllVotesFromAPI();
+            if (apiData) {
+                console.log('成功從API獲取數據，已更新顯示');
+            } else {
+                console.log('API獲取失敗，使用本地數據作為備用');
+                loadLocalVotes();
+            }
         }
         
         // 載入本地儲存的投票數據（備用方案）
