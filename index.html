@@ -582,14 +582,46 @@
     <div class="container">
         <div class="header">
             <h1>🏔️✨ 宜蘭兩天一夜 ✨🏔️</h1>
-            <p>🌸 抹茶山 × 溫泉療癒之旅 🌸 | 💖 15人團體專案 💖</p>
+            <p>🌸 抹茶山 × 溫泉療癒之旅 🌸 <br> 
+                💖 15人團體專案 💖</p>
+            <div style="margin-top: 20px;">
+                <button onclick="refreshVotes()" style="
+                    background: linear-gradient(45deg, #FF69B4, #FFB6C1);
+                    color: white;
+                    border: none;
+                    padding: 10px 20px;
+                    border-radius: 25px;
+                    font-weight: bold;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                    box-shadow: 0 4px 15px rgba(255, 105, 180, 0.3);
+                    margin-right: 10px;
+                " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(255, 105, 180, 0.4)'" 
+                   onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(255, 105, 180, 0.3)'">
+                    🔄 刷新投票結果
+                </button>
+                <button onclick="testAPI()" style="
+                    background: linear-gradient(45deg, #32CD32, #90EE90);
+                    color: white;
+                    border: none;
+                    padding: 10px 20px;
+                    border-radius: 25px;
+                    font-weight: bold;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                    box-shadow: 0 4px 15px rgba(50, 205, 50, 0.3);
+                " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(50, 205, 50, 0.4)'" 
+                   onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(50, 205, 50, 0.3)'">
+                    🧪 測試API連接
+                </button>
+            </div>
         </div>
 
         <div class="trip-info">
             <div class="highlight">
                 <h3>🚗💨 自駕交通重點提醒 💨🚗</h3>
-                <p><strong>🌅 出發：</strong>週六早上 8:00 集合出發（避開塞車地獄）</p>
-                <p><strong>🌇 回程：</strong>週日下午 4:00 前出發（避開塞車高峰）</p>
+                <p><strong>🌅 出發：</strong>週六早上 7:00 集合出發（避開塞車地獄）</p>
+                <p><strong>🌇 回程：</strong>週日下午 2:00 前出發（避開塞車高峰）</p>
                 <p><strong>🚙 車輛安排：</strong> 4 台車，每台約 4 人</p>
             </div>
         </div>
@@ -601,7 +633,7 @@
             </div>
             <div class="day-content">
                 <div class="time-item">
-                    <div class="time">08:00</div>
+                    <div class="time">07:00</div>
                     <div class="activity">
                         <div class="activity-title">台北出發</div>
                         <div class="activity-detail">集合出發，預計1.5小時車程到宜蘭</div>
@@ -609,15 +641,16 @@
                 </div>
 
                 <div class="time-item">
-                    <div class="time">09:30</div>
+                    <div class="time">08:30</div>
                     <div class="activity">
-                        <div class="activity-title">抵達礁溪 - 能量早餐</div>
-                        <div class="activity-detail">柯氏蔥油餅（三星蔥爆滿）+ 咖啡，為登山儲備體力</div>
+                        <div class="activity-title">抵達礁溪 - 整裝待發</div>
+                        <div class="activity-detail">柯氏蔥油餅（三星蔥爆滿）+ 咖啡<br>
+                            其實大家早餐應該會在車上吃~這裡只是停一下買個水跟咖啡，排隊人潮不多可以買個蔥油餅</div>
                     </div>
                 </div>
 
                 <div class="time-item">
-                    <div class="time">10:30</div>
+                    <div class="time">09:30</div>
                     <div class="activity">
                         <div class="activity-title">前往五峰旗瀑布風景區</div>
                         <div class="activity-detail">停車、整理裝備、拍照打卡</div>
@@ -625,7 +658,7 @@
                 </div>
 
                 <div class="time-item">
-                    <div class="time">11:00</div>
+                    <div class="time">10:00</div>
                     <div class="activity">
                         <div class="activity-title">🏔️ 抹茶山健行開始！</div>
                         <div class="activity-detail">
@@ -638,7 +671,7 @@
                 </div>
 
                 <div class="time-item">
-                    <div class="time">17:00</div>
+                    <div class="time">16:00</div>
                     <div class="activity">
                         <div class="activity-title">勝利下山！</div>
                         <div class="activity-detail">恭喜完成挑戰，準備享受溫泉療癒</div>
@@ -646,9 +679,9 @@
                 </div>
 
                 <div class="time-item">
-                    <div class="time">17:30</div>
+                    <div class="time">16:30</div>
                     <div class="activity">
-                        <div class="activity-title">🛁 礁溪溫泉療癒時光</div>
+                        <div class="activity-title">🛁 礁溪溫泉療癒時光，為晚上上課補充精神</div>
                         <div class="activity-detail">
                             選擇湯屋泡湯，洗去一身疲憊<br>
                             或是可以去腳底按摩！<br>
@@ -658,7 +691,7 @@
                 </div>
 
                 <div class="time-item">
-                    <div class="time">19:00</div>
+                    <div class="time">18:00</div>
                     <div class="activity">
                         <div class="activity-title">🍽️ 豪華晚餐慶祝</div>
                         <div class="activity-detail">
@@ -675,10 +708,18 @@
                 </div>
 
                 <div class="time-item">
-                    <div class="time">24:30</div>
+                    <div class="time">21:30</div>
                     <div class="activity">
-                        <div class="activity-title">民宿休息</div>
-                        <div class="activity-detail">喝酒聊天，大家一啟發財！</div>
+                        <div class="activity-title">台灣獨家區塊鏈課程上線啦</div>
+                        <div class="activity-detail">喝酒聊天，大家一起發財！</div>
+                    </div>
+                </div>
+
+                <div class="time-item">
+                    <div class="time">✨✨✨</div>
+                    <div class="activity">
+                        <div class="activity-title">小補充！！！</div>
+                        <div class="activity-detail">大家自己抓緊時間洗澡唷</div>
                     </div>
                 </div>
             </div>
@@ -726,7 +767,7 @@
                 </div>
 
                 <div class="time-item">
-                    <div class="time">15:30</div>
+                    <div class="time">14:00</div>
                     <div class="activity">
                         <div class="activity-title">🚗 北上返程</div>
                         <div class="activity-detail">避開塞車時段，愉快結束兩天一夜之旅</div>
@@ -758,47 +799,97 @@
                     <div class="vote-count" id="count-qingmi">0 票</div>
                 </div>
                 <div class="card accommodation-option" data-option="expensive">
-                    <h4>💎 想住貴一點</h4>
+                    <h4>💎 想住別的，貴一點的</h4>
                     <p>追求豪華住宿體驗</p>
                     <p>享受頂級服務和設施</p>
-                    <div class="price">$2000+/人</div>
+                    <div class="price">高於$1500/人</div>
                     <div class="vote-button" onclick="vote('expensive')">👍 投票</div>
                     <div class="vote-count" id="count-expensive">0 票</div>
                 </div>
                 <div class="card accommodation-option" data-option="cheap">
-                    <h4>💰 想住便宜一點</h4>
+                    <h4>💰 想住別的，便宜一點的</h4>
                     <p>經濟實惠的住宿選擇</p>
                     <p>省錢也能玩得開心</p>
-                    <div class="price">$800-/人</div>
+                    <div class="price">低於$800/人</div>
                     <div class="vote-button" onclick="vote('cheap')">👍 投票</div>
                     <div class="vote-count" id="count-cheap">0 票</div>
                 </div>
             </div>
         </div>
 
-        <!-- 美食推薦 -->
+        <!-- 第一天晚餐投票 -->
         <div class="food-section">
-            <h2 class="section-title">🍽️✨ 必吃美食清單 ✨🍽️</h2>
+            <h2 class="section-title">🍽️✨ 第一天晚餐投票 ✨🍽️</h2>
             <div class="food-grid">
-                <div class="card">
-                    <h4>明水然鐵板燒</h4>
+                <div class="card dinner-option" data-option="mingshuiran">
+                    <h4>🍳 明水然鐵板燒</h4>
                     <p>連續3年高CP值冠軍</p>
                     <p>Google評價4.8星，港澳遊客必吃</p>
+                    <div class="vote-button" onclick="voteDinner('mingshuiran')">👍 投票</div>
+                    <div class="vote-count" id="count-mingshuiran">0 票</div>
                 </div>
-                <div class="card">
-                    <h4>皇泰火鍋城</h4>
+                <div class="card dinner-option" data-option="huangtai">
+                    <h4>🍲 皇泰火鍋城</h4>
                     <p>吃到飽火鍋，適合大團體</p>
                     <p>美國牛、天使紅蝦無限供應</p>
+                    <div class="vote-button" onclick="voteDinner('huangtai')">👍 投票</div>
+                    <div class="vote-count" id="count-huangtai">0 票</div>
                 </div>
-                <div class="card">
-                    <h4>柯氏蔥油餅</h4>
+                <div class="card dinner-option" data-option="keshi">
+                    <h4>🥟 柯氏蔥油餅</h4>
                     <p>礁溪在地名產</p>
                     <p>三星蔥爆滿，外酥內嫩</p>
+                    <div class="vote-button" onclick="voteDinner('keshi')">👍 投票</div>
+                    <div class="vote-count" id="count-keshi">0 票</div>
                 </div>
-                <div class="card">
-                    <h4>羅東夜市美食</h4>
+                <div class="card dinner-option" data-option="nightmarket">
+                    <h4>🌃 夜市美食</h4>
                     <p>紅豆湯圓、三星蔥餡餅</p>
                     <p>包心粉圓、雞排等經典小吃</p>
+                    <div class="vote-button" onclick="voteDinner('nightmarket')">👍 投票</div>
+                    <div class="vote-count" id="count-nightmarket">0 票</div>
+                </div>
+                <div class="card dinner-option" data-option="pizza">
+                    <h4>🍕 叫披薩到民宿</h4>
+                    <p>輕鬆愜意，在民宿享用</p>
+                    <p>邊吃邊聊天，享受悠閒時光</p>
+                    <div class="vote-button" onclick="voteDinner('pizza')">👍 投票</div>
+                    <div class="vote-count" id="count-pizza">0 票</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 交通上車地點投票 -->
+        <div class="accommodation-section">
+            <h2 class="section-title">🚗✨ 交通上車地點投票 ✨🚗</h2>
+            <div class="accommodation-grid">
+                <div class="card transport-option" data-option="taipei">
+                    <h4>🏙️ 台北</h4>
+                    <p>台北車站或信義區集合</p>
+                    <p>方便台北市區的朋友</p>
+                    <div class="vote-button" onclick="voteTransport('taipei')">👍 投票</div>
+                    <div class="vote-count" id="count-taipei">0 票</div>
+                </div>
+                <div class="card transport-option" data-option="zhonghe">
+                    <h4>🏘️ 中永和</h4>
+                    <p>中和或永和地區集合</p>
+                    <p>方便新北市的朋友</p>
+                    <div class="vote-button" onclick="voteTransport('zhonghe')">👍 投票</div>
+                    <div class="vote-count" id="count-zhonghe">0 票</div>
+                </div>
+                <div class="card transport-option" data-option="nangang">
+                    <h4>🚄 南港</h4>
+                    <p>南港車站或南港展覽館</p>
+                    <p>方便東區的朋友</p>
+                    <div class="vote-button" onclick="voteTransport('nangang')">👍 投票</div>
+                    <div class="vote-count" id="count-nangang">0 票</div>
+                </div>
+                <div class="card transport-option" data-option="keelung">
+                    <h4>🌊 基隆</h4>
+                    <p>基隆車站或基隆港</p>
+                    <p>方便基隆地區的朋友</p>
+                    <div class="vote-button" onclick="voteTransport('keelung')">👍 投票</div>
+                    <div class="vote-count" id="count-keelung">0 票</div>
                 </div>
             </div>
         </div>
@@ -832,24 +923,130 @@
     </div>
 
     <script>
-        // 投票功能
+        // Google Apps Script API URL
+        const API_URL = 'https://script.google.com/macros/s/AKfycbzhF6spxU9cuniq71jA8foDIVK9X9iwvaoCozBtIo3-7PhwMsUKZ1M63MaJn3vy0Itq/exec';
+        
+        // 從Google Apps Script獲取特定投票數據
+        async function fetchVotesFromAPI(sheetName) {
+            try {
+                const url = `${API_URL}?action=get&sheet=${encodeURIComponent(sheetName)}`;
+                console.log(`正在從API獲取${sheetName}投票數據:`, url);
+                
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                console.log('API響應狀態:', response.status);
+                
+                if (response.ok) {
+                    const responseText = await response.text();
+                    console.log('API原始響應:', responseText);
+                    
+                    try {
+                        const data = JSON.parse(responseText);
+                        console.log(`解析後的${sheetName}投票數據:`, data);
+                        return data;
+                    } catch (parseError) {
+                        console.error('JSON解析失敗:', parseError);
+                        return null;
+                    }
+                } else {
+                    console.error(`獲取${sheetName}投票數據失敗:`, response.status, response.statusText);
+                    return null;
+                }
+            } catch (error) {
+                console.error(`獲取${sheetName}投票數據時發生錯誤:`, error);
+                return null;
+            }
+        }
+        
+        // 獲取所有投票數據
+        async function fetchAllVotesFromAPI() {
+            try {
+                // 使用您提供的具體URL
+                const urls = [
+                    'https://script.google.com/macros/s/AKfycbzhF6spxU9cuniq71jA8foDIVK9X9iwvaoCozBtIo3-7PhwMsUKZ1M63MaJn3vy0Itq/exec?action=get&sheet=住宿投票',
+                    'https://script.google.com/macros/s/AKfycbzhF6spxU9cuniq71jA8foDIVK9X9iwvaoCozBtIo3-7PhwMsUKZ1M63MaJn3vy0Itq/exec?action=get&sheet=餐廳投票',
+                    'https://script.google.com/macros/s/AKfycbzhF6spxU9cuniq71jA8foDIVK9X9iwvaoCozBtIo3-7PhwMsUKZ1M63MaJn3vy0Itq/exec?action=get&sheet=上車地點投票'
+                ];
+                
+                const [accommodationResponse, dinnerResponse, transportResponse] = await Promise.all([
+                    fetch(urls[0]),
+                    fetch(urls[1]),
+                    fetch(urls[2])
+                ]);
+                
+                const [accommodationData, dinnerData, transportData] = await Promise.all([
+                    accommodationResponse.ok ? accommodationResponse.json() : null,
+                    dinnerResponse.ok ? dinnerResponse.json() : null,
+                    transportResponse.ok ? transportResponse.json() : null
+                ]);
+                
+                console.log('獲取到的投票數據:', {
+                    accommodation: accommodationData,
+                    dinner: dinnerData,
+                    transport: transportData
+                });
+                
+                return {
+                    accommodation: accommodationData,
+                    dinner: dinnerData,
+                    transport: transportData
+                };
+            } catch (error) {
+                console.error('獲取所有投票數據時發生錯誤:', error);
+                return null;
+            }
+        }
+        
+        // 發送投票數據到Google Apps Script
+        async function sendVoteToAPI(sheetName, optionIndex) {
+            try {
+                const url = `${API_URL}?action=vote&option=${optionIndex}&sheet=${encodeURIComponent(sheetName)}`;
+                console.log(`正在發送投票到${sheetName}:`, url);
+                
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                if (response.ok) {
+                    console.log(`投票數據已成功發送到${sheetName}`);
+                    // 投票成功後，重新獲取最新的投票數據
+                    setTimeout(() => {
+                        loadVotesFromAPI();
+                    }, 1000);
+                } else {
+                    console.error(`發送投票數據到${sheetName}失敗:`, response.status);
+                }
+            } catch (error) {
+                console.error(`發送投票數據到${sheetName}時發生錯誤:`, error);
+            }
+        }
+        
+        // 住宿投票功能
         function vote(option) {
-            // 從localStorage獲取投票數據
-            let votes = JSON.parse(localStorage.getItem('accommodationVotes')) || {
-                yangshen: 0,
-                qingmi: 0,
-                expensive: 0,
-                cheap: 0
+            // 選項對應的索引
+            const optionIndexMap = {
+                'yangshen': 0,    // 仰森水畔民宿
+                'qingmi': 1,      // 青覓礁溪
+                'expensive': 2,   // 想住別的，貴一點的
+                'cheap': 3        // 想住別的，便宜一點的
             };
             
-            // 增加投票數
-            votes[option]++;
+            const optionIndex = optionIndexMap[option];
+            if (optionIndex === undefined) {
+                console.error('未知的住宿選項:', option);
+                return;
+            }
             
-            // 保存到localStorage
-            localStorage.setItem('accommodationVotes', JSON.stringify(votes));
-            
-            // 更新顯示
-            updateVoteCounts(votes);
+            // 發送到Google Apps Script
+            sendVoteToAPI('住宿投票', optionIndex);
             
             // 添加投票動畫效果
             const button = event.target;
@@ -865,15 +1062,125 @@
             showThankYouMessage(option);
         }
         
-        // 更新投票計數顯示
-        function updateVoteCounts(votes) {
-            document.getElementById('count-yangshen').textContent = votes.yangshen + ' 票';
-            document.getElementById('count-qingmi').textContent = votes.qingmi + ' 票';
-            document.getElementById('count-expensive').textContent = votes.expensive + ' 票';
-            document.getElementById('count-cheap').textContent = votes.cheap + ' 票';
+        // 晚餐投票功能
+        function voteDinner(option) {
+            // 選項對應的索引
+            const optionIndexMap = {
+                'mingshuiran': 0,  // 明水然鐵板燒
+                'huangtai': 1,     // 皇泰火鍋城
+                'keshi': 2,        // 柯氏蔥油餅
+                'nightmarket': 3,  // 夜市美食
+                'pizza': 4         // 叫披薩到民宿
+            };
+            
+            const optionIndex = optionIndexMap[option];
+            if (optionIndex === undefined) {
+                console.error('未知的晚餐選項:', option);
+                return;
+            }
+            
+            // 發送到Google Apps Script
+            sendVoteToAPI('餐廳投票', optionIndex);
+            
+            // 添加投票動畫效果
+            const button = event.target;
+            button.classList.add('voted');
+            button.textContent = '✅ 已投票';
+            
+            setTimeout(() => {
+                button.classList.remove('voted');
+                button.textContent = '👍 投票';
+            }, 1000);
+            
+            // 顯示感謝訊息
+            showDinnerThankYouMessage(option);
         }
         
-        // 顯示感謝訊息
+        // 交通投票功能
+        function voteTransport(option) {
+            // 選項對應的索引
+            const optionIndexMap = {
+                'taipei': 0,     // 台北
+                'zhonghe': 1,    // 中永和
+                'nangang': 2,    // 南港
+                'keelung': 3     // 基隆
+            };
+            
+            const optionIndex = optionIndexMap[option];
+            if (optionIndex === undefined) {
+                console.error('未知的交通選項:', option);
+                return;
+            }
+            
+            // 發送到Google Apps Script
+            sendVoteToAPI('上車地點投票', optionIndex);
+            
+            // 添加投票動畫效果
+            const button = event.target;
+            button.classList.add('voted');
+            button.textContent = '✅ 已投票';
+            
+            setTimeout(() => {
+                button.classList.remove('voted');
+                button.textContent = '👍 投票';
+            }, 1000);
+            
+            // 顯示感謝訊息
+            showTransportThankYouMessage(option);
+        }
+        
+        // 更新住宿投票計數顯示
+        function updateVoteCounts(apiData) {
+            if (!apiData || !apiData.options) {
+                console.log('住宿投票數據格式不正確:', apiData);
+                return;
+            }
+            
+            // 根據API返回的選項順序更新顯示
+            const optionIds = ['count-yangshen', 'count-qingmi', 'count-expensive', 'count-cheap'];
+            
+            apiData.options.forEach((option, index) => {
+                if (optionIds[index]) {
+                    document.getElementById(optionIds[index]).textContent = option.votes + ' 票';
+                }
+            });
+        }
+        
+        // 更新晚餐投票計數顯示
+        function updateDinnerVoteCounts(apiData) {
+            if (!apiData || !apiData.options) {
+                console.log('晚餐投票數據格式不正確:', apiData);
+                return;
+            }
+            
+            // 根據API返回的選項順序更新顯示
+            const optionIds = ['count-mingshuiran', 'count-huangtai', 'count-keshi', 'count-nightmarket', 'count-pizza'];
+            
+            apiData.options.forEach((option, index) => {
+                if (optionIds[index]) {
+                    document.getElementById(optionIds[index]).textContent = option.votes + ' 票';
+                }
+            });
+        }
+        
+        // 更新交通投票計數顯示
+        function updateTransportVoteCounts(apiData) {
+            if (!apiData || !apiData.options) {
+                console.log('交通投票數據格式不正確:', apiData);
+                return;
+            }
+            
+            // 根據API返回的選項順序更新顯示
+            const optionIds = ['count-taipei', 'count-zhonghe', 'count-nangang', 'count-keelung'];
+            
+            apiData.options.forEach((option, index) => {
+                if (optionIds[index]) {
+                    document.getElementById(optionIds[index]).textContent = option.votes + ' 票';
+                }
+            });
+        }
+        
+        // 顯示住宿感謝訊息
         function showThankYouMessage(option) {
             const messages = {
                 yangshen: '謝謝您支持仰森水畔民宿！🏡',
@@ -881,7 +1188,34 @@
                 expensive: '謝謝您選擇豪華住宿！💎',
                 cheap: '謝謝您選擇經濟實惠！💰'
             };
-            
+            showToast(messages[option]);
+        }
+        
+        // 顯示晚餐感謝訊息
+        function showDinnerThankYouMessage(option) {
+            const messages = {
+                mingshuiran: '謝謝您選擇明水然鐵板燒！🍳',
+                huangtai: '謝謝您選擇皇泰火鍋城！🍲',
+                keshi: '謝謝您選擇柯氏蔥油餅！🥟',
+                nightmarket: '謝謝您選擇夜市美食！🌃',
+                pizza: '謝謝您選擇叫披薩到民宿！🍕'
+            };
+            showToast(messages[option]);
+        }
+        
+        // 顯示交通感謝訊息
+        function showTransportThankYouMessage(option) {
+            const messages = {
+                taipei: '謝謝您選擇台北上車！🏙️',
+                zhonghe: '謝謝您選擇中永和上車！🏘️',
+                nangang: '謝謝您選擇南港上車！🚄',
+                keelung: '謝謝您選擇基隆上車！🌊'
+            };
+            showToast(messages[option]);
+        }
+        
+        // 通用提示訊息函數
+        function showToast(message) {
             // 創建臨時提示訊息
             const toast = document.createElement('div');
             toast.style.cssText = `
@@ -897,27 +1231,191 @@
                 box-shadow: 0 8px 25px rgba(255, 105, 180, 0.4);
                 animation: slideIn 0.5s ease-out;
             `;
-            toast.textContent = messages[option];
+            toast.textContent = message;
             document.body.appendChild(toast);
             
             // 3秒後移除提示訊息
             setTimeout(() => {
                 toast.style.animation = 'slideOut 0.5s ease-in';
                 setTimeout(() => {
-                    document.body.removeChild(toast);
+                    if (document.body.contains(toast)) {
+                        document.body.removeChild(toast);
+                    }
                 }, 500);
             }, 3000);
         }
         
-        // 頁面載入時初始化投票計數
-        document.addEventListener('DOMContentLoaded', function() {
-            let votes = JSON.parse(localStorage.getItem('accommodationVotes')) || {
+        // 從API載入投票數據並更新顯示
+        async function loadVotesFromAPI() {
+            const allVotesData = await fetchAllVotesFromAPI();
+            
+            if (allVotesData) {
+                console.log('處理所有投票數據:', allVotesData);
+                
+                // 更新住宿投票顯示
+                if (allVotesData.accommodation) {
+                    console.log('更新住宿投票:', allVotesData.accommodation);
+                    updateVoteCounts(allVotesData.accommodation);
+                }
+                
+                // 更新晚餐投票顯示
+                if (allVotesData.dinner) {
+                    console.log('更新晚餐投票:', allVotesData.dinner);
+                    updateDinnerVoteCounts(allVotesData.dinner);
+                }
+                
+                // 更新交通投票顯示
+                if (allVotesData.transport) {
+                    console.log('更新交通投票:', allVotesData.transport);
+                    updateTransportVoteCounts(allVotesData.transport);
+                }
+            } else {
+                // 如果API失敗，使用本地儲存的數據作為備用
+                console.log('API請求失敗，使用本地儲存的投票數據作為備用');
+                loadLocalVotes();
+            }
+        }
+        
+        // 載入本地儲存的投票數據（備用方案）
+        function loadLocalVotes() {
+            // 初始化住宿投票
+            let accommodationVotes = JSON.parse(localStorage.getItem('accommodationVotes')) || {
                 yangshen: 0,
                 qingmi: 0,
                 expensive: 0,
                 cheap: 0
             };
-            updateVoteCounts(votes);
+            updateVoteCounts(accommodationVotes);
+            
+            // 初始化晚餐投票
+            let dinnerVotes = JSON.parse(localStorage.getItem('dinnerVotes')) || {
+                mingshuiran: 0,
+                huangtai: 0,
+                keshi: 0,
+                nightmarket: 0,
+                pizza: 0
+            };
+            updateDinnerVoteCounts(dinnerVotes);
+            
+            // 初始化交通投票
+            let transportVotes = JSON.parse(localStorage.getItem('transportVotes')) || {
+                taipei: 0,
+                zhonghe: 0,
+                nangang: 0,
+                keelung: 0
+            };
+            updateTransportVoteCounts(transportVotes);
+        }
+        
+        // 手動刷新投票結果
+        function refreshVotes() {
+            showToast('正在刷新投票結果...');
+            loadVotesFromAPI();
+        }
+        
+        // 測試API連接
+        async function testAPI() {
+            showToast('正在測試API連接...');
+            console.log('=== 開始測試API連接 ===');
+            
+            try {
+                // 使用您提供的具體URL進行測試
+                const testUrls = [
+                    {
+                        name: '住宿投票',
+                        url: 'https://script.google.com/macros/s/AKfycbzhF6spxU9cuniq71jA8foDIVK9X9iwvaoCozBtIo3-7PhwMsUKZ1M63MaJn3vy0Itq/exec?action=get&sheet=住宿投票'
+                    },
+                    {
+                        name: '餐廳投票',
+                        url: 'https://script.google.com/macros/s/AKfycbzhF6spxU9cuniq71jA8foDIVK9X9iwvaoCozBtIo3-7PhwMsUKZ1M63MaJn3vy0Itq/exec?action=get&sheet=餐廳投票'
+                    },
+                    {
+                        name: '上車地點投票',
+                        url: 'https://script.google.com/macros/s/AKfycbzhF6spxU9cuniq71jA8foDIVK9X9iwvaoCozBtIo3-7PhwMsUKZ1M63MaJn3vy0Itq/exec?action=get&sheet=上車地點投票'
+                    }
+                ];
+                
+                for (let i = 0; i < testUrls.length; i++) {
+                    const test = testUrls[i];
+                    
+                    console.log(`\n--- 測試 ${test.name} ---`);
+                    console.log('請求URL:', test.url);
+                    
+                    try {
+                        const response = await fetch(test.url, {
+                            method: 'GET',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            }
+                        });
+                        
+                        console.log('響應狀態:', response.status);
+                        console.log('響應狀態文本:', response.statusText);
+                        console.log('響應頭:', Object.fromEntries(response.headers.entries()));
+                        
+                        const responseText = await response.text();
+                        console.log('原始響應:', responseText);
+                        console.log('響應長度:', responseText.length);
+                        
+                        if (response.ok) {
+                            try {
+                                const jsonData = JSON.parse(responseText);
+                                console.log('✅ JSON解析成功:', jsonData);
+                                console.log('問題:', jsonData.question);
+                                console.log('選項數量:', jsonData.options ? jsonData.options.length : 0);
+                                console.log('總票數:', jsonData.totalVotes);
+                                console.log('工作表:', jsonData.sheet);
+                                
+                                if (jsonData.options && Array.isArray(jsonData.options)) {
+                                    console.log('選項詳情:');
+                                    jsonData.options.forEach((option, index) => {
+                                        console.log(`  [${index}] ${option.text}: ${option.votes}票`);
+                                    });
+                                }
+                                
+                                // 測試數據更新功能
+                                if (test.name === '住宿投票') {
+                                    console.log('測試住宿投票數據更新...');
+                                    updateVoteCounts(jsonData);
+                                } else if (test.name === '餐廳投票') {
+                                    console.log('測試餐廳投票數據更新...');
+                                    updateDinnerVoteCounts(jsonData);
+                                } else if (test.name === '上車地點投票') {
+                                    console.log('測試交通投票數據更新...');
+                                    updateTransportVoteCounts(jsonData);
+                                }
+                                
+                            } catch (parseError) {
+                                console.error('❌ JSON解析失敗:', parseError.message);
+                                console.log('響應內容可能不是有效的JSON格式');
+                            }
+                        } else {
+                            console.error('❌ 請求失敗:', response.status, response.statusText);
+                        }
+                    } catch (fetchError) {
+                        console.error('❌ 網路請求失敗:', fetchError.message);
+                    }
+                }
+                
+                showToast('API測試完成！請查看控制台了解詳情');
+                
+            } catch (error) {
+                console.error('API測試失敗:', error);
+                showToast(`API測試失敗: ${error.message}`);
+            }
+            
+            console.log('\n=== API測試結束 ===');
+        }
+        
+        // 頁面載入時初始化所有投票計數
+        document.addEventListener('DOMContentLoaded', function() {
+            // 首先嘗試從API載入數據
+            loadVotesFromAPI();
+            
+            // 每30秒自動刷新一次投票結果
+            setInterval(() => {
+                loadVotesFromAPI();
+            }, 30000);
         });
         
         // 添加CSS動畫
