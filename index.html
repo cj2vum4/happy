@@ -14,9 +14,59 @@
         body {
             font-family: 'Comic Sans MS', '微軟正黑體', 'Arial', sans-serif;
             line-height: 1.6;
-            color: #2c3e50;
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 50%, #f8f9fa 100%);
+            color: #2e7d32; /* 深綠色 */
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(76, 175, 80, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(46, 125, 50, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(129, 199, 132, 0.1) 0%, transparent 50%),
+                linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 50%, #a5d6a7 100%);
+            background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%;
             min-height: 100vh;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                repeating-linear-gradient(
+                    45deg,
+                    transparent,
+                    transparent 2px,
+                    rgba(46, 125, 50, 0.03) 2px,
+                    rgba(46, 125, 50, 0.03) 4px
+                ),
+                repeating-linear-gradient(
+                    -45deg,
+                    transparent,
+                    transparent 2px,
+                    rgba(76, 175, 80, 0.02) 2px,
+                    rgba(76, 175, 80, 0.02) 4px
+                );
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(46, 125, 50, 0.05) 1px, transparent 1px),
+                radial-gradient(circle at 90% 80%, rgba(76, 175, 80, 0.05) 1px, transparent 1px),
+                radial-gradient(circle at 30% 70%, rgba(129, 199, 132, 0.05) 1px, transparent 1px),
+                radial-gradient(circle at 70% 30%, rgba(46, 125, 50, 0.05) 1px, transparent 1px),
+                radial-gradient(circle at 50% 50%, rgba(76, 175, 80, 0.05) 1px, transparent 1px);
+            background-size: 200px 200px, 300px 300px, 250px 250px, 180px 180px, 220px 220px;
+            pointer-events: none;
+            z-index: -1;
         }
 
         .container {
@@ -27,20 +77,20 @@
 
         .header {
             text-align: center;
-            color: #2c3e50;
+            color: #ffffff;
             margin-bottom: 40px;
             padding: 40px 0;
-            background: linear-gradient(135deg, #FFB6C1, #FFC0CB);
+            background: linear-gradient(135deg, #2e7d32, #4caf50, #66bb6a); /* 深綠到淺綠漸層 */
             border-radius: 25px;
-            box-shadow: 0 10px 30px rgba(255, 182, 193, 0.3);
+            box-shadow: 0 10px 30px rgba(46, 125, 50, 0.4);
         }
 
         .header h1 {
             font-size: 3em;
             margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
             animation: bounce 2s ease infinite;
-            color: #2c3e50;
+            color: #ffffff;
         }
 
         @keyframes bounce {
@@ -51,8 +101,9 @@
 
         .header p {
             font-size: 1.2em;
-            color: #34495e;
+            color: #ffffff;
             font-weight: 500;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
         }
 
         .trip-info {
@@ -62,37 +113,61 @@
             margin-bottom: 30px;
             box-shadow: 0 15px 35px rgba(0,0,0,0.1);
             backdrop-filter: blur(10px);
-            border: 3px solid #FFB6C1;
+            border: 3px solid #81c784; /* 綠色邊框 */
             position: relative;
         }
 
         .day-section {
-            background: white;
+            background: 
+                repeating-linear-gradient(
+                    90deg,
+                    rgba(255, 255, 255, 0.9) 0px,
+                    rgba(255, 255, 255, 0.9) 1px,
+                    rgba(46, 125, 50, 0.02) 1px,
+                    rgba(46, 125, 50, 0.02) 2px
+                ),
+                linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 248, 0.95) 100%);
             border-radius: 20px;
             margin-bottom: 25px;
             overflow: hidden;
             box-shadow: 0 8px 25px rgba(0,0,0,0.1);
             transition: all 0.3s ease;
-            border: 2px solid #FFE4E1;
+            border: 2px solid #a5d6a7; /* 淺綠色邊框 */
+            position: relative;
+        }
+
+        .day-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                rgba(46, 125, 50, 0.3) 20%, 
+                rgba(76, 175, 80, 0.3) 50%, 
+                rgba(46, 125, 50, 0.3) 80%, 
+                transparent 100%);
         }
 
         .day-section:hover {
             transform: translateY(-8px) scale(1.02);
-            box-shadow: 0 15px 35px rgba(255,182,193,0.4);
+            box-shadow: 0 15px 35px rgba(76, 175, 80, 0.4);
         }
 
         .day-header {
-            background: linear-gradient(45deg, #FF69B4, #FFB6C1, #FFE4E1);
-            color: #2c3e50;
+            background: linear-gradient(45deg, #4caf50, #81c784, #a5d6a7); /* 綠色漸層 */
+            color: #ffffff;
             padding: 20px 30px;
             font-size: 1.5em;
             font-weight: bold;
-            text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
             position: relative;
         }
 
         .day-header::after {
-            content: "🌸";
+            content: "🌲"; /* 樹木 emoji */
             position: absolute;
             right: 20px;
             top: 50%;
@@ -115,21 +190,29 @@
             align-items: center;
             margin-bottom: 20px;
             padding: 15px;
-            background: linear-gradient(135deg, #FFF0F5, #F0FFF0);
+            background: 
+                repeating-linear-gradient(
+                    0deg,
+                    rgba(232, 245, 233, 0.9) 0px,
+                    rgba(232, 245, 233, 0.9) 1px,
+                    rgba(46, 125, 50, 0.02) 1px,
+                    rgba(46, 125, 50, 0.02) 2px
+                ),
+                linear-gradient(135deg, #e8f5e9, #f1f8e9); /* 淺綠色漸層 */
             border-radius: 15px;
-            border-left: 5px solid #FF69B4;
+            border-left: 5px solid #4caf50; /* 綠色 */
             transition: all 0.3s ease;
             position: relative;
         }
 
         .time-item:hover {
-            background: linear-gradient(135deg, #FFE4E1, #E6FFE6);
+            background: linear-gradient(135deg, #dcedc8, #e8f5e9); /* 懸停時的淺綠色漸層 */
             transform: translateX(8px) scale(1.02);
-            box-shadow: 0 5px 15px rgba(255,105,180,0.3);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
         }
 
         .time-item::before {
-            content: "💫";
+            content: "🧭"; /* 指南針 emoji */
             position: absolute;
             left: -10px;
             top: 50%;
@@ -144,7 +227,7 @@
         }
 
         .time {
-            background: linear-gradient(45deg, #FF69B4, #FFB6C1);
+            background: linear-gradient(45deg, #4caf50, #66bb6a); /* 綠色漸層 */
             color: white;
             padding: 8px 15px;
             border-radius: 25px;
@@ -152,7 +235,7 @@
             margin-right: 20px;
             min-width: 80px;
             text-align: center;
-            box-shadow: 0 3px 10px rgba(255,105,180,0.3);
+            box-shadow: 0 3px 10px rgba(76, 175, 80, 0.3);
             animation: pulse 2s ease-in-out infinite;
         }
 
@@ -169,29 +252,29 @@
             font-weight: bold;
             font-size: 1.1em;
             margin-bottom: 5px;
-            color: #2c3e50;
+            color: #2e7d32;
             text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
         }
 
         .activity-detail {
-            color: #34495e;
+            color: #388e3c;
             font-size: 0.9em;
         }
 
         .highlight {
-            background: linear-gradient(45deg, #FF69B4, #FFB6C1, #FFE4E1);
+            background: linear-gradient(45deg, #2e7d32, #4caf50, #66bb6a); /* 綠色漸層 */
             color: white;
             padding: 20px;
             border-radius: 20px;
             margin: 20px 0;
             text-align: center;
-            box-shadow: 0 8px 20px rgba(255,105,180,0.3);
-            border: 3px solid #FFE4E1;
+            box-shadow: 0 8px 20px rgba(46, 125, 50, 0.4);
+            border: 3px solid #a5d6a7;
             position: relative;
         }
 
         .highlight::before {
-            content: "🎉";
+            content: "⛰️"; /* 山峰 emoji */
             position: absolute;
             top: -15px;
             right: 20px;
@@ -199,21 +282,45 @@
             background: white;
             padding: 5px;
             border-radius: 50%;
-            border: 2px solid #FF69B4;
+            border: 2px solid #2e7d32;
         }
 
         .accommodation-section, .food-section, .tips-section {
-            background: white;
+            background: 
+                repeating-linear-gradient(
+                    90deg,
+                    rgba(255, 255, 255, 0.95) 0px,
+                    rgba(255, 255, 255, 0.95) 1px,
+                    rgba(46, 125, 50, 0.02) 1px,
+                    rgba(46, 125, 50, 0.02) 2px
+                ),
+                linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 248, 0.98) 100%);
             border-radius: 20px;
             padding: 25px;
             margin-bottom: 25px;
-            box-shadow: 0 8px 25px rgba(255,182,193,0.2);
-            border: 2px solid #FFE4E1;
+            box-shadow: 0 8px 25px rgba(76, 175, 80, 0.2);
+            border: 2px solid #a5d6a7; /* 淺綠色邊框 */
             position: relative;
         }
 
+        .accommodation-section::after, .food-section::after, .tips-section::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 15% 15%, rgba(46, 125, 50, 0.015) 1px, transparent 1px),
+                radial-gradient(circle at 85% 85%, rgba(76, 175, 80, 0.015) 1px, transparent 1px),
+                radial-gradient(circle at 50% 50%, rgba(129, 199, 132, 0.01) 1px, transparent 1px);
+            background-size: 80px 80px, 60px 60px, 100px 100px;
+            pointer-events: none;
+            border-radius: 20px;
+        }
+
         .accommodation-section::before, .food-section::before, .tips-section::before {
-            content: "🌟";
+            content: "⭐"; /* 星星 emoji */
             position: absolute;
             top: -10px;
             left: 20px;
@@ -221,15 +328,15 @@
             background: white;
             padding: 5px 10px;
             border-radius: 50%;
-            border: 2px solid #FFB6C1;
+            border: 2px solid #81c784;
         }
 
         .section-title {
-            color: #2c3e50;
+            color: #2e7d32;
             font-size: 1.8em;
             margin-bottom: 20px;
             text-align: center;
-            border-bottom: 3px solid #FF69B4;
+            border-bottom: 3px solid #4caf50; /* 綠色底線 */
             padding-bottom: 10px;
             text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
         }
@@ -242,22 +349,45 @@
         }
 
         .card {
-            background: linear-gradient(135deg, #FFF0F5, #F0FFF0);
+            background: 
+                repeating-linear-gradient(
+                    0deg,
+                    rgba(241, 248, 233, 0.8) 0px,
+                    rgba(241, 248, 233, 0.8) 2px,
+                    rgba(46, 125, 50, 0.03) 2px,
+                    rgba(46, 125, 50, 0.03) 4px
+                ),
+                linear-gradient(135deg, #f1f8e9, #e8f5e9); /* 非常淺的綠色漸層 */
             border-radius: 15px;
             padding: 20px;
-            border: 2px solid #FFE4E1;
+            border: 2px solid #c8e6c9; /* 淺綠色邊框 */
             transition: all 0.3s ease;
             position: relative;
         }
 
+        .card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 20%, rgba(46, 125, 50, 0.02) 1px, transparent 1px),
+                radial-gradient(circle at 80% 80%, rgba(76, 175, 80, 0.02) 1px, transparent 1px);
+            background-size: 50px 50px, 30px 30px;
+            pointer-events: none;
+            border-radius: 15px;
+        }
+
         .card:hover {
-            border-color: #FF69B4;
+            border-color: #4caf50; /* 綠色 */
             transform: translateY(-5px) scale(1.03);
-            box-shadow: 0 10px 25px rgba(255,105,180,0.3);
+            box-shadow: 0 10px 25px rgba(76, 175, 80, 0.3);
         }
 
         .card::before {
-            content: "💖";
+            content: "👍"; /* 讚 emoji */
             position: absolute;
             top: -8px;
             right: -8px;
@@ -265,7 +395,7 @@
             background: white;
             padding: 3px;
             border-radius: 50%;
-            border: 2px solid #FFB6C1;
+            border: 2px solid #81c784;
             opacity: 0;
             transition: opacity 0.3s ease;
         }
@@ -275,21 +405,21 @@
         }
 
         .card h4 {
-            color: #2c3e50;
+            color: #2e7d32;
             margin-bottom: 10px;
             font-size: 1.2em;
             text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
         }
 
         .price {
-            background: linear-gradient(45deg, #FF69B4, #FFB6C1);
+            background: linear-gradient(45deg, #66bb6a, #81c784); /* 綠色漸層 */
             color: white;
             padding: 5px 12px;
             border-radius: 20px;
             font-size: 0.9em;
             display: inline-block;
             margin-top: 10px;
-            box-shadow: 0 3px 8px rgba(255,105,180,0.3);
+            box-shadow: 0 3px 8px rgba(76, 175, 80, 0.3);
         }
 
         .tips-list {
@@ -298,34 +428,43 @@
         }
 
         .tips-list li {
-            background: linear-gradient(135deg, #FFF0F5, #F0FFF0);
+            background: 
+                repeating-linear-gradient(
+                    90deg,
+                    rgba(232, 245, 233, 0.9) 0px,
+                    rgba(232, 245, 233, 0.9) 1px,
+                    rgba(46, 125, 50, 0.02) 1px,
+                    rgba(46, 125, 50, 0.02) 2px
+                ),
+                linear-gradient(135deg, #e8f5e9, #f1f8e9); /* 淺綠色漸層 */
             margin-bottom: 10px;
             padding: 15px;
             border-radius: 12px;
-            border-left: 5px solid #FF69B4;
+            border-left: 5px solid #4caf50; /* 綠色 */
             transition: all 0.3s ease;
+            position: relative;
         }
 
         .tips-list li:hover {
             transform: translateX(5px);
-            box-shadow: 0 3px 10px rgba(255,105,180,0.2);
+            box-shadow: 0 3px 10px rgba(76, 175, 80, 0.2);
         }
 
         .tips-list li:before {
-            content: "✨";
+            content: "💡"; /* 燈泡 emoji */
             margin-right: 10px;
             font-size: 1.1em;
         }
 
         .cost-summary {
-            background: linear-gradient(45deg, #FF69B4, #FFB6C1, #FFE4E1);
+            background: linear-gradient(45deg, #4caf50, #81c784, #a5d6a7); /* 綠色漸層 */
             color: white;
             padding: 25px;
             border-radius: 20px;
             text-align: center;
             margin-top: 20px;
-            box-shadow: 0 10px 25px rgba(255,105,180,0.3);
-            border: 3px solid #FFE4E1;
+            box-shadow: 0 10px 25px rgba(76, 175, 80, 0.3);
+            border: 3px solid #a5d6a7;
             position: relative;
         }
 
@@ -492,14 +631,14 @@
         }
 
         .massage-highlight {
-            background: linear-gradient(45deg, #FF69B4, #FFB6C1, #FFE4E1);
+            background: linear-gradient(45deg, #2e7d32, #4caf50, #66bb6a); /* 綠色漸層 */
             color: white;
             padding: 15px 20px;
             border-radius: 15px;
             margin: 10px 0;
             font-size: 0.95em;
-            box-shadow: 0 5px 15px rgba(255,105,180,0.3);
-            border: 2px solid #FFE4E1;
+            box-shadow: 0 5px 15px rgba(46, 125, 50, 0.4);
+            border: 2px solid #a5d6a7;
             position: relative;
         }
 
@@ -510,12 +649,12 @@
 
         .accommodation-option:hover {
             transform: translateY(-5px) scale(1.02);
-            box-shadow: 0 15px 30px rgba(255, 182, 193, 0.3);
+            box-shadow: 0 15px 30px rgba(76, 175, 80, 0.3);
         }
 
         .website-link {
             display: inline-block;
-            background: linear-gradient(45deg, #FFB6C1, #FFC0CB);
+            background: linear-gradient(45deg, #a5d6a7, #c8e6c9); /* 淺綠色漸層 */
             color: #333;
             text-decoration: none;
             padding: 8px 15px;
@@ -526,13 +665,13 @@
         }
 
         .website-link:hover {
-            background: linear-gradient(45deg, #FFC0CB, #FFB6C1);
+            background: linear-gradient(45deg, #c8e6c9, #a5d6a7);
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(255, 182, 193, 0.4);
+            box-shadow: 0 5px 15px rgba(129, 199, 132, 0.4);
         }
 
         .vote-button {
-            background: linear-gradient(45deg, #FF69B4, #FF1493);
+            background: linear-gradient(45deg, #4caf50, #2e7d32); /* 深綠色漸層 */
             color: white;
             padding: 10px 20px;
             border-radius: 25px;
@@ -545,18 +684,18 @@
         }
 
         .vote-button:hover {
-            background: linear-gradient(45deg, #FF1493, #FF69B4);
+            background: linear-gradient(45deg, #2e7d32, #4caf50);
             transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(255, 20, 147, 0.4);
+            box-shadow: 0 8px 20px rgba(46, 125, 50, 0.4);
         }
 
         .vote-button:active {
             transform: translateY(0);
-            box-shadow: 0 4px 10px rgba(255, 20, 147, 0.4);
+            box-shadow: 0 4px 10px rgba(46, 125, 50, 0.4);
         }
 
         .vote-count {
-            background: linear-gradient(45deg, #98FB98, #90EE90);
+            background: linear-gradient(45deg, #b2dfdb, #80cbc4); /* 藍綠色漸層 */
             color: #333;
             padding: 8px 15px;
             border-radius: 20px;
@@ -581,26 +720,9 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🏔️✨ 宜蘭兩天一夜 ✨🏔️</h1>
-            <p>🌸 抹茶山 × 溫泉療癒之旅 🌸 <br> 
-                💖 15人團體專案 💖</p>
-            <div style="margin-top: 20px;">
-                <button onclick="refreshVotes()" style="
-                    background: linear-gradient(45deg, #FF69B4, #FFB6C1);
-                    color: white;
-                    border: none;
-                    padding: 10px 20px;
-                    border-radius: 25px;
-                    font-weight: bold;
-                    cursor: pointer;
-                    transition: all 0.3s ease;
-                    box-shadow: 0 4px 15px rgba(255, 105, 180, 0.3);
-                    margin-right: 10px;
-                " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(255, 105, 180, 0.4)'" 
-                   onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(255, 105, 180, 0.3)'">
-                    🔄 刷新投票結果
-                </button>
-            </div>
+            <h1>⛰️🌲 宜蘭兩天一夜 🌲⛰️</h1>
+            <p>🧗 抹茶山攀登 × 溫泉療癒之旅 🧗 <br> 
+                💚 興煜大平台 X 浩崴區塊鏈 💚</p>
         </div>
 
         <div class="trip-info">
@@ -615,7 +737,7 @@
         <!-- 第一天行程 -->
         <div class="day-section">
             <div class="day-header">
-                📅✨ 第一天：抹茶山征服日 ✨📅
+                📅🌲 第一天：抹茶山征服日 🌲📅
             </div>
             <div class="day-content">
                 <div class="time-item">
@@ -715,7 +837,7 @@
         <!-- 第二天行程 -->
         <div class="day-section">
             <div class="day-header">
-                📅✨ 第二天：慢活慵懶日 ✨📅
+                📅💧 第二天：溫泉慢活日 💧📅
             </div>
             <div class="day-content">
                 <div class="time-item">
@@ -765,7 +887,7 @@
 
         <!-- 住宿推薦 -->
         <div class="accommodation-section">
-            <h2 class="section-title">🏨✨ 住宿推薦 ✨🏨   可以無限投票！</h2>
+            <h2 class="section-title">🏨🌲 住宿推薦 🌲🏨   可以無限投票！</h2>
             <div class="accommodation-grid">
                 <div class="card accommodation-option" data-option="yangshen">
                     <h4>🏡 仰森水畔民宿</h4>
@@ -815,7 +937,7 @@
 
         <!-- 第一天晚餐投票 -->
         <div class="food-section">
-            <h2 class="section-title">🍽️✨ 第一天晚餐投票 ✨🍽️   可以無限投票！</h2>
+            <h2 class="section-title">🍽️🌲 第一天晚餐投票 🌲🍽️   可以無限投票！</h2>
             <div class="food-grid">
                 <div class="card dinner-option" data-option="mingshuiran">
                     <h4>🍳 明水然鐵板燒(1500/人)</h4>
@@ -857,7 +979,7 @@
 
         <!-- 交通上車地點投票 -->
         <div class="accommodation-section">
-            <h2 class="section-title">🚗✨ 交通上車地點投票 ✨🚗<br><p>投錯了我也沒辦法，請自己到群組自首！</p></h2>
+            <h2 class="section-title">🚗🌲 交通上車地點投票 🌲🚗<br><p>投錯了我也沒辦法，請自己到群組自首！</p></h2>
             <div class="accommodation-grid">
                 <div class="card transport-option" data-option="taipei">
                     <h4>🏙️ 台北</h4>
@@ -892,7 +1014,7 @@
 
         <!-- 重要提醒 -->
         <div class="tips-section">
-            <h2 class="section-title">💡✨ 重要提醒事項 ✨💡</h2>
+            <h2 class="section-title">💡🌲 重要提醒事項 🌲💡</h2>
             <ul class="tips-list">
                 <li><strong>登山裝備必備：</strong>登山鞋、充足飲水（每人至少2L）、雨具、頭燈、行動電源</li>
                 <li><strong>體力分配：</strong>15人團體行動，依個人體力調整速度，大家一起加油！</li>
@@ -906,7 +1028,7 @@
 
         <!-- 費用總覽 -->
         <div class="cost-summary">
-            <h2>💰✨ 費用預估總覽（每人）✨💰</h2>
+            <h2>💰🌲 費用預估總覽（每人）🌲💰</h2>
             <div class="cost-item">交通費：$100-200</div>
             <div class="cost-item">住宿費：$1,000-2,000</div>
             <div class="cost-item">餐費：$500-2,000</div>
@@ -1055,7 +1177,7 @@
             const messages = {
                 yangshen: '謝謝您支持仰森水畔民宿！🏡',
                 qingmi: '謝謝您支持青覓礁溪！🌿',
-                fangxinlan: '謝謝您選擇芳心蘭厝！💖',
+                fangxinlan: '謝謝您選擇芳心蘭厝！💖', // This one can probably stay
                 expensive: '謝謝您選擇豪華住宿！💎',
                 cheap: '謝謝您選擇經濟實惠！💰'
             };
@@ -1088,10 +1210,10 @@
             const toast = document.createElement('div');
             toast.style.cssText = `
                 position: fixed; top: 20px; right: 20px;
-                background: linear-gradient(45deg, #FF69B4, #FFB6C1);
+                background: linear-gradient(45deg, #4caf50, #81c784);
                 color: white; padding: 15px 25px; border-radius: 25px;
                 font-weight: bold; z-index: 1000;
-                box-shadow: 0 8px 25px rgba(255, 105, 180, 0.4);
+                box-shadow: 0 8px 25px rgba(76, 175, 80, 0.4);
                 animation: slideIn 0.5s ease-out; white-space: pre-wrap;
             `;
             toast.textContent = message;
@@ -1117,11 +1239,6 @@
             fetchJSONP(`${API_URL}?action=get&sheet=上車地點投票`, 'handleTransportData');
         }
 
-        // 手動刷新
-        function refreshVotes() {
-            showToast('正在刷新投票結果...');
-            loadAllVotesFromAPI();
-        }
 
         // 顯示選項詳細統計
         function showOptionStats(sheetName, optionIndex, optionName) {
@@ -1147,5 +1264,21 @@
         `;
         document.head.appendChild(style);
     </script>
+
+<audio id="bgm" loop muted>
+    <source src="上路.mp3" type="audio/mpeg">
+</audio>
+<script>
+    // 點擊頁面解除靜音
+    document.addEventListener('click', function(){
+        const audio = document.getElementById('bgm');
+        if (audio) {
+            audio.muted = false;
+            audio.volume = 0.3; // 調低音量避免過於嚇人
+            audio.play().catch(e => console.log('Audio play failed:', e));
+        }
+    }, {once:true});
+</script>
+
 </body>
 </html>
