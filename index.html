@@ -787,7 +787,7 @@
                     <div class="price">$1100/人</div>
                     <a href="https://tw-bnb.com/web/forestriver/" target="_blank" class="website-link">查看官網</a>
                     <div class="vote-button" onclick="vote('yangshen')">👍 投票</div>
-                    <div class="vote-count" id="count-yangshen">0 票</div>
+                    <div class="vote-count" id="count-yangshen" onclick="showOptionStats('住宿投票', 0, '仰森水畔民宿')" style="cursor: pointer;" title="點擊查看詳細統計">0 票</div>
                 </div>
                 <div class="card accommodation-option" data-option="qingmi">
                     <h4>🌿 青覓礁溪</h4>
@@ -796,7 +796,7 @@
                     <div class="price">$1200/人</div>
                     <a href="https://www.instagram.com/cmjs3915?utm_source=ig_web_button_share_sheet&igsh=eHpocDVjem53MmE2" target="_blank" class="website-link">查看官網</a>
                     <div class="vote-button" onclick="vote('qingmi')">👍 投票</div>
-                    <div class="vote-count" id="count-qingmi">0 票</div>
+                    <div class="vote-count" id="count-qingmi" onclick="showOptionStats('住宿投票', 1, '青覓礁溪')" style="cursor: pointer;" title="點擊查看詳細統計">0 票</div>
                 </div>
                 <div class="card accommodation-option" data-option="expensive">
                     <h4>💎 想住別的，貴一點的</h4>
@@ -804,7 +804,7 @@
                     <p>享受頂級服務和設施</p>
                     <div class="price">高於$1500/人</div>
                     <div class="vote-button" onclick="vote('expensive')">👍 投票</div>
-                    <div class="vote-count" id="count-expensive">0 票</div>
+                    <div class="vote-count" id="count-expensive" onclick="showOptionStats('住宿投票', 2, '想住別的，貴一點的')" style="cursor: pointer;" title="點擊查看詳細統計">0 票</div>
                 </div>
                 <div class="card accommodation-option" data-option="cheap">
                     <h4>💰 想住別的，便宜一點的</h4>
@@ -812,7 +812,7 @@
                     <p>省錢也能玩得開心</p>
                     <div class="price">低於$800/人</div>
                     <div class="vote-button" onclick="vote('cheap')">👍 投票</div>
-                    <div class="vote-count" id="count-cheap">0 票</div>
+                    <div class="vote-count" id="count-cheap" onclick="showOptionStats('住宿投票', 3, '想住別的，便宜一點的')" style="cursor: pointer;" title="點擊查看詳細統計">0 票</div>
                 </div>
             </div>
         </div>
@@ -826,35 +826,35 @@
                     <p>連續3年高CP值冠軍</p>
                     <p>Google評價4.8星，港澳遊客必吃</p>
                     <div class="vote-button" onclick="voteDinner('mingshuiran')">👍 投票</div>
-                    <div class="vote-count" id="count-mingshuiran">0 票</div>
+                    <div class="vote-count" id="count-mingshuiran" onclick="showOptionStats('餐廳投票', 0, '明水然鐵板燒')" style="cursor: pointer;" title="點擊查看詳細統計">0 票</div>
                 </div>
                 <div class="card dinner-option" data-option="huangtai">
                     <h4>🍲 皇泰火鍋城</h4>
                     <p>吃到飽火鍋，適合大團體</p>
                     <p>美國牛、天使紅蝦無限供應</p>
                     <div class="vote-button" onclick="voteDinner('huangtai')">👍 投票</div>
-                    <div class="vote-count" id="count-huangtai">0 票</div>
+                    <div class="vote-count" id="count-huangtai" onclick="showOptionStats('餐廳投票', 1, '皇泰火鍋城')" style="cursor: pointer;" title="點擊查看詳細統計">0 票</div>
                 </div>
                 <div class="card dinner-option" data-option="keshi">
                     <h4>🥟 柯氏蔥油餅</h4>
                     <p>礁溪在地名產</p>
                     <p>三星蔥爆滿，外酥內嫩</p>
                     <div class="vote-button" onclick="voteDinner('keshi')">👍 投票</div>
-                    <div class="vote-count" id="count-keshi">0 票</div>
+                    <div class="vote-count" id="count-keshi" onclick="showOptionStats('餐廳投票', 2, '柯氏蔥油餅')" style="cursor: pointer;" title="點擊查看詳細統計">0 票</div>
                 </div>
                 <div class="card dinner-option" data-option="nightmarket">
                     <h4>🌃 夜市美食</h4>
                     <p>紅豆湯圓、三星蔥餡餅</p>
                     <p>包心粉圓、雞排等經典小吃</p>
                     <div class="vote-button" onclick="voteDinner('nightmarket')">👍 投票</div>
-                    <div class="vote-count" id="count-nightmarket">0 票</div>
+                    <div class="vote-count" id="count-nightmarket" onclick="showOptionStats('餐廳投票', 3, '夜市美食')" style="cursor: pointer;" title="點擊查看詳細統計">0 票</div>
                 </div>
                 <div class="card dinner-option" data-option="pizza">
                     <h4>🍕 叫披薩到民宿</h4>
                     <p>輕鬆愜意，在民宿享用</p>
                     <p>邊吃邊聊天，享受悠閒時光</p>
                     <div class="vote-button" onclick="voteDinner('pizza')">👍 投票</div>
-                    <div class="vote-count" id="count-pizza">0 票</div>
+                    <div class="vote-count" id="count-pizza" onclick="showOptionStats('餐廳投票', 4, '叫披薩到民宿')" style="cursor: pointer;" title="點擊查看詳細統計">0 票</div>
                 </div>
             </div>
         </div>
@@ -868,28 +868,28 @@
                     <p>台北車站或信義區集合</p>
                     <p>方便台北市區的朋友</p>
                     <div class="vote-button" onclick="voteTransport('taipei')">👍 投票</div>
-                    <div class="vote-count" id="count-taipei">0 票</div>
+                    <div class="vote-count" id="count-taipei" onclick="showOptionStats('上車地點投票', 0, '台北')" style="cursor: pointer;" title="點擊查看詳細統計">0 票</div>
                 </div>
                 <div class="card transport-option" data-option="zhonghe">
                     <h4>🏘️ 中永和</h4>
                     <p>中和或永和地區集合</p>
                     <p>方便新北市的朋友</p>
                     <div class="vote-button" onclick="voteTransport('zhonghe')">👍 投票</div>
-                    <div class="vote-count" id="count-zhonghe">0 票</div>
+                    <div class="vote-count" id="count-zhonghe" onclick="showOptionStats('上車地點投票', 1, '中永和')" style="cursor: pointer;" title="點擊查看詳細統計">0 票</div>
                 </div>
                 <div class="card transport-option" data-option="nangang">
                     <h4>🚄 南港</h4>
                     <p>南港車站或南港展覽館</p>
                     <p>方便東區的朋友</p>
                     <div class="vote-button" onclick="voteTransport('nangang')">👍 投票</div>
-                    <div class="vote-count" id="count-nangang">0 票</div>
+                    <div class="vote-count" id="count-nangang" onclick="showOptionStats('上車地點投票', 2, '南港')" style="cursor: pointer;" title="點擊查看詳細統計">0 票</div>
                 </div>
                 <div class="card transport-option" data-option="keelung">
                     <h4>🌊 基隆</h4>
                     <p>基隆車站或基隆港</p>
                     <p>方便基隆地區的朋友</p>
                     <div class="vote-button" onclick="voteTransport('keelung')">👍 投票</div>
-                    <div class="vote-count" id="count-keelung">0 票</div>
+                    <div class="vote-count" id="count-keelung" onclick="showOptionStats('上車地點投票', 3, '基隆')" style="cursor: pointer;" title="點擊查看詳細統計">0 票</div>
                 </div>
             </div>
         </div>
@@ -1404,30 +1404,68 @@
             loadVotesFromAPI();
         }
         
+        // 獲取單一選項統計
+        async function getOptionStats(sheetName, optionIndex) {
+            try {
+                const url = `${API_URL}?action=getOption&sheet=${encodeURIComponent(sheetName)}&option=${optionIndex}`;
+                console.log(`獲取${sheetName}選項${optionIndex}統計:`, url);
+                
+                const response = await fetch(url);
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('選項統計數據:', data);
+                    return data;
+                } else {
+                    console.error('獲取選項統計失敗:', response.status);
+                    return null;
+                }
+            } catch (error) {
+                console.error('獲取選項統計時發生錯誤:', error);
+                return null;
+            }
+        }
+        
+        // 顯示選項詳細統計
+        function showOptionStats(sheetName, optionIndex, optionName) {
+            getOptionStats(sheetName, optionIndex).then(data => {
+                if (data && data.option) {
+                    const stats = data.option;
+                    const message = `${optionName}\n票數: ${stats.votes}\n百分比: ${stats.percentage}%\n總票數: ${data.totalVotes}`;
+                    showToast(message);
+                } else {
+                    showToast('無法獲取統計數據');
+                }
+            });
+        }
+        
         // 測試API連接
         async function testAPI() {
             showToast('正在測試API連接...');
             console.log('=== 開始測試API連接 ===');
             
             try {
-                // 使用您提供的具體URL進行測試
-                const testUrls = [
+                // 測試完整的API功能
+                const testCases = [
                     {
-                        name: '住宿投票',
+                        name: '住宿投票 - 完整結果',
                         url: 'https://script.google.com/macros/s/AKfycbzhF6spxU9cuniq71jA8foDIVK9X9iwvaoCozBtIo3-7PhwMsUKZ1M63MaJn3vy0Itq/exec?action=get&sheet=住宿投票'
                     },
                     {
-                        name: '餐廳投票',
+                        name: '餐廳投票 - 完整結果',
                         url: 'https://script.google.com/macros/s/AKfycbzhF6spxU9cuniq71jA8foDIVK9X9iwvaoCozBtIo3-7PhwMsUKZ1M63MaJn3vy0Itq/exec?action=get&sheet=餐廳投票'
                     },
                     {
-                        name: '上車地點投票',
+                        name: '上車地點投票 - 完整結果',
                         url: 'https://script.google.com/macros/s/AKfycbzhF6spxU9cuniq71jA8foDIVK9X9iwvaoCozBtIo3-7PhwMsUKZ1M63MaJn3vy0Itq/exec?action=get&sheet=上車地點投票'
+                    },
+                    {
+                        name: '餐廳投票 - 單一選項統計',
+                        url: 'https://script.google.com/macros/s/AKfycbzhF6spxU9cuniq71jA8foDIVK9X9iwvaoCozBtIo3-7PhwMsUKZ1M63MaJn3vy0Itq/exec?action=getOption&sheet=餐廳投票&option=0'
                     }
                 ];
                 
-                for (let i = 0; i < testUrls.length; i++) {
-                    const test = testUrls[i];
+                for (let i = 0; i < testCases.length; i++) {
+                    const test = testCases[i];
                     
                     console.log(`\n--- 測試 ${test.name} ---`);
                     console.log('請求URL:', test.url);
@@ -1442,43 +1480,38 @@
                         
                         console.log('響應狀態:', response.status);
                         console.log('響應狀態文本:', response.statusText);
-                        console.log('響應頭:', Object.fromEntries(response.headers.entries()));
                         
                         const responseText = await response.text();
                         console.log('原始響應:', responseText);
-                        console.log('響應長度:', responseText.length);
                         
                         if (response.ok) {
                             try {
                                 const jsonData = JSON.parse(responseText);
                                 console.log('✅ JSON解析成功:', jsonData);
-                                console.log('問題:', jsonData.question);
-                                console.log('選項數量:', jsonData.options ? jsonData.options.length : 0);
-                                console.log('總票數:', jsonData.totalVotes);
-                                console.log('工作表:', jsonData.sheet);
                                 
-                                if (jsonData.options && Array.isArray(jsonData.options)) {
+                                if (jsonData.question) {
+                                    console.log('問題:', jsonData.question);
+                                }
+                                if (jsonData.options) {
+                                    console.log('選項數量:', jsonData.options.length);
                                     console.log('選項詳情:');
                                     jsonData.options.forEach((option, index) => {
                                         console.log(`  [${index}] ${option.text}: ${option.votes}票`);
                                     });
                                 }
-                                
-                                // 測試數據更新功能
-                                if (test.name === '住宿投票') {
-                                    console.log('測試住宿投票數據更新...');
-                                    updateVoteCounts(jsonData);
-                                } else if (test.name === '餐廳投票') {
-                                    console.log('測試餐廳投票數據更新...');
-                                    updateDinnerVoteCounts(jsonData);
-                                } else if (test.name === '上車地點投票') {
-                                    console.log('測試交通投票數據更新...');
-                                    updateTransportVoteCounts(jsonData);
+                                if (jsonData.option) {
+                                    console.log('單一選項統計:', jsonData.option);
+                                    console.log(`  ${jsonData.option.text}: ${jsonData.option.votes}票 (${jsonData.option.percentage}%)`);
+                                }
+                                if (jsonData.totalVotes !== undefined) {
+                                    console.log('總票數:', jsonData.totalVotes);
+                                }
+                                if (jsonData.sheet) {
+                                    console.log('工作表:', jsonData.sheet);
                                 }
                                 
                             } catch (parseError) {
                                 console.error('❌ JSON解析失敗:', parseError.message);
-                                console.log('響應內容可能不是有效的JSON格式');
                             }
                         } else {
                             console.error('❌ 請求失敗:', response.status, response.statusText);
