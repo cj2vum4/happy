@@ -607,7 +607,7 @@
             <div class="highlight">
                 <h3>🚗💨 自駕交通重點提醒 💨🚗</h3>
                 <p><strong>🌅 出發：</strong>週六早上 7:00 集合出發（避開塞車地獄）</p>
-                <p><strong>🌇 回程：</strong>週日下午 2:00 前出發（避開塞車高峰）</p>
+                <p><strong>🌇 回程：</strong>週日下午 2:00 前回程（避開塞車高峰）</p>
                 <p><strong>🚙 車輛安排：</strong> 4 台車，每台約 4 人</p>
             </div>
         </div>
@@ -683,7 +683,8 @@
                         <div class="activity-detail">
                             <strong>選擇一：</strong>明水然鐵板燒（連續3年高CP值冠軍）<br>
                             <strong>選擇二：</strong>皇泰火鍋城（吃到飽）<br>
-                            <strong>選擇三：</strong>吃夜市開開心心！
+                            <strong>選擇三：</strong>吃夜市開開心心！<br>
+                            <strong>選擇四：</strong>叫披薩到民宿（輕鬆愜意，在民宿享用）
                         </div>
                     </div>
                 </div>
@@ -784,13 +785,22 @@
                     <div class="vote-button" onclick="vote('qingmi')">👍 投票</div>
                     <div class="vote-count" id="count-qingmi" onclick="showOptionStats('住宿投票', 1, '青覓礁溪')" style="cursor: pointer;" title="點擊查看詳細統計">0 票</div>
                 </div>
+                <div class="card accommodation-option" data-option="fangxinlan">
+                    <h4>💖 芳心蘭厝</h4>
+                    <p>精品民宿體驗，設施新穎</p>
+                    <p>享受高品質的住宿環境</p>
+                    <div class="price">$15800/間 (約$1053/人)</div>
+                    <a href="https://tw-bnb.com/web/fangxin/" target="_blank" class="website-link">查看官網</a>
+                    <div class="vote-button" onclick="vote('fangxinlan')">👍 投票</div>
+                    <div class="vote-count" id="count-fangxinlan" onclick="showOptionStats('住宿投票', 2, '芳心蘭厝')" style="cursor: pointer;" title="點擊查看詳細統計">0 票</div>
+                </div>
                 <div class="card accommodation-option" data-option="expensive">
                     <h4>💎 想住別的，貴一點的</h4>
                     <p>追求豪華住宿體驗</p>
                     <p>享受頂級服務和設施</p>
                     <div class="price">高於$1500/人</div>
                     <div class="vote-button" onclick="vote('expensive')">👍 投票</div>
-                    <div class="vote-count" id="count-expensive" onclick="showOptionStats('住宿投票', 2, '想住別的，貴一點的')" style="cursor: pointer;" title="點擊查看詳細統計">0 票</div>
+                    <div class="vote-count" id="count-expensive" onclick="showOptionStats('住宿投票', 3, '想住別的，貴一點的')" style="cursor: pointer;" title="點擊查看詳細統計">0 票</div>
                 </div>
                 <div class="card accommodation-option" data-option="cheap">
                     <h4>💰 想住別的，便宜一點的</h4>
@@ -798,7 +808,7 @@
                     <p>省錢也能玩得開心</p>
                     <div class="price">低於$800/人</div>
                     <div class="vote-button" onclick="vote('cheap')">👍 投票</div>
-                    <div class="vote-count" id="count-cheap" onclick="showOptionStats('住宿投票', 3, '想住別的，便宜一點的')" style="cursor: pointer;" title="點擊查看詳細統計">0 票</div>
+                    <div class="vote-count" id="count-cheap" onclick="showOptionStats('住宿投票', 4, '想住別的，便宜一點的')" style="cursor: pointer;" title="點擊查看詳細統計">0 票</div>
                 </div>
             </div>
         </div>
@@ -958,7 +968,7 @@
         
         // 住宿投票
         function vote(option) {
-            const optionIndexMap = { 'yangshen': 0, 'qingmi': 1, 'expensive': 2, 'cheap': 3 };
+            const optionIndexMap = { 'yangshen': 0, 'qingmi': 1, 'fangxinlan': 2, 'expensive': 3, 'cheap': 4 };
             const optionIndex = optionIndexMap[option];
             if (optionIndex === undefined) return;
             
@@ -1009,7 +1019,7 @@
         // 更新住宿投票計數顯示
         function updateVoteCountsFromAPI(apiData) {
             if (!apiData || !apiData.options) return;
-            const optionIds = ['count-yangshen', 'count-qingmi', 'count-expensive', 'count-cheap'];
+            const optionIds = ['count-yangshen', 'count-qingmi', 'count-fangxinlan', 'count-expensive', 'count-cheap'];
             apiData.options.forEach((option, index) => {
                 if (optionIds[index]) {
                     document.getElementById(optionIds[index]).textContent = option.votes + ' 票';
@@ -1045,6 +1055,7 @@
             const messages = {
                 yangshen: '謝謝您支持仰森水畔民宿！🏡',
                 qingmi: '謝謝您支持青覓礁溪！🌿',
+                fangxinlan: '謝謝您選擇芳心蘭厝！💖',
                 expensive: '謝謝您選擇豪華住宿！💎',
                 cheap: '謝謝您選擇經濟實惠！💰'
             };
