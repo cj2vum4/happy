@@ -723,6 +723,23 @@
             <h1>⛰️🌲 宜蘭兩天一夜 🌲⛰️</h1>
             <p>🧗 抹茶山攀登 × 溫泉療癒之旅 🧗 <br> 
                 💚 興煜大平台 X 浩崴區塊鏈 💚</p>
+            <div style="margin-top: 15px;">
+                <button onclick="loadAllVotesFromAPI()" style="
+                    background: linear-gradient(45deg, #66bb6a, #81c784);
+                    color: white;
+                    border: none;
+                    padding: 8px 16px;
+                    border-radius: 20px;
+                    font-size: 0.9em;
+                    font-weight: bold;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                    box-shadow: 0 3px 10px rgba(76, 175, 80, 0.3);
+                " onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 15px rgba(76, 175, 80, 0.4)'" 
+                   onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 3px 10px rgba(76, 175, 80, 0.3)'">
+                    🔄 重新載入投票
+                </button>
+            </div>
         </div>
 
         <div class="trip-info">
@@ -1046,17 +1063,39 @@
 
         // ===== JSONP 核心函數 =====
         function fetchJSONP(url, callbackName) {
-            const script = document.createElement('script');
-            script.src = `${url}&callback=${callbackName}`;
-            document.head.appendChild(script);
-            // 清理
-            script.onload = () => {
-                document.head.removeChild(script);
-            };
-            script.onerror = () => {
-                console.error(`JSONP request failed for URL: ${url}`);
-                document.head.removeChild(script);
-            }
+            return new Promise((resolve, reject) => {
+                const script = document.createElement('script');
+                script.src = `${url}&callback=${callbackName}&_t=${Date.now()}`;
+                script.async = true;
+                script.defer = true;
+                
+                // 設置超時
+                const timeout = setTimeout(() => {
+                    document.head.removeChild(script);
+                    reject(new Error('JSONP request timeout'));
+                }, 10000);
+                
+                script.onload = () => {
+                    clearTimeout(timeout);
+                    setTimeout(() => {
+                        if (document.head.contains(script)) {
+                            document.head.removeChild(script);
+                        }
+                    }, 100);
+                    resolve();
+                };
+                
+                script.onerror = () => {
+                    clearTimeout(timeout);
+                    console.error(`JSONP request failed for URL: ${url}`);
+                    if (document.head.contains(script)) {
+                        document.head.removeChild(script);
+                    }
+                    reject(new Error('JSONP request failed'));
+                };
+                
+                document.head.appendChild(script);
+            });
         }
 
         // ===== 數據處理回調函數 =====
@@ -1232,11 +1271,44 @@
         // ===== 數據加載與刷新 =====
         
         // 從API載入所有投票數據
-        function loadAllVotesFromAPI() {
-            console.log('開始載入所有投票數據...');
-            fetchJSONP(`${API_URL}?action=get&sheet=住宿投票`, 'handleAccommodationData');
-            fetchJSONP(`${API_URL}?action=get&sheet=餐廳投票`, 'handleDinnerData');
-            fetchJSONP(`${API_URL}?action=get&sheet=上車地點投票`, 'handleTransportData');
+        function loadAllVotesFromAPI(retryCount = 0) {
+            console.log(`開始載入所有投票數據... (嘗試 ${retryCount + 1}/3)`);
+            
+            const maxRetries = 3;
+            const retryDelay = 2000;
+            
+            Promise.all([
+                fetchJSONP(`${API_URL}?action=get&sheet=住宿投票`, 'handleAccommodationData').catch(err => {
+                    console.error('住宿投票數據載入失敗:', err);
+                    return null;
+                }),
+                fetchJSONP(`${API_URL}?action=get&sheet=餐廳投票`, 'handleDinnerData').catch(err => {
+                    console.error('餐廳投票數據載入失敗:', err);
+                    return null;
+                }),
+                fetchJSONP(`${API_URL}?action=get&sheet=上車地點投票`, 'handleTransportData').catch(err => {
+                    console.error('上車地點投票數據載入失敗:', err);
+                    return null;
+                })
+            ]).then(results => {
+                const successCount = results.filter(r => r !== null).length;
+                console.log(`數據載入完成，成功: ${successCount}/3`);
+                
+                if (successCount === 0 && retryCount < maxRetries) {
+                    console.log(`${retryDelay}ms後重試...`);
+                    setTimeout(() => {
+                        loadAllVotesFromAPI(retryCount + 1);
+                    }, retryDelay);
+                }
+            }).catch(err => {
+                console.error('數據載入失敗:', err);
+                if (retryCount < maxRetries) {
+                    console.log(`${retryDelay}ms後重試...`);
+                    setTimeout(() => {
+                        loadAllVotesFromAPI(retryCount + 1);
+                    }, retryDelay);
+                }
+            });
         }
 
 
@@ -1250,10 +1322,36 @@
         // ===== 初始化 =====
         
         // 頁面載入時初始化
-        document.addEventListener('DOMContentLoaded', function() {
-            loadAllVotesFromAPI();
+        function initializeApp() {
+            console.log('初始化應用程式...');
+            
+            // 延遲載入，確保頁面完全載入
+            setTimeout(() => {
+                loadAllVotesFromAPI();
+            }, 1000);
+            
             // 每30秒自動刷新
             setInterval(loadAllVotesFromAPI, 30000);
+            
+            // 添加頁面可見性變化監聽
+            document.addEventListener('visibilitychange', function() {
+                if (!document.hidden) {
+                    console.log('頁面重新可見，重新載入數據');
+                    loadAllVotesFromAPI();
+                }
+            });
+        }
+        
+        // 多種初始化方式確保兼容性
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeApp);
+        } else {
+            initializeApp();
+        }
+        
+        // 額外的初始化保險
+        window.addEventListener('load', function() {
+            setTimeout(initializeApp, 500);
         });
 
         // 添加CSS動畫
