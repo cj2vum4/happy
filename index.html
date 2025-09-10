@@ -600,20 +600,6 @@
                    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(255, 105, 180, 0.3)'">
                     🔄 刷新投票結果
                 </button>
-                <button onclick="testAPI()" style="
-                    background: linear-gradient(45deg, #32CD32, #90EE90);
-                    color: white;
-                    border: none;
-                    padding: 10px 20px;
-                    border-radius: 25px;
-                    font-weight: bold;
-                    cursor: pointer;
-                    transition: all 0.3s ease;
-                    box-shadow: 0 4px 15px rgba(50, 205, 50, 0.3);
-                " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(50, 205, 50, 0.4)'" 
-                   onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(50, 205, 50, 0.3)'">
-                    🧪 測試API連接
-                </button>
             </div>
         </div>
 
@@ -925,369 +911,136 @@
     <script>
         // Google Apps Script API URL
         const API_URL = 'https://script.google.com/macros/s/AKfycbzhF6spxU9cuniq71jA8foDIVK9X9iwvaoCozBtIo3-7PhwMsUKZ1M63MaJn3vy0Itq/exec';
-        
-        // 從Google Apps Script獲取特定投票數據
-        async function fetchVotesFromAPI(sheetName) {
-            try {
-                const url = `${API_URL}?action=get&sheet=${encodeURIComponent(sheetName)}`;
-                console.log(`正在從API獲取${sheetName}投票數據:`, url);
-                
-                const response = await fetch(url, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    }
-                });
-                
-                console.log('API響應狀態:', response.status);
-                
-                if (response.ok) {
-                    const responseText = await response.text();
-                    console.log('API原始響應:', responseText);
-                    
-                    try {
-                        const data = JSON.parse(responseText);
-                        console.log(`解析後的${sheetName}投票數據:`, data);
-                        return data;
-                    } catch (parseError) {
-                        console.error('JSON解析失敗:', parseError);
-                        return null;
-                    }
-                } else {
-                    console.error(`獲取${sheetName}投票數據失敗:`, response.status, response.statusText);
-                    return null;
-                }
-            } catch (error) {
-                console.error(`獲取${sheetName}投票數據時發生錯誤:`, error);
-                return null;
+
+        // ===== JSONP 核心函數 =====
+        function fetchJSONP(url, callbackName) {
+            const script = document.createElement('script');
+            script.src = `${url}&callback=${callbackName}`;
+            document.head.appendChild(script);
+            // 清理
+            script.onload = () => {
+                document.head.removeChild(script);
+            };
+            script.onerror = () => {
+                console.error(`JSONP request failed for URL: ${url}`);
+                document.head.removeChild(script);
             }
         }
-        
-        // 獲取所有投票數據
-        function fetchAllVotesFromAPI() {
-            console.log('開始獲取投票數據...');
-            
-            // 使用iframe方式獲取數據，避免CORS問題
-            const urls = [
-                'https://script.google.com/macros/s/AKfycbzhF6spxU9cuniq71jA8foDIVK9X9iwvaoCozBtIo3-7PhwMsUKZ1M63MaJn3vy0Itq/exec?action=get&sheet=住宿投票',
-                'https://script.google.com/macros/s/AKfycbzhF6spxU9cuniq71jA8foDIVK9X9iwvaoCozBtIo3-7PhwMsUKZ1M63MaJn3vy0Itq/exec?action=get&sheet=餐廳投票',
-                'https://script.google.com/macros/s/AKfycbzhF6spxU9cuniq71jA8foDIVK9X9iwvaoCozBtIo3-7PhwMsUKZ1M63MaJn3vy0Itq/exec?action=get&sheet=上車地點投票'
-            ];
-            
-            let completedRequests = 0;
-            const totalRequests = urls.length;
-            
-            // 設置消息監聽器
-            window.addEventListener('message', function(event) {
-                if (event.data && event.data.type === 'api_response') {
-                    console.log('收到API響應:', event.data.data);
-                    
-                    // 根據數據內容判斷是哪個投票表
-                    if (event.data.data.sheet === '住宿投票') {
-                        updateVoteCountsFromAPI(event.data.data, 'accommodation');
-                    } else if (event.data.data.sheet === '餐廳投票') {
-                        updateDinnerVoteCountsFromAPI(event.data.data);
-                    } else if (event.data.data.sheet === '上車地點投票') {
-                        updateTransportVoteCountsFromAPI(event.data.data);
-                    }
-                    
-                    completedRequests++;
-                    if (completedRequests >= totalRequests) {
-                        console.log('所有投票數據獲取完成');
-                    }
-                }
-            });
-            
-            // 創建iframe獲取數據
-            urls.forEach((url, index) => {
-                const iframe = document.createElement('iframe');
-                iframe.style.display = 'none';
-                iframe.src = url;
-                iframe.onload = function() {
-                    console.log(`iframe ${index + 1} 載入完成`);
-                };
-                iframe.onerror = function() {
-                    console.error(`iframe ${index + 1} 載入失敗`);
-                    completedRequests++;
-                };
-                document.body.appendChild(iframe);
-                
-                // 5秒後移除iframe
-                setTimeout(() => {
-                    if (document.body.contains(iframe)) {
-                        document.body.removeChild(iframe);
-                    }
-                }, 5000);
-            });
-            
-            return null; // iframe方式無法直接返回數據
+
+        // ===== 數據處理回調函數 =====
+        function handleAccommodationData(data) {
+            console.log('收到住宿投票數據:', data);
+            updateVoteCountsFromAPI(data);
+        }
+
+        function handleDinnerData(data) {
+            console.log('收到餐廳投票數據:', data);
+            updateDinnerVoteCountsFromAPI(data);
+        }
+
+        function handleTransportData(data) {
+            console.log('收到上車地點投票數據:', data);
+            updateTransportVoteCountsFromAPI(data);
         }
         
-        // 發送投票數據到Google Apps Script
-        function sendVoteToAPI(sheetName, optionIndex) {
-            try {
-                const url = `${API_URL}?action=vote&option=${optionIndex}&sheet=${encodeURIComponent(sheetName)}`;
-                console.log(`正在發送投票到${sheetName}:`, url);
-                
-                // 使用隱藏iframe方式避免CORS問題
-                const iframe = document.createElement('iframe');
-                iframe.style.display = 'none';
-                iframe.src = url;
-                iframe.onload = function() {
-                    console.log(`投票數據已成功發送到${sheetName}`);
-                    document.body.removeChild(iframe);
-                    
-                    // 投票成功後，重新獲取最新的投票數據
-                    setTimeout(() => {
-                        loadVotesFromAPI();
-                    }, 1000);
-                };
-                iframe.onerror = function() {
-                    console.error(`發送投票數據到${sheetName}失敗`);
-                    document.body.removeChild(iframe);
-                };
-                document.body.appendChild(iframe);
-                
-            } catch (error) {
-                console.error(`發送投票數據到${sheetName}時發生錯誤:`, error);
+        function handleSingleOptionStats(data) {
+            console.log('收到單一選項數據:', data);
+            if (data && data.option) {
+                const stats = data.option;
+                const message = `${stats.text}\n票數: ${stats.votes}\n百分比: ${stats.percentage}%\n總票數: ${data.totalVotes}`;
+                showToast(message);
+            } else {
+                showToast('無法獲取統計數據');
             }
         }
+
+        // ===== 投票功能 =====
         
-        // 住宿投票功能
+        // 住宿投票
         function vote(option) {
-            // 選項對應的索引
-            const optionIndexMap = {
-                'yangshen': 0,    // 仰森水畔民宿
-                'qingmi': 1,      // 青覓礁溪
-                'expensive': 2,   // 想住別的，貴一點的
-                'cheap': 3        // 想住別的，便宜一點的
-            };
-            
+            const optionIndexMap = { 'yangshen': 0, 'qingmi': 1, 'expensive': 2, 'cheap': 3 };
             const optionIndex = optionIndexMap[option];
-            if (optionIndex === undefined) {
-                console.error('未知的住宿選項:', option);
-                return;
-            }
+            if (optionIndex === undefined) return;
             
-            // 更新本地數據
-            let votes = JSON.parse(localStorage.getItem('accommodationVotes')) || {
-                yangshen: 0,
-                qingmi: 0,
-                expensive: 0,
-                cheap: 0
-            };
-            votes[option]++;
-            localStorage.setItem('accommodationVotes', JSON.stringify(votes));
-            updateVoteCounts(votes);
-            
-            // 發送到Google Apps Script
-            sendVoteToAPI('住宿投票', optionIndex);
-            
-            // 添加投票動畫效果
-            const button = event.target;
-            button.classList.add('voted');
-            button.textContent = '✅ 已投票';
-            
-            setTimeout(() => {
-                button.classList.remove('voted');
-                button.textContent = '👍 投票';
-            }, 1000);
-            
-            // 顯示感謝訊息
+            const url = `${API_URL}?action=vote&option=${optionIndex}&sheet=住宿投票`;
+            fetchJSONP(url, 'handleAccommodationData');
+
+            animateButton(event.target);
             showThankYouMessage(option);
         }
-        
-        // 晚餐投票功能
+
+        // 晚餐投票
         function voteDinner(option) {
-            // 選項對應的索引
-            const optionIndexMap = {
-                'mingshuiran': 0,  // 明水然鐵板燒
-                'huangtai': 1,     // 皇泰火鍋城
-                'keshi': 2,        // 柯氏蔥油餅
-                'nightmarket': 3,  // 夜市美食
-                'pizza': 4         // 叫披薩到民宿
-            };
-            
+            const optionIndexMap = { 'mingshuiran': 0, 'huangtai': 1, 'keshi': 2, 'nightmarket': 3, 'pizza': 4 };
             const optionIndex = optionIndexMap[option];
-            if (optionIndex === undefined) {
-                console.error('未知的晚餐選項:', option);
-                return;
-            }
+            if (optionIndex === undefined) return;
+
+            const url = `${API_URL}?action=vote&option=${optionIndex}&sheet=餐廳投票`;
+            fetchJSONP(url, 'handleDinnerData');
             
-            // 更新本地數據
-            let votes = JSON.parse(localStorage.getItem('dinnerVotes')) || {
-                mingshuiran: 0,
-                huangtai: 0,
-                keshi: 0,
-                nightmarket: 0,
-                pizza: 0
-            };
-            votes[option]++;
-            localStorage.setItem('dinnerVotes', JSON.stringify(votes));
-            updateDinnerVoteCounts(votes);
-            
-            // 發送到Google Apps Script
-            sendVoteToAPI('餐廳投票', optionIndex);
-            
-            // 添加投票動畫效果
-            const button = event.target;
-            button.classList.add('voted');
-            button.textContent = '✅ 已投票';
-            
-            setTimeout(() => {
-                button.classList.remove('voted');
-                button.textContent = '👍 投票';
-            }, 1000);
-            
-            // 顯示感謝訊息
+            animateButton(event.target);
             showDinnerThankYouMessage(option);
         }
-        
-        // 交通投票功能
+
+        // 交通投票
         function voteTransport(option) {
-            // 選項對應的索引
-            const optionIndexMap = {
-                'taipei': 0,     // 台北
-                'zhonghe': 1,    // 中永和
-                'nangang': 2,    // 南港
-                'keelung': 3     // 基隆
-            };
-            
+            const optionIndexMap = { 'taipei': 0, 'zhonghe': 1, 'nangang': 2, 'keelung': 3 };
             const optionIndex = optionIndexMap[option];
-            if (optionIndex === undefined) {
-                console.error('未知的交通選項:', option);
-                return;
-            }
-            
-            // 更新本地數據
-            let votes = JSON.parse(localStorage.getItem('transportVotes')) || {
-                taipei: 0,
-                zhonghe: 0,
-                nangang: 0,
-                keelung: 0
-            };
-            votes[option]++;
-            localStorage.setItem('transportVotes', JSON.stringify(votes));
-            updateTransportVoteCounts(votes);
-            
-            // 發送到Google Apps Script
-            sendVoteToAPI('上車地點投票', optionIndex);
-            
-            // 添加投票動畫效果
-            const button = event.target;
+            if (optionIndex === undefined) return;
+
+            const url = `${API_URL}?action=vote&option=${optionIndex}&sheet=上車地點投票`;
+            fetchJSONP(url, 'handleTransportData');
+
+            animateButton(event.target);
+            showTransportThankYouMessage(option);
+        }
+
+        function animateButton(button) {
             button.classList.add('voted');
             button.textContent = '✅ 已投票';
-            
             setTimeout(() => {
                 button.classList.remove('voted');
                 button.textContent = '👍 投票';
             }, 1000);
-            
-            // 顯示感謝訊息
-            showTransportThankYouMessage(option);
         }
+
+        // ===== 更新UI顯示 =====
         
-        // 更新住宿投票計數顯示（本地數據格式）
-        function updateVoteCounts(votes) {
-            if (!votes) {
-                console.log('住宿投票數據為空');
-                return;
-            }
-            
-            // 直接使用本地數據格式更新顯示
-            document.getElementById('count-yangshen').textContent = (votes.yangshen || 0) + ' 票';
-            document.getElementById('count-qingmi').textContent = (votes.qingmi || 0) + ' 票';
-            document.getElementById('count-expensive').textContent = (votes.expensive || 0) + ' 票';
-            document.getElementById('count-cheap').textContent = (votes.cheap || 0) + ' 票';
-        }
-        
-        // 更新住宿投票計數顯示（API數據格式）
-        function updateVoteCountsFromAPI(apiData, type) {
-            if (!apiData || !apiData.options) {
-                console.log('住宿投票API數據格式不正確:', apiData);
-                return;
-            }
-            
-            // 根據API返回的選項順序更新顯示
+        // 更新住宿投票計數顯示
+        function updateVoteCountsFromAPI(apiData) {
+            if (!apiData || !apiData.options) return;
             const optionIds = ['count-yangshen', 'count-qingmi', 'count-expensive', 'count-cheap'];
-            
             apiData.options.forEach((option, index) => {
                 if (optionIds[index]) {
                     document.getElementById(optionIds[index]).textContent = option.votes + ' 票';
                 }
             });
-            
-            console.log('已更新住宿投票顯示:', apiData);
         }
-        
-        // 更新晚餐投票計數顯示（本地數據格式）
-        function updateDinnerVoteCounts(votes) {
-            if (!votes) {
-                console.log('晚餐投票數據為空');
-                return;
-            }
-            
-            // 直接使用本地數據格式更新顯示
-            document.getElementById('count-mingshuiran').textContent = (votes.mingshuiran || 0) + ' 票';
-            document.getElementById('count-huangtai').textContent = (votes.huangtai || 0) + ' 票';
-            document.getElementById('count-keshi').textContent = (votes.keshi || 0) + ' 票';
-            document.getElementById('count-nightmarket').textContent = (votes.nightmarket || 0) + ' 票';
-            document.getElementById('count-pizza').textContent = (votes.pizza || 0) + ' 票';
-        }
-        
-        // 更新晚餐投票計數顯示（API數據格式）
+
+        // 更新晚餐投票計數顯示
         function updateDinnerVoteCountsFromAPI(apiData) {
-            if (!apiData || !apiData.options) {
-                console.log('晚餐投票API數據格式不正確:', apiData);
-                return;
-            }
-            
-            // 根據API返回的選項順序更新顯示
+            if (!apiData || !apiData.options) return;
             const optionIds = ['count-mingshuiran', 'count-huangtai', 'count-keshi', 'count-nightmarket', 'count-pizza'];
-            
             apiData.options.forEach((option, index) => {
                 if (optionIds[index]) {
                     document.getElementById(optionIds[index]).textContent = option.votes + ' 票';
                 }
             });
-            
-            console.log('已更新晚餐投票顯示:', apiData);
         }
-        
-        // 更新交通投票計數顯示（本地數據格式）
-        function updateTransportVoteCounts(votes) {
-            if (!votes) {
-                console.log('交通投票數據為空');
-                return;
-            }
-            
-            // 直接使用本地數據格式更新顯示
-            document.getElementById('count-taipei').textContent = (votes.taipei || 0) + ' 票';
-            document.getElementById('count-zhonghe').textContent = (votes.zhonghe || 0) + ' 票';
-            document.getElementById('count-nangang').textContent = (votes.nangang || 0) + ' 票';
-            document.getElementById('count-keelung').textContent = (votes.keelung || 0) + ' 票';
-        }
-        
-        // 更新交通投票計數顯示（API數據格式）
+
+        // 更新交通投票計數顯示
         function updateTransportVoteCountsFromAPI(apiData) {
-            if (!apiData || !apiData.options) {
-                console.log('交通投票API數據格式不正確:', apiData);
-                return;
-            }
-            
-            // 根據API返回的選項順序更新顯示
+            if (!apiData || !apiData.options) return;
             const optionIds = ['count-taipei', 'count-zhonghe', 'count-nangang', 'count-keelung'];
-            
             apiData.options.forEach((option, index) => {
                 if (optionIds[index]) {
                     document.getElementById(optionIds[index]).textContent = option.votes + ' 票';
                 }
             });
-            
-            console.log('已更新交通投票顯示:', apiData);
         }
-        
-        // 顯示住宿感謝訊息
+
+        // ===== 感謝訊息 =====
+
         function showThankYouMessage(option) {
             const messages = {
                 yangshen: '謝謝您支持仰森水畔民宿！🏡',
@@ -1295,10 +1048,9 @@
                 expensive: '謝謝您選擇豪華住宿！💎',
                 cheap: '謝謝您選擇經濟實惠！💰'
             };
-            showToast(messages[option]);
+            showToast(messages[option] || '謝謝您的投票！');
         }
         
-        // 顯示晚餐感謝訊息
         function showDinnerThankYouMessage(option) {
             const messages = {
                 mingshuiran: '謝謝您選擇明水然鐵板燒！🍳',
@@ -1307,10 +1059,9 @@
                 nightmarket: '謝謝您選擇夜市美食！🌃',
                 pizza: '謝謝您選擇叫披薩到民宿！🍕'
             };
-            showToast(messages[option]);
+            showToast(messages[option] || '謝謝您的投票！');
         }
-        
-        // 顯示交通感謝訊息
+
         function showTransportThankYouMessage(option) {
             const messages = {
                 taipei: '謝謝您選擇台北上車！🏙️',
@@ -1318,30 +1069,23 @@
                 nangang: '謝謝您選擇南港上車！🚄',
                 keelung: '謝謝您選擇基隆上車！🌊'
             };
-            showToast(messages[option]);
+            showToast(messages[option] || '謝謝您的投票！');
         }
-        
-        // 通用提示訊息函數
+
+        // 通用提示訊息函數 (Toast)
         function showToast(message) {
-            // 創建臨時提示訊息
             const toast = document.createElement('div');
             toast.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
+                position: fixed; top: 20px; right: 20px;
                 background: linear-gradient(45deg, #FF69B4, #FFB6C1);
-                color: white;
-                padding: 15px 25px;
-                border-radius: 25px;
-                font-weight: bold;
-                z-index: 1000;
+                color: white; padding: 15px 25px; border-radius: 25px;
+                font-weight: bold; z-index: 1000;
                 box-shadow: 0 8px 25px rgba(255, 105, 180, 0.4);
-                animation: slideIn 0.5s ease-out;
+                animation: slideIn 0.5s ease-out; white-space: pre-wrap;
             `;
             toast.textContent = message;
             document.body.appendChild(toast);
             
-            // 3秒後移除提示訊息
             setTimeout(() => {
                 toast.style.animation = 'slideOut 0.5s ease-in';
                 setTimeout(() => {
@@ -1351,221 +1095,44 @@
                 }, 500);
             }, 3000);
         }
+
+        // ===== 數據加載與刷新 =====
         
-        // 從API載入投票數據並更新顯示
-        async function loadVotesFromAPI() {
-            console.log('開始載入投票數據...');
-            
-            // 首先嘗試從API獲取真實數據
-            const apiData = await fetchAllVotesFromAPI();
-            
-            if (apiData) {
-                console.log('成功從API獲取數據，已更新顯示');
-            } else {
-                console.log('API獲取失敗，使用本地數據作為備用');
-                loadLocalVotes();
-            }
+        // 從API載入所有投票數據
+        function loadAllVotesFromAPI() {
+            console.log('開始載入所有投票數據...');
+            fetchJSONP(`${API_URL}?action=get&sheet=住宿投票`, 'handleAccommodationData');
+            fetchJSONP(`${API_URL}?action=get&sheet=餐廳投票`, 'handleDinnerData');
+            fetchJSONP(`${API_URL}?action=get&sheet=上車地點投票`, 'handleTransportData');
         }
-        
-        // 載入本地儲存的投票數據（備用方案）
-        function loadLocalVotes() {
-            // 初始化住宿投票
-            let accommodationVotes = JSON.parse(localStorage.getItem('accommodationVotes')) || {
-                yangshen: 0,
-                qingmi: 0,
-                expensive: 0,
-                cheap: 0
-            };
-            updateVoteCounts(accommodationVotes);
-            
-            // 初始化晚餐投票
-            let dinnerVotes = JSON.parse(localStorage.getItem('dinnerVotes')) || {
-                mingshuiran: 0,
-                huangtai: 0,
-                keshi: 0,
-                nightmarket: 0,
-                pizza: 0
-            };
-            updateDinnerVoteCounts(dinnerVotes);
-            
-            // 初始化交通投票
-            let transportVotes = JSON.parse(localStorage.getItem('transportVotes')) || {
-                taipei: 0,
-                zhonghe: 0,
-                nangang: 0,
-                keelung: 0
-            };
-            updateTransportVoteCounts(transportVotes);
-        }
-        
-        // 手動刷新投票結果
+
+        // 手動刷新
         function refreshVotes() {
             showToast('正在刷新投票結果...');
-            loadVotesFromAPI();
+            loadAllVotesFromAPI();
         }
-        
-        // 獲取單一選項統計
-        async function getOptionStats(sheetName, optionIndex) {
-            try {
-                const url = `${API_URL}?action=getOption&sheet=${encodeURIComponent(sheetName)}&option=${optionIndex}`;
-                console.log(`獲取${sheetName}選項${optionIndex}統計:`, url);
-                
-                const response = await fetch(url);
-                if (response.ok) {
-                    const data = await response.json();
-                    console.log('選項統計數據:', data);
-                    return data;
-                } else {
-                    console.error('獲取選項統計失敗:', response.status);
-                    return null;
-                }
-            } catch (error) {
-                console.error('獲取選項統計時發生錯誤:', error);
-                return null;
-            }
-        }
-        
+
         // 顯示選項詳細統計
         function showOptionStats(sheetName, optionIndex, optionName) {
-            getOptionStats(sheetName, optionIndex).then(data => {
-                if (data && data.option) {
-                    const stats = data.option;
-                    const message = `${optionName}\n票數: ${stats.votes}\n百分比: ${stats.percentage}%\n總票數: ${data.totalVotes}`;
-                    showToast(message);
-                } else {
-                    showToast('無法獲取統計數據');
-                }
-            });
+            // optionName is now just for context, the real name comes from the API
+            const url = `${API_URL}?action=getOption&sheet=${encodeURIComponent(sheetName)}&option=${optionIndex}`;
+            fetchJSONP(url, 'handleSingleOptionStats');
         }
         
-        // 測試API連接
-        async function testAPI() {
-            showToast('正在測試API連接...');
-            console.log('=== 開始測試API連接 ===');
-            
-            try {
-                // 測試完整的API功能
-                const testCases = [
-                    {
-                        name: '住宿投票 - 完整結果',
-                        url: 'https://script.google.com/macros/s/AKfycbzhF6spxU9cuniq71jA8foDIVK9X9iwvaoCozBtIo3-7PhwMsUKZ1M63MaJn3vy0Itq/exec?action=get&sheet=住宿投票'
-                    },
-                    {
-                        name: '餐廳投票 - 完整結果',
-                        url: 'https://script.google.com/macros/s/AKfycbzhF6spxU9cuniq71jA8foDIVK9X9iwvaoCozBtIo3-7PhwMsUKZ1M63MaJn3vy0Itq/exec?action=get&sheet=餐廳投票'
-                    },
-                    {
-                        name: '上車地點投票 - 完整結果',
-                        url: 'https://script.google.com/macros/s/AKfycbzhF6spxU9cuniq71jA8foDIVK9X9iwvaoCozBtIo3-7PhwMsUKZ1M63MaJn3vy0Itq/exec?action=get&sheet=上車地點投票'
-                    },
-                    {
-                        name: '餐廳投票 - 單一選項統計',
-                        url: 'https://script.google.com/macros/s/AKfycbzhF6spxU9cuniq71jA8foDIVK9X9iwvaoCozBtIo3-7PhwMsUKZ1M63MaJn3vy0Itq/exec?action=getOption&sheet=餐廳投票&option=0'
-                    }
-                ];
-                
-                for (let i = 0; i < testCases.length; i++) {
-                    const test = testCases[i];
-                    
-                    console.log(`\n--- 測試 ${test.name} ---`);
-                    console.log('請求URL:', test.url);
-                    
-                    try {
-                        const response = await fetch(test.url, {
-                            method: 'GET',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            }
-                        });
-                        
-                        console.log('響應狀態:', response.status);
-                        console.log('響應狀態文本:', response.statusText);
-                        
-                        const responseText = await response.text();
-                        console.log('原始響應:', responseText);
-                        
-                        if (response.ok) {
-                            try {
-                                const jsonData = JSON.parse(responseText);
-                                console.log('✅ JSON解析成功:', jsonData);
-                                
-                                if (jsonData.question) {
-                                    console.log('問題:', jsonData.question);
-                                }
-                                if (jsonData.options) {
-                                    console.log('選項數量:', jsonData.options.length);
-                                    console.log('選項詳情:');
-                                    jsonData.options.forEach((option, index) => {
-                                        console.log(`  [${index}] ${option.text}: ${option.votes}票`);
-                                    });
-                                }
-                                if (jsonData.option) {
-                                    console.log('單一選項統計:', jsonData.option);
-                                    console.log(`  ${jsonData.option.text}: ${jsonData.option.votes}票 (${jsonData.option.percentage}%)`);
-                                }
-                                if (jsonData.totalVotes !== undefined) {
-                                    console.log('總票數:', jsonData.totalVotes);
-                                }
-                                if (jsonData.sheet) {
-                                    console.log('工作表:', jsonData.sheet);
-                                }
-                                
-                            } catch (parseError) {
-                                console.error('❌ JSON解析失敗:', parseError.message);
-                            }
-                        } else {
-                            console.error('❌ 請求失敗:', response.status, response.statusText);
-                        }
-                    } catch (fetchError) {
-                        console.error('❌ 網路請求失敗:', fetchError.message);
-                    }
-                }
-                
-                showToast('API測試完成！請查看控制台了解詳情');
-                
-            } catch (error) {
-                console.error('API測試失敗:', error);
-                showToast(`API測試失敗: ${error.message}`);
-            }
-            
-            console.log('\n=== API測試結束 ===');
-        }
+        // ===== 初始化 =====
         
-        // 頁面載入時初始化所有投票計數
+        // 頁面載入時初始化
         document.addEventListener('DOMContentLoaded', function() {
-            // 首先嘗試從API載入數據
-            loadVotesFromAPI();
-            
-            // 每30秒自動刷新一次投票結果
-            setInterval(() => {
-                loadVotesFromAPI();
-            }, 30000);
+            loadAllVotesFromAPI();
+            // 每30秒自動刷新
+            setInterval(loadAllVotesFromAPI, 30000);
         });
-        
+
         // 添加CSS動畫
         const style = document.createElement('style');
         style.textContent = `
-            @keyframes slideIn {
-                from {
-                    transform: translateX(100%);
-                    opacity: 0;
-                }
-                to {
-                    transform: translateX(0);
-                    opacity: 1;
-                }
-            }
-            
-            @keyframes slideOut {
-                from {
-                    transform: translateX(0);
-                    opacity: 1;
-                }
-                to {
-                    transform: translateX(100%);
-                    opacity: 0;
-                }
-            }
+            @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+            @keyframes slideOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }
         `;
         document.head.appendChild(style);
     </script>
