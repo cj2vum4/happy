@@ -1478,7 +1478,8 @@
             if (section.classList.contains('collapsed')) {
                 // 展開
                 section.classList.remove('collapsed');
-                content.style.maxHeight = content.scrollHeight + 'px';
+                // 加上一個緩衝值 (例如 20px) 來解決 scrollHeight 計算不精確導致內容被裁切的問題
+                content.style.maxHeight = (content.scrollHeight + 20) + 'px';
                 if (icon) icon.textContent = '🔽';
             } else {
                 // 收縮
