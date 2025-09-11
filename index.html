@@ -1518,6 +1518,17 @@
             audio.play().catch(e => console.log('Audio play failed:', e));
         }
     }, {once:true});
+
+    // 監聽頁面可見性變化，以處理在LINE等App內建瀏覽器中，關閉視窗後音樂仍持續播放的問題
+    document.addEventListener('visibilitychange', function() {
+        const audio = document.getElementById('bgm');
+        if (audio) {
+            if (document.hidden) {
+                // 當頁面變得不可見時（例如切換App、關閉內建瀏覽器視窗），就暫停音樂
+                audio.pause();
+            }
+        }
+    });
 </script>
 
 </body>
