@@ -1474,18 +1474,33 @@
             const section = header.closest('.collapsible-section') || header.closest('.day-section');
             const content = section.querySelector('.collapsible-content');
             const icon = header.querySelector('.collapse-icon');
-            
+
             if (section.classList.contains('collapsed')) {
                 // 展開
                 section.classList.remove('collapsed');
-                // 加上一個緩衝值 (例如 20px) 來解決 scrollHeight 計算不精確導致內容被裁切的問題
-                content.style.maxHeight = (content.scrollHeight + 20) + 'px';
                 if (icon) icon.textContent = '🔽';
+                
+                // 動態設置maxHeight以觸發動畫
+                content.style.maxHeight = content.scrollHeight + 'px';
+
+                // 動畫結束後移除maxHeight，允許內容自適應
+                const handleTransitionEnd = () => {
+                    content.style.maxHeight = 'none';
+                    content.removeEventListener('transitionend', handleTransitionEnd);
+                };
+                content.addEventListener('transitionend', handleTransitionEnd);
+
             } else {
                 // 收縮
-                section.classList.add('collapsed');
-                content.style.maxHeight = '0px';
-                if (icon) icon.textContent = '▶️';
+                // 為了讓收縮動畫能從一個具體的高度開始，先設置maxHeight
+                content.style.maxHeight = content.scrollHeight + 'px';
+
+                // 使用一個極短的延遲，確保瀏覽器先應用上面的maxHeight，然後再開始向0過渡
+                setTimeout(() => {
+                    section.classList.add('collapsed');
+                    if (icon) icon.textContent = '▶️';
+                    content.style.maxHeight = '0px';
+                }, 10);
             }
         }
 
