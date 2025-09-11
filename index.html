@@ -194,7 +194,7 @@
         }
 
         .collapsed .collapse-icon {
-            transform: translateY(-50%);
+            transform: translateY(-50%) rotate(-90deg);
         }
 
         .collapsible-content {
@@ -214,6 +214,19 @@
             margin: 0;
         }
 
+        .day-header::after {
+            content: "▶️"; /* 收放箭頭 - 預設為收縮狀態 */
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.2em;
+            transition: all 0.3s ease;
+        }
+
+        .day-section:not(.collapsed) .day-header::after {
+            content: "🔽"; /* 展開狀態 */
+        }
 
         @keyframes sparkle {
             0%, 100% { opacity: 1; transform: translateY(-50%) scale(1); }
@@ -562,7 +575,7 @@
             }
             
             .day-header {
-                padding: 15px 20px;
+                padding: 15px 50px 15px 20px;
                 font-size: 1.2em;
             }
             
@@ -609,6 +622,16 @@
             .section-title {
                 font-size: 1.5em;
                 margin-bottom: 15px;
+                padding-right: 50px;
+            }
+            
+            .collapsible-header {
+                padding-right: 50px;
+            }
+            
+            .collapse-icon {
+                right: 15px;
+                font-size: 1.1em;
             }
             
             .cost-summary {
@@ -648,11 +671,21 @@
             
             .day-header {
                 font-size: 1.1em;
-                padding: 12px 15px;
+                padding: 12px 50px 12px 15px;
             }
             
             .section-title {
                 font-size: 1.3em;
+                padding-right: 50px;
+            }
+            
+            .collapsible-header {
+                padding-right: 50px;
+            }
+            
+            .collapse-icon {
+                right: 10px;
+                font-size: 1em;
             }
             
             .time {
@@ -812,7 +845,6 @@
         <div class="day-section collapsed">
             <div class="day-header" onclick="toggleSection(this)">
                 📅🌲 第一天：抹茶山征服日 🌲📅
-                <span class="collapse-icon">▶️</span>
             </div>
             <div class="day-content collapsible-content">
                 <div class="time-item">
@@ -905,7 +937,7 @@
                         <div class="activity-title">小補充！！！</div>
                         <div class="activity-detail">大家自己抓緊時間洗澡唷</div>
                     </div>
-                </div>
+                </div><br>
             </div>
         </div>
 
@@ -913,7 +945,6 @@
         <div class="day-section collapsed">
             <div class="day-header" onclick="toggleSection(this)">
                 📅💧 第二天：溫泉慢活日 💧📅
-                <span class="collapse-icon">▶️</span>
             </div>
             <div class="day-content collapsible-content">
                 <div class="time-item">
@@ -955,9 +986,9 @@
                     <div class="time">14:00</div>
                     <div class="activity">
                         <div class="activity-title">🚗 北上返程</div>
-                        <div class="activity-detail">避開塞車時段，愉快結束兩天一夜之旅</div>
+                        <div class="activity-detail">避開塞車時段，愉快結束兩天一夜之旅</div><br>
                     </div>
-                </div>
+                </div><br>
             </div>
         </div>
 
