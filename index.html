@@ -329,18 +329,6 @@
             position: relative;
         }
 
-        .highlight::before {
-            content: "⛰️"; /* 山峰 emoji */
-            position: absolute;
-            top: -15px;
-            right: 20px;
-            font-size: 1.5em;
-            background: white;
-            padding: 5px;
-            border-radius: 50%;
-            border: 2px solid #2e7d32;
-        }
-
         .accommodation-section, .food-section, .tips-section {
             background: 
                 repeating-linear-gradient(
@@ -1474,33 +1462,17 @@
             const section = header.closest('.collapsible-section') || header.closest('.day-section');
             const content = section.querySelector('.collapsible-content');
             const icon = header.querySelector('.collapse-icon');
-
+            
             if (section.classList.contains('collapsed')) {
                 // 展開
                 section.classList.remove('collapsed');
-                if (icon) icon.textContent = '🔽';
-                
-                // 動態設置maxHeight以觸發動畫
                 content.style.maxHeight = content.scrollHeight + 'px';
-
-                // 動畫結束後移除maxHeight，允許內容自適應
-                const handleTransitionEnd = () => {
-                    content.style.maxHeight = 'none';
-                    content.removeEventListener('transitionend', handleTransitionEnd);
-                };
-                content.addEventListener('transitionend', handleTransitionEnd);
-
+                if (icon) icon.textContent = '🔽';
             } else {
                 // 收縮
-                // 為了讓收縮動畫能從一個具體的高度開始，先設置maxHeight
-                content.style.maxHeight = content.scrollHeight + 'px';
-
-                // 使用一個極短的延遲，確保瀏覽器先應用上面的maxHeight，然後再開始向0過渡
-                setTimeout(() => {
-                    section.classList.add('collapsed');
-                    if (icon) icon.textContent = '▶️';
-                    content.style.maxHeight = '0px';
-                }, 10);
+                section.classList.add('collapsed');
+                content.style.maxHeight = '0px';
+                if (icon) icon.textContent = '▶️';
             }
         }
 
