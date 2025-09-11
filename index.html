@@ -164,17 +164,56 @@
             font-weight: bold;
             text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
             position: relative;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.3s ease;
         }
 
-        .day-header::after {
-            content: "🌲"; /* 樹木 emoji */
+        .day-header:hover {
+            background: linear-gradient(45deg, #66bb6a, #a5d6a7, #c8e6c9);
+        }
+
+        .collapsible-header {
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .collapsible-header:hover {
+            background: linear-gradient(45deg, #66bb6a, #a5d6a7, #c8e6c9);
+        }
+
+        .collapse-icon {
             position: absolute;
             right: 20px;
             top: 50%;
             transform: translateY(-50%);
             font-size: 1.2em;
-            animation: sparkle 2s ease-in-out infinite;
+            transition: transform 0.3s ease;
         }
+
+        .collapsed .collapse-icon {
+            transform: translateY(-50%);
+        }
+
+        .collapsible-content {
+            transition: all 0.3s ease;
+            overflow: hidden;
+            max-height: 0;
+        }
+
+        .collapsible-section:not(.collapsed) .collapsible-content,
+        .day-section:not(.collapsed) .collapsible-content {
+            max-height: 2000px;
+        }
+
+        .collapsed .collapsible-content {
+            max-height: 0;
+            padding: 0;
+            margin: 0;
+        }
+
 
         @keyframes sparkle {
             0%, 100% { opacity: 1; transform: translateY(-50%) scale(1); }
@@ -751,12 +790,31 @@
             </div>
         </div>
 
-        <!-- 第一天行程 -->
-        <div class="day-section">
-            <div class="day-header">
-                📅🌲 第一天：抹茶山征服日 🌲📅
+        <!-- YouTube 影片區塊 -->
+        <div class="accommodation-section collapsible-section collapsed">
+            <h2 class="section-title collapsible-header" onclick="toggleSection(this)">
+                📺🌲 書嫺ㄉ擔憂 🌲📺
+                <span class="collapse-icon">▶️</span>
+            </h2>
+            <div class="collapsible-content" style="text-align: center; margin: 20px 0;">
+                <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 800px; margin: 0 auto; border-radius: 15px; box-shadow: 0 10px 30px rgba(76, 175, 80, 0.3);">
+                    <iframe 
+                        src="https://www.youtube.com/embed/AvyJJ_Ew9no" 
+                        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; border-radius: 15px;"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                        allowfullscreen>
+                    </iframe>
+                </div>
             </div>
-            <div class="day-content">
+        </div>
+
+        <!-- 第一天行程 -->
+        <div class="day-section collapsed">
+            <div class="day-header" onclick="toggleSection(this)">
+                📅🌲 第一天：抹茶山征服日 🌲📅
+                <span class="collapse-icon">▶️</span>
+            </div>
+            <div class="day-content collapsible-content">
                 <div class="time-item">
                     <div class="time">07:00</div>
                     <div class="activity">
@@ -852,11 +910,12 @@
         </div>
 
         <!-- 第二天行程 -->
-        <div class="day-section">
-            <div class="day-header">
+        <div class="day-section collapsed">
+            <div class="day-header" onclick="toggleSection(this)">
                 📅💧 第二天：溫泉慢活日 💧📅
+                <span class="collapse-icon">▶️</span>
             </div>
-            <div class="day-content">
+            <div class="day-content collapsible-content">
                 <div class="time-item">
                     <div class="time">11:00</div>
                     <div class="activity">
@@ -903,9 +962,12 @@
         </div>
 
         <!-- 住宿推薦 -->
-        <div class="accommodation-section">
-            <h2 class="section-title">🏨🌲 住宿推薦 🌲🏨   可以無限投票！</h2>
-            <div class="accommodation-grid">
+        <div class="accommodation-section collapsible-section collapsed">
+            <h2 class="section-title collapsible-header" onclick="toggleSection(this)">
+                🏨🌲 住宿推薦 🌲🏨   可以無限投票！
+                <span class="collapse-icon">▶️</span>
+            </h2>
+            <div class="accommodation-grid collapsible-content">
                 <div class="card accommodation-option" data-option="yangshen">
                     <h4>🏡 仰森水畔民宿</h4>
                     <p>鄰近礁溪市區與水鳥保護區，戶外烤肉歡聚</p>
@@ -953,9 +1015,12 @@
         </div>
 
         <!-- 第一天晚餐投票 -->
-        <div class="food-section">
-            <h2 class="section-title">🍽️🌲 第一天晚餐投票 🌲🍽️   可以無限投票！</h2>
-            <div class="food-grid">
+        <div class="food-section collapsible-section collapsed">
+            <h2 class="section-title collapsible-header" onclick="toggleSection(this)">
+                🍽️🌲 第一天晚餐投票 🌲🍽️   可以無限投票！
+                <span class="collapse-icon">▶️</span>
+            </h2>
+            <div class="food-grid collapsible-content">
                 <div class="card dinner-option" data-option="mingshuiran">
                     <h4>🍳 明水然鐵板燒(1500/人)</h4>
                     <p>連續3年高CP值冠軍</p>
@@ -995,9 +1060,12 @@
         </div>
 
         <!-- 交通上車地點投票 -->
-        <div class="accommodation-section">
-            <h2 class="section-title">🚗🌲 交通上車地點投票 🌲🚗<br><p>投錯了我也沒辦法，請自己到群組自首！</p></h2>
-            <div class="accommodation-grid">
+        <div class="accommodation-section collapsible-section collapsed">
+            <h2 class="section-title collapsible-header" onclick="toggleSection(this)">
+                🚗🌲 交通上車地點投票 🌲🚗<br><p>投錯了我也沒辦法，請自己到群組自首！</p>
+                <span class="collapse-icon">▶️</span>
+            </h2>
+            <div class="accommodation-grid collapsible-content">
                 <div class="card transport-option" data-option="taipei">
                     <h4>🏙️ 台北</h4>
                     <p>沒意外的話應該是上陳聖文的車</p>
@@ -1030,9 +1098,12 @@
         </div>
 
         <!-- 重要提醒 -->
-        <div class="tips-section">
-            <h2 class="section-title">💡🌲 重要提醒事項 🌲💡</h2>
-            <ul class="tips-list">
+        <div class="tips-section collapsible-section collapsed">
+            <h2 class="section-title collapsible-header" onclick="toggleSection(this)">
+                💡🌲 重要提醒事項 🌲💡
+                <span class="collapse-icon">▶️</span>
+            </h2>
+            <ul class="tips-list collapsible-content">
                 <li><strong>登山裝備必備：</strong>登山鞋、充足飲水（每人至少2L）、雨具、頭燈、行動電源</li>
                 <li><strong>體力分配：</strong>15人團體行動，依個人體力調整速度，大家一起加油！</li>
                 <li><strong>天氣查詢：</strong>出發前確認步道開放狀況，避免颱風雨天，有天使幫忙找雨備興煜會很開心</li>
@@ -1044,17 +1115,23 @@
         </div>
 
         <!-- 費用總覽 -->
-        <div class="cost-summary">
-            <h2>💰🌲 費用預估總覽（每人）🌲💰</h2>
-            <div class="cost-item">交通費：$100-200</div>
+        <div class="cost-summary collapsible-section collapsed">
+            <h2 class="collapsible-header" onclick="toggleSection(this)" style="cursor: pointer; user-select: none;">
+                💰🌲 費用預估總覽（每人）🌲💰
+                <span class="collapse-icon">▶️</span>
+            </h2>
+            <div class="collapsible-content">
+                <div class="cost-item">交通費：$100-200</div>
             <div class="cost-item">住宿費：$1,000-2,000</div>
             <div class="cost-item">餐費：$500-2,000</div>
             <div class="cost-item">按摩：$800-1,200</div>
             <div class="cost-item">區塊鏈講師：$300</div>
-            <div style="margin-top: 20px; font-size: 1.2em;">
-                <strong>總計：約 每人$2,700-5,700</strong>
+                <div style="margin-top: 20px; font-size: 1.2em;">
+                    <strong>總計：約 每人$2,700-5,700</strong>
+                </div>
             </div>
         </div>
+
     </div>
 
     <script>
@@ -1325,6 +1402,9 @@
         function initializeApp() {
             console.log('初始化應用程式...');
             
+            // 初始化收放功能
+            initializeCollapsibleSections();
+            
             // 延遲載入，確保頁面完全載入
             setTimeout(() => {
                 loadAllVotesFromAPI();
@@ -1353,6 +1433,37 @@
         window.addEventListener('load', function() {
             setTimeout(initializeApp, 500);
         });
+
+        // ===== 收放功能 =====
+        function toggleSection(header) {
+            const section = header.closest('.collapsible-section') || header.closest('.day-section');
+            const content = section.querySelector('.collapsible-content');
+            const icon = header.querySelector('.collapse-icon');
+            
+            if (section.classList.contains('collapsed')) {
+                // 展開
+                section.classList.remove('collapsed');
+                content.style.maxHeight = content.scrollHeight + 'px';
+                if (icon) icon.textContent = '🔽';
+            } else {
+                // 收縮
+                section.classList.add('collapsed');
+                content.style.maxHeight = '0px';
+                if (icon) icon.textContent = '▶️';
+            }
+        }
+
+        // 初始化所有收放區塊
+        function initializeCollapsibleSections() {
+            const sections = document.querySelectorAll('.collapsible-section, .day-section');
+            sections.forEach(section => {
+                const content = section.querySelector('.collapsible-content');
+                if (content) {
+                    // 預設為收縮狀態，不設置高度
+                    content.style.maxHeight = '0px';
+                }
+            });
+        }
 
         // 添加CSS動畫
         const style = document.createElement('style');
