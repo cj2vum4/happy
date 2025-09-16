@@ -157,6 +157,24 @@
         #overlay {
             transition: opacity 0.3s ease-in-out;
         }
+        
+        /* 核選方塊樣式 */
+        .checklist-item {
+            transition: all 0.2s ease;
+        }
+        
+        .checklist-item:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+        
+        .checklist-item input[type="checkbox"] {
+            accent-color: #22c55e;
+        }
+        
+        .checklist-item input[type="checkbox"]:checked + span {
+            text-decoration: line-through;
+            opacity: 0.7;
+        }
     </style>
 </head>
 <body class="bg-gray-900 text-white">
@@ -239,8 +257,8 @@
                 <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent z-10"></div>
                 <img src="https://images.unsplash.com/photo-1551632811-561732d1e306?q=80&w=2070&auto=format&fit=crop" alt="抹茶山主視覺" class="w-full h-56 object-cover">
                 <div class="absolute bottom-4 left-4 right-4 z-20">
-                    <h2 class="text-2xl font-bold text-white drop-shadow-lg">探索抹茶山的自然之美</h2>
-                    <p class="text-white/90 text-sm mt-1 drop-shadow-md">感受山林的寧靜與壯麗</p>
+                    <h2 class="text-2xl font-bold text-white drop-shadow-lg">興煜大平台 X 浩崴區塊鏈</h2>
+                    <p class="text-white/90 text-sm mt-1 drop-shadow-md">征服抹茶山 x 一夜致富</p>
                 </div>
             </div>
 
@@ -403,16 +421,71 @@
                     </h2>
                     <div class="space-y-4 text-gray-200">
                         <div>
-                            <h3 class="font-semibold text-lg text-amber-300 mb-2">個人衣物</h3>
-                            <ul class="list-disc list-inside space-y-1 text-sm pl-2"><li>換洗衣物 (2天份)</li><li>薄外套 (山區溫差大)</li><li>拖鞋</li><li>泳衣 (泡溫泉用)</li></ul>
+                            <h3 class="font-semibold text-lg text-amber-300 mb-3">個人衣物</h3>
+                            <div class="space-y-2 pl-2">
+                                <label class="checklist-item flex items-center space-x-3 cursor-pointer rounded-lg p-2">
+                                    <input type="checkbox" class="w-5 h-5 text-green-600 bg-gray-700 border-gray-600 rounded focus:ring-green-500 focus:ring-2">
+                                    <span class="text-sm">換洗衣物 (2天份)</span>
+                                </label>
+                                <label class="checklist-item flex items-center space-x-3 cursor-pointer rounded-lg p-2">
+                                    <input type="checkbox" class="w-5 h-5 text-green-600 bg-gray-700 border-gray-600 rounded focus:ring-green-500 focus:ring-2">
+                                    <span class="text-sm">薄外套 (山區溫差大)</span>
+                                </label>
+                                <label class="checklist-item flex items-center space-x-3 cursor-pointer rounded-lg p-2">
+                                    <input type="checkbox" class="w-5 h-5 text-green-600 bg-gray-700 border-gray-600 rounded focus:ring-green-500 focus:ring-2">
+                                    <span class="text-sm">拖鞋</span>
+                                </label>
+                                <label class="checklist-item flex items-center space-x-3 cursor-pointer rounded-lg p-2">
+                                    <input type="checkbox" class="w-5 h-5 text-green-600 bg-gray-700 border-gray-600 rounded focus:ring-green-500 focus:ring-2">
+                                    <span class="text-sm">泳衣 (泡溫泉用)</span>
+                                </label>
+                            </div>
                         </div>
                         <div>
-                            <h3 class="font-semibold text-lg text-green-300 mb-2">登山裝備</h3>
-                            <ul class="list-disc list-inside space-y-1 text-sm pl-2"><li>登山鞋 / 好走的鞋</li><li>登山杖</li><li>水 (至少1000cc)</li><li>行動糧 / 零食</li><li>毛巾</li></ul>
+                            <h3 class="font-semibold text-lg text-green-300 mb-3">登山裝備</h3>
+                            <div class="space-y-2 pl-2">
+                                <label class="checklist-item flex items-center space-x-3 cursor-pointer rounded-lg p-2">
+                                    <input type="checkbox" class="w-5 h-5 text-green-600 bg-gray-700 border-gray-600 rounded focus:ring-green-500 focus:ring-2">
+                                    <span class="text-sm">登山鞋 / 好走的鞋</span>
+                                </label>
+                                <label class="checklist-item flex items-center space-x-3 cursor-pointer rounded-lg p-2">
+                                    <input type="checkbox" class="w-5 h-5 text-green-600 bg-gray-700 border-gray-600 rounded focus:ring-green-500 focus:ring-2">
+                                    <span class="text-sm">登山杖(你會感謝自己)</span>
+                                </label>
+                                <label class="checklist-item flex items-center space-x-3 cursor-pointer rounded-lg p-2">
+                                    <input type="checkbox" class="w-5 h-5 text-green-600 bg-gray-700 border-gray-600 rounded focus:ring-green-500 focus:ring-2">
+                                    <span class="text-sm">水 (至少1000cc)</span>
+                                </label>
+                                <label class="checklist-item flex items-center space-x-3 cursor-pointer rounded-lg p-2">
+                                    <input type="checkbox" class="w-5 h-5 text-green-600 bg-gray-700 border-gray-600 rounded focus:ring-green-500 focus:ring-2">
+                                    <span class="text-sm">午餐(行動糧 / 零食)</span>
+                                </label>
+                                <label class="checklist-item flex items-center space-x-3 cursor-pointer rounded-lg p-2">
+                                    <input type="checkbox" class="w-5 h-5 text-green-600 bg-gray-700 border-gray-600 rounded focus:ring-green-500 focus:ring-2">
+                                    <span class="text-sm">毛巾</span>
+                                </label>
+                            </div>
                         </div>
                         <div>
-                            <h3 class="font-semibold text-lg text-emerald-300 mb-2">其他用品</h3>
-                            <ul class="list-disc list-inside space-y-1 text-sm pl-2"><li>個人藥品 / 防蚊液</li><li>充電器 / 行動電源</li><li>健保卡 / 身分證</li><li>一顆期待的心！</li></ul>
+                            <h3 class="font-semibold text-lg text-emerald-300 mb-3">其他用品</h3>
+                            <div class="space-y-2 pl-2">
+                                <label class="checklist-item flex items-center space-x-3 cursor-pointer rounded-lg p-2">
+                                    <input type="checkbox" class="w-5 h-5 text-green-600 bg-gray-700 border-gray-600 rounded focus:ring-green-500 focus:ring-2">
+                                    <span class="text-sm">個人藥品 / 防蚊液</span>
+                                </label>
+                                <label class="checklist-item flex items-center space-x-3 cursor-pointer rounded-lg p-2">
+                                    <input type="checkbox" class="w-5 h-5 text-green-600 bg-gray-700 border-gray-600 rounded focus:ring-green-500 focus:ring-2">
+                                    <span class="text-sm">充電器 / 行動電源</span>
+                                </label>
+                                <label class="checklist-item flex items-center space-x-3 cursor-pointer rounded-lg p-2">
+                                    <input type="checkbox" class="w-5 h-5 text-green-600 bg-gray-700 border-gray-600 rounded focus:ring-green-500 focus:ring-2">
+                                    <span class="text-sm">健保卡 / 身分證</span>
+                                </label>
+                                <label class="checklist-item flex items-center space-x-3 cursor-pointer rounded-lg p-2">
+                                    <input type="checkbox" class="w-5 h-5 text-green-600 bg-gray-700 border-gray-600 rounded focus:ring-green-500 focus:ring-2">
+                                    <span class="text-sm">一顆期待的心！</span>
+                                </label>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -538,6 +611,34 @@
                 closeBlockchainModalFunc();
             }
         });
+
+        // 核選方塊功能
+        const checkboxes = document.querySelectorAll('#checklist-section input[type="checkbox"]');
+        
+        // 載入已保存的核選方塊狀態
+        function loadCheckboxStates() {
+            checkboxes.forEach((checkbox, index) => {
+                const savedState = localStorage.getItem(`checklist-item-${index}`);
+                if (savedState === 'true') {
+                    checkbox.checked = true;
+                }
+            });
+        }
+        
+        // 保存核選方塊狀態
+        function saveCheckboxState(checkbox, index) {
+            localStorage.setItem(`checklist-item-${index}`, checkbox.checked);
+        }
+        
+        // 為每個核選方塊添加事件監聽器
+        checkboxes.forEach((checkbox, index) => {
+            checkbox.addEventListener('change', () => {
+                saveCheckboxState(checkbox, index);
+            });
+        });
+        
+        // 頁面載入時恢復核選方塊狀態
+        document.addEventListener('DOMContentLoaded', loadCheckboxStates);
 
     </script>
 
