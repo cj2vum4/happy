@@ -291,7 +291,7 @@
                 <!-- 海報內容 -->
                 <div class="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
                     <div class="text-center">
-                        <img src="https://i.postimg.cc/YSxCmVcg/image.png" 
+                        <img src="https://i.postimg.cc/R0XJqST6/1.png" 
                              alt="浩崴區塊鏈分享海報" 
                              class="w-full h-auto rounded-lg shadow-lg mx-auto">
                         <p class="text-sm text-gray-600 mt-4">點擊圖片可放大查看</p>
@@ -1272,7 +1272,13 @@
                 <!-- 載入狀態 -->
                 <div id="loading-state" class="text-center py-12">
                     <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-pink-400"></div>
-                    <p class="text-gray-300 mt-4">載入照片中...</p>
+                    <p id="loading-text" class="text-gray-300 mt-4">載入照片中...</p>
+                    <div id="loading-progress" class="mt-4 max-w-xs mx-auto">
+                        <div class="bg-gray-700 rounded-full h-2">
+                            <div id="progress-bar" class="bg-pink-400 h-2 rounded-full transition-all duration-1000" style="width: 0%"></div>
+                        </div>
+                        <p id="progress-text" class="text-xs text-gray-400 mt-2">正在連接到雲端...</p>
+                    </div>
                 </div>
 
                 <!-- 錯誤狀態 -->
@@ -1281,9 +1287,18 @@
                         <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5m.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2"/>
                     </svg>
                     <p class="text-gray-300 mb-4">載入照片時發生錯誤</p>
-                    <button id="retry-btn" class="bg-pink-500 hover:bg-pink-600 text-white px-4 py-2 rounded-lg transition-colors">
-                        重新載入
-                    </button>
+                    <div class="space-y-2">
+                        <button id="retry-btn" class="bg-pink-500 hover:bg-pink-600 text-white px-4 py-2 rounded-lg transition-colors block mx-auto">
+                            重新載入
+                        </button>
+                        <button id="test-demo-btn" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors block mx-auto">
+                            載入測試照片
+                        </button>
+                        <button id="test-api-btn" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors block mx-auto">
+                            直接測試 API
+                        </button>
+                    </div>
+                    <p class="text-xs text-gray-400 mt-4">請檢查瀏覽器控制台（F12）查看詳細錯誤訊息</p>
                 </div>
 
                 <!-- 照片輪播 -->
@@ -1538,44 +1553,147 @@
         // 照片集功能
         const PHOTO_API_URL = 'https://script.google.com/macros/s/AKfycby9Qpy74qVtVsVltvRIo9ggG7J9YMuUm0j0mUBXqSA_xhDDBvufV5PRuLdMb7pNZmhh/exec';
         
+        let loadingProgressInterval = null;
+        
+        // 啟動載入進度指示器
+        function startLoadingProgress() {
+            const progressBar = document.getElementById('progress-bar');
+            const progressText = document.getElementById('progress-text');
+            
+            let progress = 0;
+            const messages = [
+                '正在連接到雲端...',
+                '正在驗證權限...',
+                '正在搜尋照片...',
+                '正在載入照片清單...',
+                '正在處理照片資料...',
+                '即將完成...'
+            ];
+            
+            let messageIndex = 0;
+            
+            if (loadingProgressInterval) {
+                clearInterval(loadingProgressInterval);
+            }
+            
+            loadingProgressInterval = setInterval(() => {
+                progress += Math.random() * 15 + 5; // 每次增加 5-20%
+                
+                if (progress > 95) {
+                    progress = 95; // 不要到達 100%，除非真的完成
+                }
+                
+                progressBar.style.width = progress + '%';
+                
+                // 更新訊息
+                if (progress > (messageIndex + 1) * 15 && messageIndex < messages.length - 1) {
+                    messageIndex++;
+                    progressText.textContent = messages[messageIndex];
+                }
+                
+                if (progress >= 95) {
+                    clearInterval(loadingProgressInterval);
+                    loadingProgressInterval = null;
+                }
+            }, 1000);
+        }
+        
+        // 停止載入進度指示器
+        function stopLoadingProgress(success = true) {
+            if (loadingProgressInterval) {
+                clearInterval(loadingProgressInterval);
+                loadingProgressInterval = null;
+            }
+            
+            const progressBar = document.getElementById('progress-bar');
+            const progressText = document.getElementById('progress-text');
+            
+            if (success) {
+                progressBar.style.width = '100%';
+                progressText.textContent = '載入完成！';
+            }
+        }
+        
         // 載入照片
         async function loadPhotos() {
             const loadingState = document.getElementById('loading-state');
             const errorState = document.getElementById('error-state');
-            const photoWall = document.getElementById('photo-wall');
+            const photoCarousel = document.getElementById('photo-carousel');
             const emptyState = document.getElementById('empty-state');
+            
+            console.log('開始載入照片...');
             
             // 顯示載入狀態
             loadingState.classList.remove('hidden');
             errorState.classList.add('hidden');
-            photoWall.classList.add('hidden');
+            photoCarousel.classList.add('hidden');
             emptyState.classList.add('hidden');
             
+            // 啟動進度指示器
+            startLoadingProgress();
+            
             try {
-                const response = await fetch(PHOTO_API_URL);
+                console.log('正在呼叫 API:', PHOTO_API_URL);
+                
+                // 設置超時機制（30秒）- Google Apps Script 可能需要較長時間
+                const timeoutPromise = new Promise((_, reject) => {
+                    setTimeout(() => reject(new Error('API 請求超時（30秒）')), 30000);
+                });
+                
+                const fetchPromise = fetch(PHOTO_API_URL, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                    }
+                });
+                
+                const response = await Promise.race([fetchPromise, timeoutPromise]);
+                
+                console.log('API 回應狀態:', response.status, response.statusText);
                 
                 if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+                    throw new Error(`HTTP error! status: ${response.status} - ${response.statusText}`);
                 }
                 
                 const data = await response.json();
                 
                 // 調試：顯示原始資料
                 console.log('API 回傳的原始資料:', data);
+                console.log('資料類型:', typeof data);
+                console.log('是否為陣列:', Array.isArray(data));
                 
                 // 檢查是否有錯誤
                 if (data.error) {
+                    console.error('API 回傳錯誤:', data.error);
                     throw new Error(data.error);
                 }
                 
+                // 檢查不同的資料格式
+                let items = [];
+                if (data.items) {
+                    items = data.items;
+                    console.log('使用 data.items:', items);
+                } else if (Array.isArray(data)) {
+                    items = data;
+                    console.log('資料本身是陣列:', items);
+                } else if (data.photos) {
+                    items = data.photos;
+                    console.log('使用 data.photos:', items);
+                } else {
+                    console.warn('未找到照片資料，嘗試所有可能的屬性:', Object.keys(data));
+                }
+                
                 // 檢查是否有照片資料
-                if (!data.items || !Array.isArray(data.items) || data.items.length === 0) {
+                if (!items || !Array.isArray(items) || items.length === 0) {
+                    console.log('沒有找到照片資料');
                     showEmptyState();
                     return;
                 }
                 
+                console.log(`找到 ${items.length} 張照片`);
+                
                 // 將物件陣列轉換成 URL 陣列
-                const photoUrls = data.items.map((item, index) => {
+                const photoUrls = items.map((item, index) => {
                     console.log(`處理項目 ${index + 1}:`, item);
                     
                     // 如果 item 是字串，直接使用
@@ -1584,7 +1702,7 @@
                         return item;
                     }
                     // 如果 item 是物件，嘗試取得 url 屬性
-                    const url = item.url || item.src || item.link || item.href || '';
+                    const url = item.url || item.src || item.link || item.href || item.webViewLink || item.webContentLink || '';
                     console.log(`項目 ${index + 1} 是物件，提取的 URL:`, url);
                     return url;
                 }).filter(url => {
@@ -1596,12 +1714,26 @@
                 }); // 過濾掉空字串
                 
                 console.log('最終的 URL 陣列:', photoUrls);
+                console.log(`成功處理 ${photoUrls.length} 個有效的照片 URL`);
+                
+                if (photoUrls.length === 0) {
+                    console.log('沒有有效的照片 URL');
+                    showEmptyState();
+                    return;
+                }
                 
                 // 顯示照片
+                stopLoadingProgress(true);
                 displayPhotos(photoUrls);
                 
             } catch (error) {
                 console.error('載入照片時發生錯誤:', error);
+                console.error('錯誤詳情:', {
+                    message: error.message,
+                    stack: error.stack,
+                    name: error.name
+                });
+                stopLoadingProgress(false);
                 showErrorState();
             }
         }
@@ -1939,15 +2071,111 @@
             window.open(photoUrl, '_blank');
         }
         
-        // 重新載入按鈕事件
-        document.getElementById('retry-btn').addEventListener('click', loadPhotos);
+        // 測試照片資料
+        function loadTestPhotos() {
+            console.log('載入測試照片...');
+            const testPhotos = [
+                'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop',
+                'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&h=600&fit=crop',
+                'https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=800&h=600&fit=crop',
+                'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop&q=80'
+            ];
+            
+            displayPhotos(testPhotos);
+        }
+        
+        // 直接測試 API
+        async function testAPI() {
+            console.log('=== 開始 API 測試 ===');
+            console.log('API URL:', PHOTO_API_URL);
+            
+            try {
+                console.log('1. 發送基本 fetch 請求...');
+                const response = await fetch(PHOTO_API_URL);
+                console.log('2. 回應狀態:', response.status, response.statusText);
+                console.log('3. 回應標頭:', [...response.headers.entries()]);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                console.log('4. 嘗試解析 JSON...');
+                const text = await response.text();
+                console.log('5. 原始回應內容（前 500 字元）:', text.substring(0, 500));
+                
+                let data;
+                try {
+                    data = JSON.parse(text);
+                    console.log('6. JSON 解析成功');
+                } catch (parseError) {
+                    console.error('6. JSON 解析失敗:', parseError);
+                    console.log('完整回應內容:', text);
+                    throw new Error('API 回傳的不是有效的 JSON 格式');
+                }
+                
+                console.log('7. 解析後的資料:', data);
+                console.log('8. 資料類型:', typeof data);
+                console.log('9. 物件屬性:', Object.keys(data));
+                
+                if (data.error) {
+                    console.error('10. API 回傳錯誤:', data.error);
+                    throw new Error(`API 錯誤: ${data.error}`);
+                }
+                
+                console.log('=== API 測試完成 ===');
+                alert('API 測試完成！請查看控制台了解詳細資訊。');
+                
+            } catch (error) {
+                console.error('=== API 測試失敗 ===');
+                console.error('錯誤類型:', error.name);
+                console.error('錯誤訊息:', error.message);
+                console.error('錯誤堆疊:', error.stack);
+                
+                // 嘗試直接在瀏覽器開啟 API
+                console.log('您可以嘗試直接在瀏覽器開啟這個網址查看原始回應:');
+                console.log(PHOTO_API_URL);
+                
+                alert(`API 測試失敗: ${error.message}\n\n請查看控制台了解詳細資訊。`);
+            }
+        }
+        
+        // 事件監聽器
+        document.addEventListener('DOMContentLoaded', function() {
+            // 重新載入按鈕事件
+            const retryBtn = document.getElementById('retry-btn');
+            if (retryBtn) {
+                retryBtn.addEventListener('click', loadPhotos);
+            }
+            
+            // 測試按鈕事件
+            const testBtn = document.getElementById('test-demo-btn');
+            if (testBtn) {
+                testBtn.addEventListener('click', loadTestPhotos);
+            }
+            
+            // API 測試按鈕事件
+            const testApiBtn = document.getElementById('test-api-btn');
+            if (testApiBtn) {
+                testApiBtn.addEventListener('click', testAPI);
+            }
+        });
         
         // 當切換到照片集頁面時載入照片
         const originalShowPage = showPage;
         showPage = function(pageId) {
             originalShowPage(pageId);
             if (pageId === 'photo-gallery-page') {
-                loadPhotos();
+                // 清除任何現有的自動播放
+                if (autoPlayInterval) {
+                    clearInterval(autoPlayInterval);
+                    autoPlayInterval = null;
+                    isAutoPlaying = false;
+                }
+                
+                // 載入照片
+                setTimeout(() => {
+                    loadPhotos();
+                }, 100); // 稍微延遲確保頁面已切換
             }
         };
 
