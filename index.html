@@ -385,6 +385,18 @@
                         <p class="text-xs text-gray-300 mt-1">$2,393/人</p>
                     </div>
                 </div>
+
+                <!-- 回憶照片集卡片 -->
+                <div class="mt-4">
+                    <div class="nav-card bg-white/10 backdrop-blur-md rounded-xl p-4 text-center cursor-pointer hover:bg-white/20 transition-all" onclick="showPage('photo-gallery-page')">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-images mx-auto mb-2 text-pink-400" viewBox="0 0 16 16">
+                            <path d="M4.502 9a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3"/>
+                            <path d="M14.002 13a2 2 0 0 1-2 2h-10a2 2 0 0 1-2-2V5A2 2 0 0 1 2.002 3h10a2 2 0 0 1 2 2v8a2 2 0 0 1-.002 0zM2.002 4a1 1 0 0 0-1 1v8l2.646-2.354a.5.5 0 0 1 .63-.062l2.66 1.773 3.71-3.71a.5.5 0 0 1 .577-.094l1.777 1.947V5a1 1 0 0 0-1-1h-10z"/>
+                        </svg>
+                        <h3 class="font-semibold">回憶照片集</h3>
+                        <p class="text-xs text-gray-300 mt-1">珍貴回憶</p>
+                    </div>
+                </div>
             </main>
         </div>
     </div>
@@ -1248,6 +1260,102 @@
         </div>
     </div>
 
+    <!-- 回憶照片集頁面 -->
+    <div id="photo-gallery-page" class="page-container">
+        <div class="min-h-screen w-full flex flex-col items-center p-4 sm:p-6 pb-20">
+            <main class="w-full max-w-4xl mx-auto">
+                <header class="text-center my-8">
+                    <h1 class="text-3xl font-bold tracking-tight nature-title text-shadow-lg">回憶照片集</h1>
+                    <p class="text-gray-300 mt-2">珍貴的出遊回憶</p>
+                </header>
+
+                <!-- 載入狀態 -->
+                <div id="loading-state" class="text-center py-12">
+                    <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-pink-400"></div>
+                    <p class="text-gray-300 mt-4">載入照片中...</p>
+                </div>
+
+                <!-- 錯誤狀態 -->
+                <div id="error-state" class="text-center py-12 hidden">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" class="bi bi-exclamation-triangle-fill mx-auto mb-4 text-yellow-400" viewBox="0 0 16 16">
+                        <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5m.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2"/>
+                    </svg>
+                    <p class="text-gray-300 mb-4">載入照片時發生錯誤</p>
+                    <button id="retry-btn" class="bg-pink-500 hover:bg-pink-600 text-white px-4 py-2 rounded-lg transition-colors">
+                        重新載入
+                    </button>
+                </div>
+
+                <!-- 照片輪播 -->
+                <div id="photo-carousel" class="relative w-full max-w-2xl mx-auto hidden">
+                    <!-- 照片容器 -->
+                    <div class="relative overflow-hidden rounded-2xl bg-gray-800/50 aspect-[4/3]">
+                        <div id="carousel-track" class="flex transition-transform duration-500 ease-in-out h-full">
+                            <!-- 照片會動態載入到這裡 -->
+                        </div>
+                        
+                        <!-- 載入指示器 -->
+                        <div id="carousel-loading" class="absolute inset-0 flex items-center justify-center bg-gray-800/50">
+                            <div class="text-center">
+                                <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-pink-400 mb-2"></div>
+                                <p class="text-gray-300 text-sm">載入照片中...</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 導航按鈕 -->
+                    <button id="prev-btn" class="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full transition-all opacity-0 md:opacity-60 hover:opacity-100">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-chevron-left" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0"/>
+                        </svg>
+                    </button>
+                    
+                    <button id="next-btn" class="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full transition-all opacity-0 md:opacity-60 hover:opacity-100">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-chevron-right" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708"/>
+                        </svg>
+                    </button>
+                    
+                    <!-- 照片指示器 -->
+                    <div id="photo-indicators" class="flex justify-center mt-4 space-x-2">
+                        <!-- 指示器會動態生成 -->
+                    </div>
+                    
+                    <!-- 照片資訊 -->
+                    <div class="text-center mt-4">
+                        <p id="photo-counter" class="text-gray-300 text-sm">1 / 1</p>
+                        <div class="flex justify-center items-center mt-2 space-x-4">
+                            <button id="auto-play-btn" class="flex items-center space-x-2 px-3 py-1 bg-pink-500/20 hover:bg-pink-500/30 text-pink-300 rounded-lg transition-colors text-sm">
+                                <svg id="play-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-play-fill" viewBox="0 0 16 16">
+                                    <path d="m11.596 8.697-6.363 3.692c-.54.313-1.233-.066-1.233-.697V4.308c0-.63.692-1.01 1.233-.696l6.363 3.692a.802.802 0 0 1 0 1.393"/>
+                                </svg>
+                                <svg id="pause-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pause-fill hidden" viewBox="0 0 16 16">
+                                    <path d="M5.5 3.5A1.5 1.5 0 0 1 7 2h2a1.5 1.5 0 0 1 1.5 1.5v9A1.5 1.5 0 0 1 9 14H7a1.5 1.5 0 0 1-1.5-1.5z"/>
+                                </svg>
+                                <span id="auto-play-text">自動播放</span>
+                            </button>
+                            <button id="fullscreen-btn" class="flex items-center space-x-2 px-3 py-1 bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 rounded-lg transition-colors text-sm">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrows-fullscreen" viewBox="0 0 16 16">
+                                    <path fill-rule="evenodd" d="M5.828 10.172a.5.5 0 0 0-.707 0l-4.096 4.096V11.5a.5.5 0 0 0-1 0v3.975a.5.5 0 0 0 .5.5H4.5a.5.5 0 0 0 0-1H1.732l4.096-4.096a.5.5 0 0 0 0-.707m4.344 0a.5.5 0 0 1 .707 0l4.096 4.096V11.5a.5.5 0 1 1 1 0v3.975a.5.5 0 0 1-.5.5H11.5a.5.5 0 0 1 0-1h2.768l-4.096-4.096a.5.5 0 0 1 0-.707m0-4.344a.5.5 0 0 0 .707 0l4.096-4.096V4.5a.5.5 0 1 0 1 0V.525a.5.5 0 0 0-.5-.5H11.5a.5.5 0 0 0 0 1h2.768l-4.096 4.096a.5.5 0 0 0 0 .707m-4.344 0a.5.5 0 0 1-.707 0L1.025 1.732V4.5a.5.5 0 0 1-1 0V.525a.5.5 0 0 1 .5-.5H4.5a.5.5 0 0 1 0 1H1.732l4.096 4.096a.5.5 0 0 1 0 .707"/>
+                                </svg>
+                                <span>全螢幕</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 空狀態 -->
+                <div id="empty-state" class="text-center py-12 hidden">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" class="bi bi-images mx-auto mb-4 text-gray-400" viewBox="0 0 16 16">
+                        <path d="M4.502 9a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3"/>
+                        <path d="M14.002 13a2 2 0 0 1-2 2h-10a2 2 0 0 1-2-2V5A2 2 0 0 1 2.002 3h10a2 2 0 0 1 2 2v8a2 2 0 0 1-.002 0zM2.002 4a1 1 0 0 0-1 1v8l2.646-2.354a.5.5 0 0 1 .63-.062l2.66 1.773 3.71-3.71a.5.5 0 0 1 .577-.094l1.777 1.947V5a1 1 0 0 0-1-1h-10z"/>
+                    </svg>
+                    <p class="text-gray-300">目前沒有照片</p>
+                </div>
+            </main>
+        </div>
+    </div>
+
     <!-- 底部導航 -->
     <nav class="bottom-nav">
         <div class="flex">
@@ -1426,6 +1534,422 @@
         
         // 頁面載入時恢復核選方塊狀態
         document.addEventListener('DOMContentLoaded', loadCheckboxStates);
+
+        // 照片集功能
+        const PHOTO_API_URL = 'https://script.google.com/macros/s/AKfycby9Qpy74qVtVsVltvRIo9ggG7J9YMuUm0j0mUBXqSA_xhDDBvufV5PRuLdMb7pNZmhh/exec';
+        
+        // 載入照片
+        async function loadPhotos() {
+            const loadingState = document.getElementById('loading-state');
+            const errorState = document.getElementById('error-state');
+            const photoWall = document.getElementById('photo-wall');
+            const emptyState = document.getElementById('empty-state');
+            
+            // 顯示載入狀態
+            loadingState.classList.remove('hidden');
+            errorState.classList.add('hidden');
+            photoWall.classList.add('hidden');
+            emptyState.classList.add('hidden');
+            
+            try {
+                const response = await fetch(PHOTO_API_URL);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                // 調試：顯示原始資料
+                console.log('API 回傳的原始資料:', data);
+                
+                // 檢查是否有錯誤
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                
+                // 檢查是否有照片資料
+                if (!data.items || !Array.isArray(data.items) || data.items.length === 0) {
+                    showEmptyState();
+                    return;
+                }
+                
+                // 將物件陣列轉換成 URL 陣列
+                const photoUrls = data.items.map((item, index) => {
+                    console.log(`處理項目 ${index + 1}:`, item);
+                    
+                    // 如果 item 是字串，直接使用
+                    if (typeof item === 'string') {
+                        console.log(`項目 ${index + 1} 是字串:`, item);
+                        return item;
+                    }
+                    // 如果 item 是物件，嘗試取得 url 屬性
+                    const url = item.url || item.src || item.link || item.href || '';
+                    console.log(`項目 ${index + 1} 是物件，提取的 URL:`, url);
+                    return url;
+                }).filter(url => {
+                    const isValid = !!url;
+                    if (!isValid) {
+                        console.warn('過濾掉空 URL:', url);
+                    }
+                    return isValid;
+                }); // 過濾掉空字串
+                
+                console.log('最終的 URL 陣列:', photoUrls);
+                
+                // 顯示照片
+                displayPhotos(photoUrls);
+                
+            } catch (error) {
+                console.error('載入照片時發生錯誤:', error);
+                showErrorState();
+            }
+        }
+        
+        // 輪播相關變數
+        let currentPhotoIndex = 0;
+        let totalPhotos = 0;
+        let autoPlayInterval = null;
+        let isAutoPlaying = false;
+        let photoUrls = [];
+        
+        // 顯示照片輪播
+        function displayPhotos(photos) {
+            const loadingState = document.getElementById('loading-state');
+            const photoCarousel = document.getElementById('photo-carousel');
+            const carouselTrack = document.getElementById('carousel-track');
+            const carouselLoading = document.getElementById('carousel-loading');
+            
+            // 儲存照片資料
+            photoUrls = photos;
+            totalPhotos = photos.length;
+            currentPhotoIndex = 0;
+            
+            // 隱藏載入狀態，顯示輪播
+            loadingState.classList.add('hidden');
+            photoCarousel.classList.remove('hidden');
+            
+            // 清空輪播軌道
+            carouselTrack.innerHTML = '';
+            
+            // 創建所有照片元素
+            photos.forEach((photoUrl, index) => {
+                const photoSlide = document.createElement('div');
+                photoSlide.className = 'w-full flex-shrink-0 relative';
+                
+                // 嘗試使用代理服務載入圖片
+                const proxyUrl = `https://images.weserv.nl/?url=${encodeURIComponent(photoUrl)}`;
+                
+                const img = document.createElement('img');
+                img.src = proxyUrl;
+                img.alt = `回憶照片 ${index + 1}`;
+                img.className = 'w-full h-full object-cover cursor-pointer';
+                img.loading = index === 0 ? 'eager' : 'lazy'; // 第一張圖片優先載入
+                
+                // 載入成功處理
+                img.onload = function() {
+                    console.log(`照片 ${index + 1} 透過代理載入成功`);
+                    if (index === 0) {
+                        carouselLoading.classList.add('hidden');
+                    }
+                };
+                
+                // 載入失敗處理
+                img.onerror = function(error) {
+                    console.error(`照片 ${index + 1} 代理載入失敗:`, proxyUrl, error);
+                    
+                    // 創建佔位符
+                    photoSlide.innerHTML = `
+                        <div class="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-gray-700 to-gray-800 text-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" class="bi bi-image text-gray-400 mb-4" viewBox="0 0 16 16">
+                                <path d="M6.002 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0"/>
+                                <path d="M2.002 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2zm12 1a1 1 0 0 1 1 1v6.5l-3.777-1.947a.5.5 0 0 0-.577.093l-3.71 3.71-2.66-1.772a.5.5 0 0 0-.63.062L1.002 12V3a1 1 0 0 1 1-1z"/>
+                            </svg>
+                            <p class="text-gray-300 mb-4">照片 ${index + 1}</p>
+                            <button class="text-pink-400 hover:text-pink-300 bg-pink-400/20 hover:bg-pink-400/30 px-4 py-2 rounded-lg transition-colors" onclick="window.open('${photoUrl}', '_blank')">
+                                在新分頁查看
+                            </button>
+                        </div>
+                    `;
+                    
+                    if (index === 0) {
+                        carouselLoading.classList.add('hidden');
+                    }
+                };
+                
+                // 點擊圖片開啟新分頁
+                img.addEventListener('click', () => {
+                    window.open(photoUrl, '_blank');
+                });
+                
+                photoSlide.appendChild(img);
+                carouselTrack.appendChild(photoSlide);
+            });
+            
+            // 初始化輪播控制項
+            initializeCarouselControls();
+            
+            // 更新顯示
+            updateCarouselDisplay();
+            
+            // 開始自動播放
+            startAutoPlay();
+        }
+        
+        // 初始化輪播控制項
+        function initializeCarouselControls() {
+            const prevBtn = document.getElementById('prev-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const autoPlayBtn = document.getElementById('auto-play-btn');
+            const fullscreenBtn = document.getElementById('fullscreen-btn');
+            const carousel = document.getElementById('photo-carousel');
+            
+            // 左右按鈕事件
+            prevBtn.addEventListener('click', () => {
+                goToPrevPhoto();
+                pauseAutoPlay(); // 用戶操作時暫停自動播放
+            });
+            
+            nextBtn.addEventListener('click', () => {
+                goToNextPhoto();
+                pauseAutoPlay();
+            });
+            
+            // 自動播放按鈕
+            autoPlayBtn.addEventListener('click', toggleAutoPlay);
+            
+            // 全螢幕按鈕
+            fullscreenBtn.addEventListener('click', () => {
+                if (currentPhotoIndex < photoUrls.length) {
+                    window.open(photoUrls[currentPhotoIndex], '_blank');
+                }
+            });
+            
+            // 鍵盤導航
+            document.addEventListener('keydown', handleKeyNavigation);
+            
+            // 觸控滑動
+            initializeTouchSwipe();
+        }
+        
+        // 更新輪播顯示
+        function updateCarouselDisplay() {
+            const carouselTrack = document.getElementById('carousel-track');
+            const photoCounter = document.getElementById('photo-counter');
+            const indicators = document.getElementById('photo-indicators');
+            
+            // 移動輪播軌道
+            const translateX = -currentPhotoIndex * 100;
+            carouselTrack.style.transform = `translateX(${translateX}%)`;
+            
+            // 更新計數器
+            photoCounter.textContent = `${currentPhotoIndex + 1} / ${totalPhotos}`;
+            
+            // 更新指示器
+            updateIndicators();
+        }
+        
+        // 更新指示器
+        function updateIndicators() {
+            const indicators = document.getElementById('photo-indicators');
+            indicators.innerHTML = '';
+            
+            for (let i = 0; i < totalPhotos; i++) {
+                const indicator = document.createElement('button');
+                indicator.className = `w-2 h-2 rounded-full transition-all duration-300 ${
+                    i === currentPhotoIndex 
+                        ? 'bg-pink-400 w-6' 
+                        : 'bg-gray-600 hover:bg-gray-500'
+                }`;
+                indicator.addEventListener('click', () => {
+                    goToPhoto(i);
+                    pauseAutoPlay();
+                });
+                indicators.appendChild(indicator);
+            }
+        }
+        
+        // 跳到指定照片
+        function goToPhoto(index) {
+            if (index >= 0 && index < totalPhotos) {
+                currentPhotoIndex = index;
+                updateCarouselDisplay();
+            }
+        }
+        
+        // 上一張照片
+        function goToPrevPhoto() {
+            currentPhotoIndex = currentPhotoIndex === 0 ? totalPhotos - 1 : currentPhotoIndex - 1;
+            updateCarouselDisplay();
+        }
+        
+        // 下一張照片
+        function goToNextPhoto() {
+            currentPhotoIndex = currentPhotoIndex === totalPhotos - 1 ? 0 : currentPhotoIndex + 1;
+            updateCarouselDisplay();
+        }
+        
+        // 開始自動播放
+        function startAutoPlay() {
+            if (!isAutoPlaying && totalPhotos > 1) {
+                isAutoPlaying = true;
+                autoPlayInterval = setInterval(() => {
+                    goToNextPhoto();
+                }, 2000); // 2秒間隔
+                
+                // 更新按鈕狀態
+                updateAutoPlayButton();
+            }
+        }
+        
+        // 暫停自動播放
+        function pauseAutoPlay() {
+            if (isAutoPlaying) {
+                isAutoPlaying = false;
+                clearInterval(autoPlayInterval);
+                autoPlayInterval = null;
+                updateAutoPlayButton();
+            }
+        }
+        
+        // 切換自動播放
+        function toggleAutoPlay() {
+            if (isAutoPlaying) {
+                pauseAutoPlay();
+            } else {
+                startAutoPlay();
+            }
+        }
+        
+        // 更新自動播放按鈕
+        function updateAutoPlayButton() {
+            const playIcon = document.getElementById('play-icon');
+            const pauseIcon = document.getElementById('pause-icon');
+            const autoPlayText = document.getElementById('auto-play-text');
+            
+            if (isAutoPlaying) {
+                playIcon.classList.add('hidden');
+                pauseIcon.classList.remove('hidden');
+                autoPlayText.textContent = '暫停';
+            } else {
+                playIcon.classList.remove('hidden');
+                pauseIcon.classList.add('hidden');
+                autoPlayText.textContent = '自動播放';
+            }
+        }
+        
+        // 鍵盤導航
+        function handleKeyNavigation(e) {
+            // 只在照片集頁面活動時響應
+            if (!document.getElementById('photo-gallery-page').classList.contains('active')) {
+                return;
+            }
+            
+            switch(e.key) {
+                case 'ArrowLeft':
+                    e.preventDefault();
+                    goToPrevPhoto();
+                    pauseAutoPlay();
+                    break;
+                case 'ArrowRight':
+                    e.preventDefault();
+                    goToNextPhoto();
+                    pauseAutoPlay();
+                    break;
+                case ' ': // 空白鍵
+                    e.preventDefault();
+                    toggleAutoPlay();
+                    break;
+                case 'Escape':
+                    pauseAutoPlay();
+                    break;
+            }
+        }
+        
+        // 初始化觸控滑動
+        function initializeTouchSwipe() {
+            const carousel = document.getElementById('photo-carousel');
+            let startX = 0;
+            let startY = 0;
+            let isDragging = false;
+            
+            carousel.addEventListener('touchstart', (e) => {
+                startX = e.touches[0].clientX;
+                startY = e.touches[0].clientY;
+                isDragging = true;
+            });
+            
+            carousel.addEventListener('touchmove', (e) => {
+                if (!isDragging) return;
+                e.preventDefault(); // 防止頁面滾動
+            });
+            
+            carousel.addEventListener('touchend', (e) => {
+                if (!isDragging) return;
+                isDragging = false;
+                
+                const endX = e.changedTouches[0].clientX;
+                const endY = e.changedTouches[0].clientY;
+                const deltaX = startX - endX;
+                const deltaY = startY - endY;
+                
+                // 檢查是否為水平滑動（而非垂直滾動）
+                if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 50) {
+                    if (deltaX > 0) {
+                        // 向左滑動，顯示下一張
+                        goToNextPhoto();
+                    } else {
+                        // 向右滑動，顯示上一張
+                        goToPrevPhoto();
+                    }
+                    pauseAutoPlay();
+                }
+            });
+        }
+
+        // 顯示錯誤狀態
+        function showErrorState() {
+            const loadingState = document.getElementById('loading-state');
+            const errorState = document.getElementById('error-state');
+            const photoCarousel = document.getElementById('photo-carousel');
+            const emptyState = document.getElementById('empty-state');
+            
+            loadingState.classList.add('hidden');
+            errorState.classList.remove('hidden');
+            photoCarousel.classList.add('hidden');
+            emptyState.classList.add('hidden');
+        }
+        
+        // 顯示空狀態
+        function showEmptyState() {
+            const loadingState = document.getElementById('loading-state');
+            const errorState = document.getElementById('error-state');
+            const photoCarousel = document.getElementById('photo-carousel');
+            const emptyState = document.getElementById('empty-state');
+            
+            loadingState.classList.add('hidden');
+            errorState.classList.add('hidden');
+            photoCarousel.classList.add('hidden');
+            emptyState.classList.remove('hidden');
+        }
+        
+        // 照片放大彈出視窗 - 由於 CORS 問題，直接開啟新分頁
+        function openPhotoModal(photoUrl, photoNumber) {
+            // 由於 CORS 問題，直接開啟新分頁查看原始照片
+            window.open(photoUrl, '_blank');
+        }
+        
+        // 重新載入按鈕事件
+        document.getElementById('retry-btn').addEventListener('click', loadPhotos);
+        
+        // 當切換到照片集頁面時載入照片
+        const originalShowPage = showPage;
+        showPage = function(pageId) {
+            originalShowPage(pageId);
+            if (pageId === 'photo-gallery-page') {
+                loadPhotos();
+            }
+        };
 
     </script>
 
