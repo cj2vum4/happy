@@ -1,0 +1,1387 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>抹茶山出遊小隊</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        html {
+            scroll-behavior: smooth;
+            scroll-padding-top: 2rem;
+        }
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background: linear-gradient(135deg, 
+                rgba(34, 139, 34, 0.1) 0%, 
+                rgba(0, 100, 0, 0.2) 25%, 
+                rgba(0, 80, 0, 0.3) 50%, 
+                rgba(0, 60, 0, 0.4) 75%, 
+                rgba(0, 40, 0, 0.5) 100%),
+                url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?q=80&w=2070&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* 頁面容器樣式 */
+        .page-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.3s ease-in-out;
+            z-index: 10;
+            overflow-y: auto;
+        }
+        
+        .page-container.active {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        .page-container.prev {
+            transform: translateX(-100%);
+        }
+        
+        /* 自然氛圍效果 */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(34, 139, 34, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(0, 100, 0, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(0, 80, 0, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        /* 動態光線效果 */
+        body::after {
+            content: '';
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, 
+                transparent 30%, 
+                rgba(255, 255, 255, 0.02) 50%, 
+                transparent 70%);
+            animation: sunlight 20s ease-in-out infinite;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        @keyframes sunlight {
+            0%, 100% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            50% { transform: translateX(0%) translateY(0%) rotate(45deg); }
+        }
+        /* 玻璃擬態效果 */
+        .backdrop-blur-md {
+            -webkit-backdrop-filter: blur(12px);
+            backdrop-filter: blur(12px);
+        }
+        
+        /* 自然卡片效果 */
+        .nature-card {
+            background: linear-gradient(135deg, 
+                rgba(0, 50, 0, 0.3) 0%, 
+                rgba(0, 80, 0, 0.2) 50%, 
+                rgba(0, 100, 0, 0.3) 100%);
+            border: 1px solid rgba(34, 139, 34, 0.3);
+            box-shadow: 
+                0 8px 32px rgba(0, 50, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+        
+        .nature-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 
+                0 12px 40px rgba(0, 50, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.15);
+            transition: all 0.3s ease;
+        }
+        
+        /* 自然標題效果 */
+        .nature-title {
+            background: linear-gradient(135deg, #22c55e, #16a34a, #15803d);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* 時間軸自然效果 */
+        .timeline-circle {
+            background: linear-gradient(135deg, 
+                rgba(34, 139, 34, 0.8) 0%, 
+                rgba(0, 100, 0, 0.9) 100%);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 
+                0 4px 12px rgba(0, 50, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+        
+        .timeline-circle.highlight {
+            background: linear-gradient(135deg, 
+                rgba(34, 197, 94, 0.9) 0%, 
+                rgba(22, 163, 74, 1) 100%);
+            box-shadow: 
+                0 6px 16px rgba(34, 197, 94, 0.5),
+                0 0 20px rgba(34, 197, 94, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        }
+        /* 自定義滾動條 */
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+        }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: 1.25rem; /* 对应 w-10 的一半 */
+            top: 1.25rem;
+            bottom: -1.25rem;
+            width: 2px;
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        .timeline-item:last-child::before {
+            display: none;
+        }
+
+        
+        
+        /* 核選方塊樣式 */
+        .checklist-item {
+            transition: all 0.2s ease;
+        }
+        
+        .checklist-item:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+        
+        .checklist-item input[type="checkbox"] {
+            accent-color: #22c55e;
+        }
+        
+        .checklist-item input[type="checkbox"]:checked + span {
+            text-decoration: line-through;
+            opacity: 0.7;
+        }
+        
+        /* 底部導航樣式 */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(12px);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 50;
+            padding: 8px 0;
+        }
+        
+        .nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 8px 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .nav-item.active {
+            color: #22c55e;
+        }
+        
+        .nav-item:hover {
+            color: rgba(255, 255, 255, 0.9);
+        }
+        
+        .nav-item.active:hover {
+            color: #16a34a;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white">
+
+
+    <!-- 區塊鏈海報彈出視窗 -->
+    <div id="blockchain-modal" class="fixed inset-0 z-50 hidden opacity-0 transition-opacity duration-300">
+        <div class="fixed inset-0 bg-black/70 backdrop-blur-sm" id="blockchain-overlay"></div>
+        <div class="fixed inset-0 flex items-center justify-center p-4">
+            <div class="bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+                <!-- 彈出視窗標題 -->
+                <div class="flex items-center justify-between p-6 border-b border-gray-200">
+                    <h3 class="text-2xl font-bold text-gray-800">浩崴的區塊鏈分享</h3>
+                    <button id="close-blockchain-modal" class="text-gray-500 hover:text-gray-700 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
+                            <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z"/>
+                        </svg>
+                    </button>
+                </div>
+                <!-- 海報內容 -->
+                <div class="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+                    <div class="text-center">
+                        <img src="https://i.postimg.cc/R0XJqST6/1.png" 
+                             alt="浩崴區塊鏈分享海報" 
+                             class="w-full h-auto rounded-lg shadow-lg mx-auto">
+                        <p class="text-sm text-gray-600 mt-4">點擊圖片可放大查看</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- 首頁 -->
+    <div id="home-page" class="page-container active">
+        <div class="min-h-screen w-full flex flex-col items-center p-4 sm:p-6 pb-20">
+            <main class="w-full max-w-lg mx-auto">
+                <!-- 網站標題 -->
+                <header class="text-center my-8">
+                    <h1 class="text-4xl font-bold tracking-tight nature-title text-shadow-lg">抹茶山出遊小隊</h1>
+                    <p class="text-lg text-gray-200 mt-2">2025 / 9 / 20 - 21</p>
+                </header>
+
+                <!-- 主視覺 -->
+                <div class="mb-6 overflow-hidden rounded-2xl shadow-2xl border border-white/30 relative">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent z-10"></div>
+                    <img src="https://images.unsplash.com/photo-1551632811-561732d1e306?q=80&w=2070&auto=format&fit=crop" alt="抹茶山主視覺" class="w-full h-56 object-cover">
+                    <div class="absolute bottom-4 left-4 right-4 z-20">
+                        <h2 class="text-2xl font-bold text-white drop-shadow-lg">興煜大平台 X 浩崴區塊鏈</h2>
+                        <p class="text-white/90 text-sm mt-1 drop-shadow-md">征服抹茶山 x 一夜致富</p>
+                    </div>
+                </div>
+
+                <!-- 舊網站連結 -->
+                <div class="text-center mb-6">
+                    <a href="V1.html" class="inline-flex items-center px-4 py-2 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full text-gray-300 hover:text-white text-sm transition-all">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left-circle-fill mr-2" viewBox="0 0 16 16">
+                            <path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0m3.5 4.5a.5.5 0 0 0-1 0v5.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L11.5 10.293z"/>
+                        </svg>
+                        查看舊版網站
+                    </a>
+                </div>
+
+                <!-- 快速導覽卡片 - 統一的2x3網格顯示 -->
+                <div class="grid grid-cols-2 gap-4 mt-4">
+                    <div class="nav-card bg-white/10 backdrop-blur-md rounded-xl p-4 text-center cursor-pointer hover:bg-white/20 transition-all" onclick="showPage('members-page')">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-people-fill mx-auto mb-2 text-green-400" viewBox="0 0 16 16">
+                            <path d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6m-5.784 6A2.24 2.24 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.3 6.3 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1zM4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5"/>
+                        </svg>
+                        <h3 class="font-semibold">出遊成員</h3>
+                        <p class="text-xs text-gray-300 mt-1">15人</p>
+                    </div>
+                    <div class="nav-card bg-white/10 backdrop-blur-md rounded-xl p-4 text-center cursor-pointer hover:bg-white/20 transition-all" onclick="showPage('schedule-page')">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-calendar-event-fill mx-auto mb-2 text-blue-400" viewBox="0 0 16 16">
+                            <path d="M4 .5a.5.5 0 0 0-1 0V1H2a2 2 0 0 0-2 2v1h16V3a2 2 0 0 0-2-2h-1V.5a.5.5 0 0 0-1 0V1H4zM16 14V5H0v9a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2m-3.5-7h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5"/>
+                        </svg>
+                        <h3 class="font-semibold">行程總覽</h3>
+                        <p class="text-xs text-gray-300 mt-1">2天1夜</p>
+                    </div>
+                    <div class="nav-card bg-white/10 backdrop-blur-md rounded-xl p-4 text-center cursor-pointer hover:bg-white/20 transition-all" onclick="showPage('checklist-page')">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-card-checklist mx-auto mb-2 text-yellow-400" viewBox="0 0 16 16">
+                            <path d="M14.5 3a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5zM1 4v8.5h14V4z"/>
+                            <path d="M7 5.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5m-1.496-.854a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0l-.5-.5a.5.5 0 1 1 .708-.708l.146.147 1.146-1.147a.5.5 0 0 1 .708 0M7 9.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5m-1.496-.854a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0l-.5-.5a.5.5 0 0 1 .708-.708l.146.147 1.146-1.147a.5.5 0 0 1 .708 0"/>
+                        </svg>
+                        <h3 class="font-semibold">行前提醒</h3>
+                        <p class="text-xs text-gray-300 mt-1">檢查清單</p>
+                    </div>
+                    <div class="nav-card bg-white/10 backdrop-blur-md rounded-xl p-4 text-center cursor-pointer hover:bg-white/20 transition-all" onclick="showPage('info-page')">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-droplet-fill mx-auto mb-2 text-cyan-400" viewBox="0 0 16 16">
+                            <path d="M8 16a6 6 0 0 0 6-6c0-1.655-1.122-2.904-2.432-4.362C10.254 4.176 8.75 2.503 8 0c0 0-6 5.686-6 10a6 6 0 0 0 6 6M6.646 4.646l.708.708c-.29.29-1.128 1.311-1.907 2.87l-.894-.448c.85-1.702 1.803-2.838 2.093-3.13"/>
+                        </svg>
+                        <h3 class="font-semibold">住宿溫泉</h3>
+                        <p class="text-xs text-gray-300 mt-1">資訊</p>
+                    </div>
+                    <div class="nav-card bg-white/10 backdrop-blur-md rounded-xl p-4 text-center cursor-pointer hover:bg-white/20 transition-all" onclick="showPage('transport-page')">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-car-front-fill mx-auto mb-2 text-orange-400" viewBox="0 0 16 16">
+                            <path d="M2.52 3.515A2.5 2.5 0 0 1 4.82 2h6.362c1 0 1.904.596 2.298 1.515l.792 1.848c.075.175.21.319.38.404.5.25.855.715.965 1.262l.335 1.679q.05.242.049.49v.413c0 .814-.39 1.543-1 1.997V13.5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1-.5-.5v-1.338c-1.292.048-2.745.088-4 .088s-2.708-.04-4-.088V13.5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1-.5-.5v-1.892c-.61-.454-1-1.183-1-1.997v-.413a2.5 2.5 0 0 1 .049-.49l.335-1.68c.11-.546.465-1.012.964-1.261a.8.8 0 0 0 .381-.404l.792-1.848ZM3 10a1 1 0 1 0 0-2 1 1 0 0 0 0 2m10 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2M6 8a1 1 0 0 0 0 2h4a1 1 0 1 0 0-2zM2.906 5.189a.51.51 0 0 0 .497.731c.91-.073 3.35-.17 4.597-.17s3.688.097 4.597.17a.51.51 0 0 0 .497-.731l-.956-1.913A.5.5 0 0 0 11.691 3H4.309a.5.5 0 0 0-.447.276L2.906 5.19Z"/>
+                        </svg>
+                        <h3 class="font-semibold">交通安排</h3>
+                        <p class="text-xs text-gray-300 mt-1">分車資訊</p>
+                    </div>
+                    <div class="nav-card bg-white/10 backdrop-blur-md rounded-xl p-4 text-center cursor-pointer hover:bg-white/20 transition-all" onclick="showPage('budget-page')">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-wallet-fill mx-auto mb-2 text-green-400" viewBox="0 0 16 16">
+                            <path d="M1.5 2A1.5 1.5 0 0 0 0 3.5v2h6a.5.5 0 0 1 .5.5c0 .253.08.644.306.958.207.288.557.542 1.194.542s.987-.254 1.194-.542C9.42 6.644 9.5 6.253 9.5 6a.5.5 0 0 1 .5-.5h6v-2A1.5 1.5 0 0 0 14.5 2z"/>
+                            <path d="M16 6.5h-5.551a2.678 2.678 0 0 1-.443 1C9.613 8.215 8.963 8.5 8 8.5s-1.613-.285-2.006-.5a2.678 2.678 0 0 1-.443-1H0v6A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5z"/>
+                        </svg>
+                        <h3 class="font-semibold">預算規劃</h3>
+                        <p class="text-xs text-gray-300 mt-1">$2,393/人</p>
+                    </div>
+                </div>
+
+                <!-- 回憶照片集卡片 -->
+                <div class="mt-4">
+                    <div class="nav-card bg-white/10 backdrop-blur-md rounded-xl p-4 text-center cursor-pointer hover:bg-white/20 transition-all" onclick="handlePhotoNavigation()">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-images mx-auto mb-2 text-pink-400" viewBox="0 0 16 16">
+                            <path d="M4.502 9a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3"/>
+                            <path d="M14.002 13a2 2 0 0 1-2 2h-10a2 2 0 0 1-2-2V5A2 2 0 0 1 2.002 3h10a2 2 0 0 1 2 2v8a2 2 0 0 1-.002 0zM2.002 4a1 1 0 0 0-1 1v8l2.646-2.354a.5.5 0 0 1 .63-.062l2.66 1.773 3.71-3.71a.5.5 0 0 1 .577-.094l1.777 1.947V5a1 1 0 0 0-1-1h-10z"/>
+                        </svg>
+                        <h3 class="font-semibold">回憶照片集</h3>
+                        <p class="text-xs text-gray-300 mt-1">珍貴回憶</p>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- 登山指南頁面 -->
+    <div id="guide-page" class="page-container">
+        <div class="min-h-screen w-full flex flex-col items-center p-4 sm:p-6 pb-20">
+            <main class="w-full max-w-lg mx-auto">
+                <header class="text-center my-8">
+                    <h1 class="text-3xl font-bold tracking-tight nature-title text-shadow-lg">抹茶山登山指南</h1>
+                    <p class="text-gray-300 mt-2">新手友善 · 9:00-15:30 一日行程</p>
+                </header>
+
+                <!-- 路線概覽 -->
+                <div class="nature-card backdrop-blur-md rounded-2xl overflow-hidden mb-6">
+                    <div class="p-6">
+                        <h2 class="text-2xl font-bold mb-4 flex items-center nature-title">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-bar-chart-fill mr-3 text-emerald-400" viewBox="0 0 16 16">
+                                <path d="M1 11a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1zm5-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1zm5-5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1z"/>
+                            </svg>
+                            路線概覽
+                        </h2>
+                        <div class="grid grid-cols-3 gap-4 mb-4">
+                            <div class="text-center p-3 bg-white/10 rounded-lg">
+                                <div class="text-2xl font-bold text-green-300">5.3km</div>
+                                <div class="text-xs text-gray-300">單程距離</div>
+                            </div>
+                            <div class="text-center p-3 bg-white/10 rounded-lg">
+                                <div class="text-2xl font-bold text-blue-300">6.5小時</div>
+                                <div class="text-xs text-gray-300">總行程</div>
+                            </div>
+                            <div class="text-center p-3 bg-white/10 rounded-lg">
+                                <div class="text-2xl font-bold text-orange-300">770m</div>
+                                <div class="text-xs text-gray-300">高度差</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 登山時間軸 -->
+                <div class="nature-card backdrop-blur-md rounded-2xl overflow-hidden mb-6">
+                    <div class="p-6">
+                        <h2 class="text-2xl font-bold mb-6 flex items-center nature-title">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-geo-alt-fill mr-3 text-emerald-400" viewBox="0 0 16 16">
+                                <path d="M8 16s-3-5.5-8-8a8 8 0 1 1 16 0c-5 2.5-8 8-8 8M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6"/>
+                            </svg>
+                            路線時間軸
+                        </h2>
+                        
+                        <!-- 時間軸 -->
+                        <div class="relative">
+                            <!-- 出發 -->
+                            <div class="timeline-item flex items-start space-x-4 mb-6">
+                                <div class="flex-shrink-0 w-10 h-10 bg-green-500 rounded-full flex items-center justify-center text-sm font-bold text-white">🚗</div>
+                                <div class="pt-1">
+                                    <div class="bg-green-600/80 text-white px-3 py-1 rounded-full text-sm font-bold inline-block mb-2">9:00 出發</div>
+                                    <h3 class="font-semibold text-green-300 mb-1">五峰旗停車場</h3>
+                                    <p class="text-sm text-gray-300 mb-2">海拔180m · 整理裝備 · 確認天氣</p>
+                                    <span class="bg-green-500/20 text-green-300 px-2 py-1 rounded text-xs font-bold">記得上廁所！</span>
+                                </div>
+                            </div>
+
+                            <!-- 聖母朝聖地 -->
+                            <div class="timeline-item flex items-start space-x-4 mb-6">
+                                <div class="flex-shrink-0 w-10 h-10 bg-yellow-500 rounded-full flex items-center justify-center text-sm font-bold text-white">⛪</div>
+                                <div class="pt-1">
+                                    <div class="bg-yellow-600/80 text-white px-3 py-1 rounded-full text-sm font-bold inline-block mb-2">9:20 經過</div>
+                                    <h3 class="font-semibold text-yellow-300 mb-1">聖母朝聖地</h3>
+                                    <p class="text-sm text-gray-300 mb-2">平緩產業道路 · 有飲水和廁所</p>
+                                    <div class="bg-white/10 px-2 py-1 rounded text-xs text-gray-300">📏 1.3km · ⏱️ 20分鐘</div>
+                                </div>
+                            </div>
+
+                            <!-- 通天橋 -->
+                            <div class="timeline-item flex items-start space-x-4 mb-6">
+                                <div class="flex-shrink-0 w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center text-sm font-bold text-white">🥾</div>
+                                <div class="pt-1">
+                                    <div class="bg-orange-600/80 text-white px-3 py-1 rounded-full text-sm font-bold inline-block mb-2">11:00 抵達</div>
+                                    <h3 class="font-semibold text-orange-300 mb-1">通天橋 (登山口)</h3>
+                                    <p class="text-sm text-gray-300 mb-2">產業道路結束 · 真正的爬山開始</p>
+                                    <div class="bg-white/10 px-2 py-1 rounded text-xs text-gray-300 mb-2">📏 2.4km · ⏱️ 1小時40分</div>
+                                    <div class="bg-amber-600/20 border border-amber-500/30 p-2 rounded-lg text-xs">
+                                        <div class="text-amber-300 font-bold mb-1">⚠️ 準備陡上</div>
+                                        <div class="text-gray-300">接下來1.6km要爬升400m，多階梯路段</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 聖母山莊 -->
+                            <div class="timeline-item flex items-start space-x-4 mb-6">
+                                <div class="flex-shrink-0 w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-sm font-bold text-white">🏠</div>
+                                <div class="pt-1">
+                                    <div class="bg-blue-600/80 text-white px-3 py-1 rounded-full text-sm font-bold inline-block mb-2">12:15 抵達</div>
+                                    <h3 class="font-semibold text-blue-300 mb-1">聖母山莊</h3>
+                                    <p class="text-sm text-gray-300 mb-2">海拔900m · 可休息用餐 · 距離山頂只剩10分鐘！</p>
+                                    <div class="bg-white/10 px-2 py-1 rounded text-xs text-gray-300">📏 1.4km · ⏱️ 1小時15分</div>
+                                </div>
+                            </div>
+
+                            <!-- 山頂 -->
+                            <div class="timeline-item flex items-start space-x-4 mb-6">
+                                <div class="flex-shrink-0 w-10 h-10 bg-red-500 rounded-full flex items-center justify-center text-sm font-bold text-white">🏔️</div>
+                                <div class="pt-1">
+                                    <div class="bg-red-600/80 text-white px-3 py-1 rounded-full text-sm font-bold inline-block mb-2">12:30 登頂</div>
+                                    <h3 class="font-semibold text-red-300 mb-1">觀景平台 (抹茶山頂)</h3>
+                                    <p class="text-sm text-gray-300 mb-2">海拔950m · 欣賞綠色山巒如抹茶般的美景</p>
+                                    <div class="bg-white/10 px-2 py-1 rounded text-xs text-gray-300 mb-2">📏 0.2km · ⏱️ 10分鐘</div>
+                                    <span class="bg-emerald-500/20 text-emerald-300 px-2 py-1 rounded text-xs font-bold">拍照打卡時間</span>
+                                </div>
+                            </div>
+
+                            <!-- 下山 -->
+                            <div class="timeline-item flex items-start space-x-4 mb-6">
+                                <div class="flex-shrink-0 w-10 h-10 bg-gray-500 rounded-full flex items-center justify-center text-sm font-bold text-white">⬇️</div>
+                                <div class="pt-1">
+                                    <div class="bg-gray-600/80 text-white px-3 py-1 rounded-full text-sm font-bold inline-block mb-2">13:00 下山</div>
+                                    <h3 class="font-semibold text-gray-300 mb-1">開始返程</h3>
+                                    <p class="text-sm text-gray-300 mb-2">休息30分鐘後開始下山</p>
+                                    <div class="bg-amber-600/20 border border-amber-500/30 p-2 rounded-lg text-xs">
+                                        <div class="text-amber-300 font-bold mb-1">⚠️ 下山注意</div>
+                                        <div class="text-gray-300">階梯下坡傷膝蓋，建議使用登山杖</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 完成 -->
+                            <div class="timeline-item flex items-start space-x-4">
+                                <div class="flex-shrink-0 w-10 h-10 bg-purple-500 rounded-full flex items-center justify-center text-sm font-bold text-white">🏁</div>
+                                <div class="pt-1">
+                                    <div class="bg-purple-600/80 text-white px-3 py-1 rounded-full text-sm font-bold inline-block mb-2">15:30 完成</div>
+                                    <h3 class="font-semibold text-purple-300 mb-1">回到停車場</h3>
+                                    <p class="text-sm text-gray-300 mb-2">恭喜完成抹茶山挑戰！</p>
+                                    <div class="bg-white/10 px-2 py-1 rounded text-xs text-gray-300 mb-2">📏 5.3km · ⏱️ 2小時30分</div>
+                                    <span class="bg-blue-500/20 text-blue-300 px-2 py-1 rounded text-xs font-bold">可去礁溪泡溫泉慶祝</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 新手必備裝備 -->
+                <div class="nature-card backdrop-blur-md rounded-2xl overflow-hidden mb-6">
+                    <div class="p-6">
+                        <h2 class="text-2xl font-bold mb-4 flex items-center nature-title">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-backpack-fill mr-3 text-emerald-400" viewBox="0 0 16 16">
+                                <path d="M5 13v-3h4v.5a.5.5 0 0 0 1 0V10h1v3z"/>
+                                <path d="M6 2v.341C3.67 3.165 2 5.388 2 8v1.191l-1.17.585A1.5 1.5 0 0 0 0 11.118V13.5A1.5 1.5 0 0 0 1.5 15h1A1.5 1.5 0 0 0 4 13.5V13h8v.5a1.5 1.5 0 0 0 1.5 1.5h1a1.5 1.5 0 0 0 1.5-1.5v-2.382a1.5 1.5 0 0 0-.83-1.342L14 9.191V8c0-2.612-1.67-4.835-4-5.659V2a2 2 0 1 0-4 0m2-1a1 1 0 0 1 2 0v.083a6 6 0 0 1 2 .917V2a2 2 0 1 0-4 0zM4 9h8v4H4z"/>
+                            </svg>
+                            新手必備裝備
+                        </h2>
+                        <div class="space-y-4">
+                            <div class="bg-white/5 p-3 rounded-lg">
+                                <h3 class="font-semibold text-yellow-300 mb-2">👕 服裝裝備</h3>
+                                <p class="text-sm text-gray-300">運動服、登山鞋、雨衣、帽子</p>
+                            </div>
+                            <div class="bg-white/5 p-3 rounded-lg">
+                                <h3 class="font-semibold text-blue-300 mb-2">🥤 飲食補給</h3>
+                                <p class="text-sm text-gray-300">2000cc水、運動飲料、輕食、能量棒</p>
+                            </div>
+                            <div class="bg-white/5 p-3 rounded-lg">
+                                <h3 class="font-semibold text-green-300 mb-2">🔧 實用工具</h3>
+                                <p class="text-sm text-gray-300">登山杖、頭燈、小背包、垃圾袋</p>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-6 pt-4 border-t border-white/20 text-center">
+                            <p class="text-sm text-emerald-300">🌿 量力而為 · 安全第一 · 垃圾不落地</p>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- 交通安排頁面 -->
+    <div id="transport-page" class="page-container">
+        <div class="min-h-screen w-full flex flex-col items-center p-4 sm:p-6 pb-20">
+            <main class="w-full max-w-lg mx-auto">
+                <header class="text-center my-8">
+                    <h1 class="text-3xl font-bold tracking-tight nature-title text-shadow-lg">交通安排</h1>
+                    <p class="text-gray-300 mt-2">分車資訊</p>
+                </header>
+
+                <!-- 交通分車資訊 -->
+                <div class="nature-card backdrop-blur-md rounded-2xl overflow-hidden mb-6">
+                    <div class="p-6">
+                        <h2 class="text-2xl font-bold mb-6 flex items-center nature-title">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-car-front-fill mr-3 text-orange-400" viewBox="0 0 16 16">
+                                <path d="M2.52 3.515A2.5 2.5 0 0 1 4.82 2h6.362c1 0 1.904.596 2.298 1.515l.792 1.848c.075.175.21.319.38.404.5.25.855.715.965 1.262l.335 1.679q.05.242.049.49v.413c0 .814-.39 1.543-1 1.997V13.5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1-.5-.5v-1.338c-1.292.048-2.745.088-4 .088s-2.708-.04-4-.088V13.5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1-.5-.5v-1.892c-.61-.454-1-1.183-1-1.997v-.413a2.5 2.5 0 0 1 .049-.49l.335-1.68c.11-.546.465-1.012.964-1.261a.8.8 0 0 0 .381-.404l.792-1.848ZM3 10a1 1 0 1 0 0-2 1 1 0 0 0 0 2m10 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2M6 8a1 1 0 0 0 0 2h4a1 1 0 1 0 0-2zM2.906 5.189a.51.51 0 0 0 .497.731c.91-.073 3.35-.17 4.597-.17s3.688.097 4.597.17a.51.51 0 0 0 .497-.731l-.956-1.913A.5.5 0 0 0 11.691 3H4.309a.5.5 0 0 0-.447.276L2.906 5.19Z"/>
+                            </svg>
+                            交通分車
+                        </h2>
+                        
+                        <!-- 興煜車 -->
+                        <div class="mb-6 p-4 bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-xl border border-green-400/30">
+                            <div class="flex items-center mb-3">
+                                <div class="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center text-white font-bold mr-3">興</div>
+                                <div>
+                                    <h3 class="text-lg font-semibold text-green-300">興煜車 (南港)</h3>
+                                    <p class="text-sm text-gray-300">4人</p>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2 text-sm">
+                                <div class="flex items-center p-2 bg-white/10 rounded-lg">
+                                    <div class="w-6 h-6 bg-emerald-500 rounded-full flex items-center justify-center text-white text-xs font-bold mr-2">E</div>
+                                    <span>Emily</span>
+                                </div>
+                                <div class="flex items-center p-2 bg-white/10 rounded-lg">
+                                    <div class="w-6 h-6 bg-amber-500 rounded-full flex items-center justify-center text-white text-xs font-bold mr-2">喬</div>
+                                    <span>喬喬</span>
+                                </div>
+                                <div class="flex items-center p-2 bg-white/10 rounded-lg">
+                                    <div class="w-6 h-6 bg-indigo-500 rounded-full flex items-center justify-center text-white text-xs font-bold mr-2">祖</div>
+                                    <span>祖恩</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Rosa車 -->
+                        <div class="mb-6 p-4 bg-gradient-to-r from-orange-500/20 to-red-500/20 rounded-xl border border-orange-400/30">
+                            <div class="flex items-center mb-3">
+                                <div class="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold mr-3">R</div>
+                                <div>
+                                    <h3 class="text-lg font-semibold text-orange-300">Rosa車 (新店)</h3>
+                                    <p class="text-sm text-gray-300">4人</p>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2 text-sm">
+                                <div class="flex items-center p-2 bg-white/10 rounded-lg">
+                                    <div class="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center text-white text-xs font-bold mr-2">L</div>
+                                    <span>Lars</span>
+                                </div>
+                                <div class="flex items-center p-2 bg-white/10 rounded-lg">
+                                    <div class="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center text-white text-xs font-bold mr-2">陳</div>
+                                    <span>陳浩</span>
+                                </div>
+                                <div class="flex items-center p-2 bg-white/10 rounded-lg">
+                                    <div class="w-6 h-6 bg-lime-500 rounded-full flex items-center justify-center text-white text-xs font-bold mr-2">季</div>
+                                    <span>季蕎</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 聖文車 -->
+                        <div class="mb-6 p-4 bg-gradient-to-r from-blue-500/20 to-cyan-500/20 rounded-xl border border-blue-400/30">
+                            <div class="flex items-center mb-3">
+                                <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold mr-3">聖</div>
+                                <div>
+                                    <h3 class="text-lg font-semibold text-blue-300">聖文車 (劍潭)</h3>
+                                    <p class="text-sm text-gray-300">3人</p>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2 text-sm">
+                                <div class="flex items-center p-2 bg-white/10 rounded-lg">
+                                    <div class="w-6 h-6 bg-rose-500 rounded-full flex items-center justify-center text-white text-xs font-bold mr-2">玳</div>
+                                    <span>玳綺</span>
+                                </div>
+                                <div class="flex items-center p-2 bg-white/10 rounded-lg">
+                                    <div class="w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center text-white text-xs font-bold mr-2">I</div>
+                                    <span>Iris</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 浩崴車 -->
+                        <div class="mb-4 p-4 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-xl border border-purple-400/30">
+                            <div class="flex items-center mb-3">
+                                <div class="w-10 h-10 bg-purple-500 rounded-full flex items-center justify-center text-white font-bold mr-3">浩</div>
+                                <div>
+                                    <h3 class="text-lg font-semibold text-purple-300">浩崴車 (龍山寺)</h3>
+                                    <p class="text-sm text-gray-300">3人</p>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2 text-sm">
+                                <div class="flex items-center p-2 bg-white/10 rounded-lg">
+                                    <div class="w-6 h-6 bg-cyan-500 rounded-full flex items-center justify-center text-white text-xs font-bold mr-2">詹</div>
+                                    <span>小詹</span>
+                                </div>
+                                <div class="flex items-center p-2 bg-white/10 rounded-lg">
+                                    <div class="w-6 h-6 bg-teal-500 rounded-full flex items-center justify-center text-white text-xs font-bold mr-2">C</div>
+                                    <span>Celine</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-6 pt-4 border-t border-white/20">
+                            <div class="flex items-center text-amber-300">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-lightbulb-fill mr-2" viewBox="0 0 16 16">
+                                    <path d="M2 6a6 6 0 1 1 10.174 4.31c-.203.196-.359.4-.453.619l-.762 1.769A.5.5 0 0 1 10.5 13h-5a.5.5 0 0 1-.46-.302l-.761-1.77a1.97 1.97 0 0 0-.454-.618A5.98 5.98 0 0 1 2 6m3 8.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1l-.224.447a1 1 0 0 1-.894.553H6.618a1 1 0 0 1-.894-.553L5.5 15a.5.5 0 0 1-.5-.5"/>
+                                </svg>
+                                <h4 class="font-semibold">溫馨提醒</h4>
+                            </div>
+                            <p class="text-sm text-gray-200 mt-2 pl-1">請各車乘客準時到達集合地點，並與駕駛保持聯繫！</p>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- 出遊成員頁面 -->
+    <div id="members-page" class="page-container">
+        <div class="min-h-screen w-full flex flex-col items-center p-4 sm:p-6 pb-20">
+            <main class="w-full max-w-lg mx-auto">
+
+                <header class="text-center my-8">
+                    <h1 class="text-3xl font-bold tracking-tight nature-title text-shadow-lg">出遊成員</h1>
+                    <p class="text-gray-300 mt-2">一起爬山gogogo</p>
+                </header>
+
+                <!-- 出遊成員名單 -->
+                <div class="nature-card backdrop-blur-md rounded-2xl overflow-hidden mb-6">
+                    <div class="p-6">
+                        <div class="grid grid-cols-3 gap-4 text-center text-gray-200">
+                            <div class="bg-white/10 rounded-lg p-3">
+                                <img src="https://i.postimg.cc/VNG54Y9m/2025-09-18-104517.png" alt="小詹" class="w-16 h-16 rounded-full mx-auto mb-2 object-cover border-2 border-white/20">
+                                <span class="text-sm">小詹</span>
+                            </div>
+                            <div class="bg-white/10 rounded-lg p-3">
+                                <img src="https://i.postimg.cc/5NLY1WJS/2025-09-18-104526.png" alt="Emily" class="w-16 h-16 rounded-full mx-auto mb-2 object-cover border-2 border-white/20">
+                                <span class="text-sm">Emily</span>
+                            </div>
+                            <div class="bg-white/10 rounded-lg p-3">
+                                <img src="https://i.postimg.cc/0yCzMGb6/2025-09-18-104535.png" alt="Lars" class="w-16 h-16 rounded-full mx-auto mb-2 object-cover border-2 border-white/20">
+                                <span class="text-sm">Lars</span>
+                            </div>
+                            <div class="bg-white/10 rounded-lg p-3">
+                                <img src="https://i.postimg.cc/jjdLzW7M/2025-09-18-104542.png" alt="Rosa" class="w-16 h-16 rounded-full mx-auto mb-2 object-cover border-2 border-white/20">
+                                <span class="text-sm">Rosa</span>
+                            </div>
+                            <div class="bg-white/10 rounded-lg p-3">
+                                <img src="https://i.postimg.cc/YC74CDqK/2025-09-18-104549.png" alt="祖恩" class="w-16 h-16 rounded-full mx-auto mb-2 object-cover border-2 border-white/20">
+                                <span class="text-sm">祖恩</span>
+                            </div>
+                            <div class="bg-white/10 rounded-lg p-3">
+                                <img src="https://i.postimg.cc/nLzhX6y5/2025-09-18-104556.png" alt="Celine" class="w-16 h-16 rounded-full mx-auto mb-2 object-cover border-2 border-white/20">
+                                <span class="text-sm">Celine</span>
+                            </div>
+                            <div class="bg-white/10 rounded-lg p-3">
+                                <img src="https://i.postimg.cc/bwLvNzBk/2025-09-18-104603.png" alt="季蕎" class="w-16 h-16 rounded-full mx-auto mb-2 object-cover border-2 border-white/20">
+                                <span class="text-sm">季蕎</span>
+                            </div>
+                            <div class="bg-white/10 rounded-lg p-3">
+                                <img src="https://i.postimg.cc/gkVJQyyM/2025-09-18-104609.png" alt="Iris" class="w-16 h-16 rounded-full mx-auto mb-2 object-cover border-2 border-white/20">
+                                <span class="text-sm">Iris</span>
+                            </div>
+                            <div class="bg-white/10 rounded-lg p-3">
+                                <img src="https://i.postimg.cc/K8mz2KJm/2025-09-18-104619.png" alt="浩崴" class="w-16 h-16 rounded-full mx-auto mb-2 object-cover border-2 border-white/20">
+                                <span class="text-sm">浩崴</span>
+                            </div>
+                            <div class="bg-white/10 rounded-lg p-3">
+                                <img src="https://i.postimg.cc/8PQcZXvJ/2025-09-18-104626.png" alt="玳綺" class="w-16 h-16 rounded-full mx-auto mb-2 object-cover border-2 border-white/20">
+                                <span class="text-sm">玳綺</span>
+                            </div>
+                            <div class="bg-white/10 rounded-lg p-3">
+                                <img src="https://i.postimg.cc/fW0kjQVQ/2025-09-18-104632.png" alt="陳浩" class="w-16 h-16 rounded-full mx-auto mb-2 object-cover border-2 border-white/20">
+                                <span class="text-sm">陳浩</span>
+                            </div>
+                            <div class="bg-white/10 rounded-lg p-3">
+                                <img src="https://i.postimg.cc/bJ4rc3F5/2025-09-18-104638.png" alt="聖文" class="w-16 h-16 rounded-full mx-auto mb-2 object-cover border-2 border-white/20">
+                                <span class="text-sm">聖文</span>
+                            </div>
+                            <div class="bg-white/10 rounded-lg p-3">
+                                <img src="https://i.postimg.cc/j2N5sPpS/2025-09-18-104649.png" alt="雯雯" class="w-16 h-16 rounded-full mx-auto mb-2 object-cover border-2 border-white/20">
+                                <span class="text-sm">雯雯</span>
+                            </div>
+                            <div class="bg-white/10 rounded-lg p-3">
+                                <img src="https://i.postimg.cc/d1h3xznd/2025-09-18-104701.png" alt="喬喬" class="w-16 h-16 rounded-full mx-auto mb-2 object-cover border-2 border-white/20">
+                                <span class="text-sm">喬喬</span>
+                            </div>
+                            <div class="bg-white/10 rounded-lg p-3">
+                                <img src="https://i.postimg.cc/mDBV3yS0/2025-09-18-105730.png" alt="興煜" class="w-16 h-16 rounded-full mx-auto mb-2 object-cover border-2 border-white/20">
+                                <span class="text-sm">興煜</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- 行程總覽頁面 -->
+    <div id="schedule-page" class="page-container">
+        <div class="min-h-screen w-full flex flex-col items-center p-4 sm:p-6 pb-20">
+            <main class="w-full max-w-lg mx-auto">
+                <header class="text-center my-8">
+                    <h1 class="text-3xl font-bold tracking-tight nature-title text-shadow-lg">行程總覽</h1>
+                    <p class="text-gray-300 mt-2">2天1夜精彩行程</p>
+                </header>
+            
+                <!-- 行程區塊容器 -->
+                <div id="schedule-section">
+                <!-- 日期選擇 -->
+                <div class="flex justify-center bg-black/20 rounded-full p-1 mb-8">
+                    <button id="day1-btn" class="w-full bg-white/20 text-white font-semibold py-2 px-4 rounded-full">9/20 (六)</button>
+                    <button id="day2-btn" class="w-full text-gray-300 font-semibold py-2 px-4 rounded-full">9/21 (日)</button>
+                </div>
+
+                <!-- 行程卡片 -->
+                <div id="schedule-content" class="space-y-6 mb-6">
+                    <!-- Day 1 -->
+                    <div id="day1-content" class="nature-card backdrop-blur-md rounded-2xl overflow-hidden">
+                        <div class="p-6">
+                            <h2 class="text-2xl font-bold mb-6 nature-title">Day 1: 登山與溫泉</h2>
+                            <div class="relative">
+                                <!-- 時間軸項目 -->
+                                <div class="timeline-item flex items-start space-x-4 mb-6">
+                                    <div class="flex-shrink-0 w-10 h-10 timeline-circle rounded-full flex items-center justify-center text-sm font-bold text-white">7:00</div>
+                                    <div class="pt-2">
+                                        <h3 class="font-semibold">集合出發</h3>
+                                        <p class="text-sm text-gray-300">帶著愉快的心情，準時出發！</p>
+                                    </div>
+                                </div>
+                                <div class="timeline-item flex items-start space-x-4 mb-6">
+                                    <div class="flex-shrink-0 w-10 h-10 timeline-circle rounded-full flex items-center justify-center text-sm font-bold text-white">8:30</div>
+                                    <div class="pt-2">
+                                        <h3 class="font-semibold">抵達礁溪</h3>
+                                        <p class="text-sm text-gray-300">稍作休息，整理裝備。</p>
+                                    </div>
+                                </div>
+                                <div class="timeline-item flex items-start space-x-4 mb-6">
+                                    <div class="flex-shrink-0 w-10 h-10 timeline-circle rounded-full flex items-center justify-center text-sm font-bold text-white">9:30</div>
+                                    <div class="pt-2">
+                                        <h3 class="font-semibold">抹茶山停車場</h3>
+                                        <p class="text-sm text-gray-300">做好最後的準備，暖身一下。</p>
+                                    </div>
+                                </div>
+                                <div class="timeline-item flex items-start space-x-4 mb-6">
+                                    <div class="flex-shrink-0 w-10 h-10 timeline-circle highlight rounded-full flex items-center justify-center text-sm font-bold text-white">10:00</div>
+                                    <div class="pt-2">
+                                        <h3 class="font-bold text-green-300 flex items-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-stars mr-2" viewBox="0 0 16 16"><path d="M7.657 6.247c.11-.33.576-.33.686 0l.645 1.937a2.89 2.89 0 0 0 1.829 1.828l1.936.645c.33.11.33.576 0 .686l-1.937.645a2.89 2.89 0 0 0-1.828 1.829l-.645 1.936a.361.361 0 0 1-.686 0l-.645-1.937a2.89 2.89 0 0 0-1.828-1.828l-1.937-.645a.361.361 0 0 1 0-.686l1.937-.645a2.89 2.89 0 0 0 1.828-1.828zM3.794 1.148a.217.217 0 0 1 .412 0l.387 1.162c.173.518.579.924 1.097 1.097l1.162.387a.217.217 0 0 1 0 .412l-1.162.387A1.73 1.73 0 0 0 4.58 5.48l-.387 1.162a.217.217 0 0 1-.412 0L3.4 5.48a1.73 1.73 0 0 0-1.097-1.097l-1.162-.387a.217.217 0 0 1 0-.412l1.162-.387A1.73 1.73 0 0 0 3.4 1.524zM10.863.099a.145.145 0 0 1 .274 0l.258.774c.115.346.386.617.732.732l.774.258a.145.145 0 0 1 0 .274l-.774.258a1.15 1.15 0 0 0-.732.732l-.258.774a.145.145 0 0 1-.274 0l-.258-.774a1.15 1.15 0 0 0-.732-.732l-.774-.258a.145.145 0 0 1 0-.274l.774-.258c.346-.115.617-.386.732-.732z"/></svg>
+                                            開始爬山 (重點)
+                                        </h3>
+                                        <p class="text-sm text-gray-300 mb-2">享受芬多精，挑戰自我！</p>
+                                        <button onclick="showPage('guide-page')" class="bg-green-600/80 hover:bg-green-600/100 text-white text-xs font-semibold py-1.5 px-3 rounded-lg transition-colors duration-300 flex items-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-map mr-1" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M15.817.113A.5.5 0 0 1 16 .5v14a.5.5 0 0 1-.402.49l-5 1a.5.5 0 0 1-.196 0L5.5 15.01l-4.902.98A.5.5 0 0 1 0 15.5v-14a.5.5 0 0 1 .402-.49l5-1a.5.5 0 0 1 .196 0L10.5.99l4.902-.98a.5.5 0 0 1 .415.103M10 1.91l-4-.8v12.98l4 .8zm1 12.98 4-.8V1.11l-4 .8zm-6-.8V1.11l-4 .8v12.98z"/></svg>
+                                            登山指南
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="timeline-item flex items-start space-x-4 mb-6">
+                                    <div class="flex-shrink-0 w-10 h-10 timeline-circle rounded-full flex items-center justify-center text-sm font-bold text-white">16:00</div>
+                                    <div class="pt-2">
+                                        <h3 class="font-semibold">下山</h3>
+                                        <p class="text-sm text-gray-300">滿載而歸，準備放鬆。</p>
+                                    </div>
+                                </div>
+                                <div class="timeline-item flex items-start space-x-4 mb-6">
+                                    <div class="flex-shrink-0 w-10 h-10 timeline-circle rounded-full flex items-center justify-center text-sm font-bold text-white">16:30</div>
+                                    <div class="pt-2">
+                                        <h3 class="font-semibold">自由活動</h3>
+                                        <p class="text-sm text-gray-300">礁溪溫泉 / 按摩 / 回民宿休息。</p>
+                                    </div>
+                                </div>
+                                <div class="timeline-item flex items-start space-x-4 mb-6">
+                                    <div class="flex-shrink-0 w-10 h-10 timeline-circle rounded-full flex items-center justify-center text-sm font-bold text-white">18:00</div>
+                                    <div class="pt-2">
+                                        <h3 class="font-semibold">晚餐時間</h3>
+                                        <p class="text-sm text-gray-300">補充能量，享用宜蘭美食。</p>
+                                    </div>
+                                </div>
+                                <div class="timeline-item flex items-start space-x-4">
+                                    <div class="flex-shrink-0 w-10 h-10 timeline-circle highlight rounded-full flex items-center justify-center text-sm font-bold text-white">21:30</div>
+                                    <div class="pt-2 flex-1">
+                                        <h3 class="font-bold text-emerald-300 flex items-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-stars mr-2" viewBox="0 0 16 16"><path d="M7.657 6.247c.11-.33.576-.33.686 0l.645 1.937a2.89 2.89 0 0 0 1.829 1.828l1.936.645c.33.11.33.576 0 .686l-1.937.645a2.89 2.89 0 0 0-1.828 1.829l-.645 1.936a.361.361 0 0 1-.686 0l-.645-1.937a2.89 2.89 0 0 0-1.828-1.828l-1.937-.645a.361.361 0 0 1 0-.686l1.937-.645a2.89 2.89 0 0 0 1.828-1.828zM3.794 1.148a.217.217 0 0 1 .412 0l.387 1.162c.173.518.579.924 1.097 1.097l1.162.387a.217.217 0 0 1 0 .412l-1.162.387A1.73 1.73 0 0 0 4.58 5.48l-.387 1.162a.217.217 0 0 1-.412 0L3.4 5.48a1.73 1.73 0 0 0-1.097-1.097l-1.162-.387a.217.217 0 0 1 0-.412l1.162-.387A1.73 1.73 0 0 0 3.4 1.524zM10.863.099a.145.145 0 0 1 .274 0l.258.774c.115.346.386.617.732.732l.774.258a.145.145 0 0 1 0 .274l-.774.258a1.15 1.15 0 0 0-.732.732l-.258.774a.145.145 0 0 1-.274 0l-.258-.774a1.15 1.15 0 0 0-.732-.732l-.774-.258a.145.145 0 0 1 0-.274l.774-.258c.346-.115.617-.386.732-.732z"/></svg>
+                                            區塊鏈上課 (重點)
+                                        </h3>
+                                        <p class="text-sm text-gray-300 mb-2">學習新知，充實夜晚。</p>
+                                        <button id="blockchain-details-btn" class="bg-emerald-600/80 hover:bg-emerald-600/100 text-white text-xs font-semibold py-1.5 px-3 rounded-lg transition-colors duration-300 flex items-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-info-circle mr-1" viewBox="0 0 16 16"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/><path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0"/></svg>
+                                            詳細資訊
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-8 pt-4 border-t border-white/20">
+                               <div class="flex items-center text-amber-300">
+                                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-lightbulb-fill mr-2" viewBox="0 0 16 16"><path d="M2 6a6 6 0 1 1 10.174 4.31c-.203.196-.359.4-.453.619l-.762 1.769A.5.5 0 0 1 10.5 13h-5a.5.5 0 0 1-.46-.302l-.761-1.77a1.97 1.97 0 0 0-.454-.618A5.98 5.98 0 0 1 2 6m3 8.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1l-.224.447a1 1 0 0 1-.894.553H6.618a1 1 0 0 1-.894-.553L5.5 15a.5.5 0 0 1-.5-.5"/></svg>
+                                   <h4 class="font-semibold">溫馨提醒</h4>
+                               </div>
+                                <p class="text-sm text-gray-200 mt-2 pl-1">大家記得抓緊時間去洗澡喔！</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Day 2 -->
+                    <div id="day2-content" class="nature-card backdrop-blur-md rounded-2xl overflow-hidden" style="display: none;">
+                        <div class="p-6">
+                            <h2 class="text-2xl font-bold mb-6 nature-title">Day 2: 悠閒與歸途</h2>
+                            <div class="relative">
+                                <div class="timeline-item flex items-start space-x-4 mb-6">
+                                    <div class="flex-shrink-0 w-10 h-10 timeline-circle rounded-full flex items-center justify-center text-sm font-bold text-white">11:00</div>
+                                    <div class="pt-2"><h3 class="font-semibold">起床 + 退房</h3><p class="text-sm text-gray-300">睡到自然醒，收拾行囊。</p></div>
+                                </div>
+                                <div class="timeline-item flex items-start space-x-4 mb-6">
+                                    <div class="flex-shrink-0 w-10 h-10 timeline-circle rounded-full flex items-center justify-center text-sm font-bold text-white">12:00</div>
+                                    <div class="pt-2"><h3 class="font-semibold">午餐</h3><p class="text-sm text-gray-300">品嚐最後的宜蘭美味。</p></div>
+                                </div>
+                                <div class="timeline-item flex items-start space-x-4 mb-6">
+                                    <div class="flex-shrink-0 w-10 h-10 timeline-circle rounded-full flex items-center justify-center text-sm font-bold text-white">13:30</div>
+                                    <div class="pt-2"><h3 class="font-semibold">買伴手禮</h3><p class="text-sm text-gray-300">把回憶跟名產一起帶回家。</p></div>
+                                </div>
+                                <div class="timeline-item flex items-start space-x-4">
+                                    <div class="flex-shrink-0 w-10 h-10 timeline-circle rounded-full flex items-center justify-center text-sm font-bold text-white">14:00</div>
+                                    <div class="pt-2"><h3 class="font-semibold">回程</h3><p class="text-sm text-gray-300">期待下次再見！</p></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- 行前提醒頁面 -->
+    <div id="checklist-page" class="page-container">
+        <div class="min-h-screen w-full flex flex-col items-center p-4 sm:p-6 pb-20">
+            <main class="w-full max-w-lg mx-auto">
+                <header class="text-center my-8">
+                    <h1 class="text-3xl font-bold tracking-tight nature-title text-shadow-lg">行前提醒</h1>
+                    <p class="text-gray-300 mt-2">檢查清單</p>
+                </header>
+
+            <!-- 行前小提醒 -->
+            <div class="nature-card backdrop-blur-md rounded-2xl overflow-hidden mb-6">
+                <div class="p-6">
+                    <h2 class="text-2xl font-bold mb-4 flex items-center nature-title">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-card-checklist mr-3 text-green-400" viewBox="0 0 16 16"><path d="M14.5 3a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5zM1 4v8.5h14V4z"/><path d="M7 5.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5m-1.496-.854a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0l-.5-.5a.5.5 0 1 1 .708-.708l.146.147 1.146-1.147a.5.5 0 0 1 .708 0M7 9.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5m-1.496-.854a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0l-.5-.5a.5.5 0 0 1 .708-.708l.146.147 1.146-1.147a.5.5 0 0 1 .708 0"/></svg>
+                        行前小提醒
+                    </h2>
+                    <div class="space-y-4 text-gray-200">
+                        <div>
+                            <h3 class="font-semibold text-lg text-amber-300 mb-3">個人衣物</h3>
+                            <div class="space-y-2 pl-2">
+                                <label class="checklist-item flex items-center space-x-3 cursor-pointer rounded-lg p-2">
+                                    <input type="checkbox" class="w-5 h-5 text-green-600 bg-gray-700 border-gray-600 rounded focus:ring-green-500 focus:ring-2">
+                                    <span class="text-sm">換洗衣物 (2天份)</span>
+                                </label>
+                                <label class="checklist-item flex items-center space-x-3 cursor-pointer rounded-lg p-2">
+                                    <input type="checkbox" class="w-5 h-5 text-green-600 bg-gray-700 border-gray-600 rounded focus:ring-green-500 focus:ring-2">
+                                    <span class="text-sm">薄外套 (山區溫差大)</span>
+                                </label>
+                                <label class="checklist-item flex items-center space-x-3 cursor-pointer rounded-lg p-2">
+                                    <input type="checkbox" class="w-5 h-5 text-green-600 bg-gray-700 border-gray-600 rounded focus:ring-green-500 focus:ring-2">
+                                    <span class="text-sm">拖鞋</span>
+                                </label>
+                                <label class="checklist-item flex items-center space-x-3 cursor-pointer rounded-lg p-2">
+                                    <input type="checkbox" class="w-5 h-5 text-green-600 bg-gray-700 border-gray-600 rounded focus:ring-green-500 focus:ring-2">
+                                    <span class="text-sm">泳衣泳帽 (泡溫泉用)</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-lg text-green-300 mb-3">登山裝備</h3>
+                            <div class="space-y-2 pl-2">
+                                <label class="checklist-item flex items-center space-x-3 cursor-pointer rounded-lg p-2">
+                                    <input type="checkbox" class="w-5 h-5 text-green-600 bg-gray-700 border-gray-600 rounded focus:ring-green-500 focus:ring-2">
+                                    <span class="text-sm">登山鞋 / 好走的鞋</span>
+                                </label>
+                                <label class="checklist-item flex items-center space-x-3 cursor-pointer rounded-lg p-2">
+                                    <input type="checkbox" class="w-5 h-5 text-green-600 bg-gray-700 border-gray-600 rounded focus:ring-green-500 focus:ring-2">
+                                    <span class="text-sm">登山杖(你會感謝自己)</span>
+                                </label>
+                                <label class="checklist-item flex items-center space-x-3 cursor-pointer rounded-lg p-2">
+                                    <input type="checkbox" class="w-5 h-5 text-green-600 bg-gray-700 border-gray-600 rounded focus:ring-green-500 focus:ring-2">
+                                    <span class="text-sm">水 (至少1000cc)</span>
+                                </label>
+                                <label class="checklist-item flex items-center space-x-3 cursor-pointer rounded-lg p-2">
+                                    <input type="checkbox" class="w-5 h-5 text-green-600 bg-gray-700 border-gray-600 rounded focus:ring-green-500 focus:ring-2">
+                                    <span class="text-sm">午餐(行動糧 / 零食)</span>
+                                </label>
+                                <label class="checklist-item flex items-center space-x-3 cursor-pointer rounded-lg p-2">
+                                    <input type="checkbox" class="w-5 h-5 text-green-600 bg-gray-700 border-gray-600 rounded focus:ring-green-500 focus:ring-2">
+                                    <span class="text-sm">毛巾</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-lg text-emerald-300 mb-3">其他用品</h3>
+                            <div class="space-y-2 pl-2">
+                                <label class="checklist-item flex items-center space-x-3 cursor-pointer rounded-lg p-2">
+                                    <input type="checkbox" class="w-5 h-5 text-green-600 bg-gray-700 border-gray-600 rounded focus:ring-green-500 focus:ring-2">
+                                    <span class="text-sm">個人藥品 / 防蚊液</span>
+                                </label>
+                                <label class="checklist-item flex items-center space-x-3 cursor-pointer rounded-lg p-2">
+                                    <input type="checkbox" class="w-5 h-5 text-green-600 bg-gray-700 border-gray-600 rounded focus:ring-green-500 focus:ring-2">
+                                    <span class="text-sm">充電器 / 行動電源</span>
+                                </label>
+                                <label class="checklist-item flex items-center space-x-3 cursor-pointer rounded-lg p-2">
+                                    <input type="checkbox" class="w-5 h-5 text-green-600 bg-gray-700 border-gray-600 rounded focus:ring-green-500 focus:ring-2">
+                                    <span class="text-sm">健保卡 / 身分證</span>
+                                </label>
+                                <label class="checklist-item flex items-center space-x-3 cursor-pointer rounded-lg p-2">
+                                    <input type="checkbox" class="w-5 h-5 text-green-600 bg-gray-700 border-gray-600 rounded focus:ring-green-500 focus:ring-2">
+                                    <span class="text-sm">一顆期待的心！</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- 住宿溫泉資訊頁面 -->
+    <div id="info-page" class="page-container">
+        <div class="min-h-screen w-full flex flex-col items-center p-4 sm:p-6 pb-20">
+            <main class="w-full max-w-lg mx-auto">
+                <header class="text-center my-8">
+                    <h1 class="text-3xl font-bold tracking-tight nature-title text-shadow-lg">住宿溫泉</h1>
+                    <p class="text-gray-300 mt-2">住宿與溫泉資訊</p>
+                </header>
+
+            <!-- 礁溪溫泉資訊卡片 -->
+            <div id="hotspring-section" class="nature-card backdrop-blur-md rounded-2xl overflow-hidden mb-6">
+                <div class="p-6">
+                    <h2 class="text-2xl font-bold mb-4 flex items-center nature-title">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-droplet-fill mr-3 text-blue-400" viewBox="0 0 16 16">
+                            <path d="M8 16a6 6 0 0 0 6-6c0-1.655-1.122-2.904-2.432-4.362C10.254 4.176 8.75 2.503 8 0c0 0-6 5.686-6 10a6 6 0 0 0 6 6M6.646 4.646l.708.708c-.29.29-1.128 1.311-1.907 2.87l-.894-.448c.85-1.702 1.803-2.838 2.093-3.13"/>
+                        </svg>
+                        礁溪溫泉推薦
+                    </h2>
+                    
+                    <!-- 湯圍溝按摩 -->
+                    <div class="mb-6 p-4 bg-white/5 rounded-xl border border-white/10">
+                        <div class="flex items-start justify-between mb-2">
+                            <h3 class="text-lg font-semibold text-orange-300">湯圍溝按摩</h3>
+                            <span class="text-sm bg-orange-600/30 text-orange-200 px-2 py-1 rounded-full">全身按摩 $1100</span>
+                        </div>
+                        <p class="text-sm text-gray-300 mb-3">預計人員：陳浩、Iris、季喬</p>
+                        <a href="https://maps.app.goo.gl/SmUR8yUbBXbFtcwF7?g_st=al" target="_blank" 
+                           class="inline-flex items-center text-blue-300 hover:text-blue-200 text-sm transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-geo-alt-fill mr-1" viewBox="0 0 16 16">
+                                <path d="M8 16s-3-5.5-8-8a8 8 0 1 1 16 0c-5 2.5-8 8-8 8M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6"/>
+                            </svg>
+                            查看地圖位置
+                        </a>
+                    </div>
+
+                    <!-- 川湯春天 -->
+                    <div class="mb-6 p-4 bg-white/5 rounded-xl border border-white/10">
+                        <div class="flex items-start justify-between mb-2">
+                            <h3 class="text-lg font-semibold text-blue-300">川湯春天</h3>
+                            <span class="text-sm bg-blue-600/30 text-blue-200 px-2 py-1 rounded-full">SPA $380</span>
+                        </div>
+                        <p class="text-sm text-amber-300 mb-2">⚠️ 需穿泳衣泳帽</p>
+                        <p class="text-sm text-gray-300 mb-3">預計人員：祖恩、小詹、浩崴、Rosa、興煜</p>
+                        <a href="https://maps.app.goo.gl/3n4fY61YGJQRqWue9" target="_blank" 
+                           class="inline-flex items-center text-blue-300 hover:text-blue-200 text-sm transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-geo-alt-fill mr-1" viewBox="0 0 16 16">
+                                <path d="M8 16s-3-5.5-8-8a8 8 0 1 1 16 0c-5 2.5-8 8-8 8M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6"/>
+                            </svg>
+                            查看地圖位置
+                        </a>
+                    </div>
+
+                    <!-- 森林風呂溫泉 -->
+                    <div class="mb-6 p-4 bg-white/5 rounded-xl border border-white/10">
+                        <div class="flex items-start justify-between mb-2">
+                            <h3 class="text-lg font-semibold text-green-300">森林風呂溫泉</h3>
+                            <span class="text-sm bg-green-600/30 text-green-200 px-2 py-1 rounded-full">裸湯</span>
+                        </div>
+                        <div class="text-sm text-gray-300 mb-2">
+                            💰 現場 $250 | KKday $188 | Klook $200
+                        </div>
+                        <p class="text-sm text-amber-300 mb-2">⚠️ 無法代訂票券</p>
+                        <p class="text-sm text-gray-300 mb-3">預計人員：喬喬、Celine、Emily</p>
+                        <a href="https://maps.app.goo.gl/JorJWLZpiShpjti98" target="_blank" 
+                           class="inline-flex items-center text-blue-300 hover:text-blue-200 text-sm transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-geo-alt-fill mr-1" viewBox="0 0 16 16">
+                                <path d="M8 16s-3-5.5-8-8a8 8 0 1 1 16 0c-5 2.5-8 8-8 8M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6"/>
+                            </svg>
+                            查看地圖位置
+                        </a>
+                    </div>
+
+                    <!-- 礁溪四季溫泉 -->
+                    <div class="mb-4 p-4 bg-white/5 rounded-xl border border-white/10">
+                        <div class="flex items-start justify-between mb-2">
+                            <h3 class="text-lg font-semibold text-purple-300">礁溪四季溫泉</h3>
+                            <span class="text-sm bg-purple-600/30 text-purple-200 px-2 py-1 rounded-full">雙人包間 $300</span>
+                        </div>
+                        <p class="text-sm text-gray-300 mb-3">預計人員：聖文、玳綺</p>
+                        <a href="https://maps.app.goo.gl/87CAs5ZeGCzWbWPH9" target="_blank" 
+                           class="inline-flex items-center text-blue-300 hover:text-blue-200 text-sm transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-geo-alt-fill mr-1" viewBox="0 0 16 16">
+                                <path d="M8 16s-3-5.5-8-8a8 8 0 1 1 16 0c-5 2.5-8 8-8 8M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6"/>
+                            </svg>
+                            查看地圖位置
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 住宿資訊卡片 -->
+            <div class="nature-card backdrop-blur-md rounded-2xl overflow-hidden mb-6">
+                <div class="p-6">
+                    <h2 class="text-2xl font-bold mb-4 flex items-center nature-title">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-house-heart-fill mr-3 text-green-400" viewBox="0 0 16 16"><path d="M7.293 1.5a1 1 0 0 1 1.414 0L11 3.793V2.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v3.293l2.354 2.353a.5.5 0 0 1-.708.708L8 2.207l-5.646 5.647a.5.5 0 0 1-.708-.708z"/><path d="m14 9.293-6-6-6 6V13.5A1.5 1.5 0 0 0 3.5 15h9a1.5 1.5 0 0 0 1.5-1.5zm-6-.811c1.664-1.673 5.825 1.254 0 5.018-5.825-3.764-1.664-6.691 0-5.018"/></svg>
+                        住宿資訊
+                    </h2>
+                    <div class="mb-4">
+                        <h3 class="text-xl font-semibold text-green-300">仰森水畔民宿</h3>
+                        <p class="text-sm text-gray-300 mt-1">宜蘭縣礁溪鄉砂港路75號</p>
+                        <p class="text-sm text-gray-300 mt-1">房型：5人房*2 + 2人房*2</p>
+                    </div>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-sm mb-4">
+                        <span class="flex items-center">🎤 歡唱KTV</span><span class="flex items-center">🍗 代訂烤肉</span><span class="flex items-center">🀄️ 電動麻將</span><span class="flex items-center">🎮 Switch</span><span class="flex items-center">🍳 可用廚房</span><span class="flex items-center">☕️ 咖啡機</span><span class="flex items-center">💦 戲水池</span><span class="flex items-center">🤸 兒童遊戲區</span><span class="flex items-center">🐦 水鳥保護區</span>
+                    </div>
+                    <a href="https://tw-bnb.com/web/forestriver/" target="_blank" class="block w-full text-center bg-green-600/80 hover:bg-green-600/100 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300">
+                        前往官網查看
+                    </a>
+                </div>
+            </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- 預算規劃頁面 -->
+    <div id="budget-page" class="page-container">
+        <div class="min-h-screen w-full flex flex-col items-center p-4 sm:p-6 pb-20">
+            <main class="w-full max-w-lg mx-auto">
+                <header class="text-center my-8">
+                    <h1 class="text-3xl font-bold tracking-tight nature-title text-shadow-lg">預算規劃</h1>
+                    <p class="text-gray-300 mt-2">詳細費用明細</p>
+                </header>
+
+                <!-- 預算明細 -->
+                <div class="nature-card backdrop-blur-md rounded-2xl overflow-hidden mb-6">
+                    <div class="p-6">
+                        <h2 class="text-2xl font-bold mb-6 flex items-center nature-title">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-wallet-fill mr-3 text-green-400" viewBox="0 0 16 16">
+                                <path d="M1.5 2A1.5 1.5 0 0 0 0 3.5v2h6a.5.5 0 0 1 .5.5c0 .253.08.644.306.958.207.288.557.542 1.194.542s.987-.254 1.194-.542C9.42 6.644 9.5 6.253 9.5 6a.5.5 0 0 1 .5-.5h6v-2A1.5 1.5 0 0 0 14.5 2z"/>
+                                <path d="M16 6.5h-5.551a2.678 2.678 0 0 1-.443 1C9.613 8.215 8.963 8.5 8 8.5s-1.613-.285-2.006-.5a2.678 2.678 0 0 1-.443-1H0v6A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5z"/>
+                            </svg>
+                            費用明細
+                        </h2>
+                        
+                        <!-- 費用明細 -->
+                        <div class="space-y-4">
+                            <!-- 住宿費用 -->
+                            <div class="p-4 bg-gradient-to-r from-blue-500/20 to-cyan-500/20 rounded-xl border border-blue-400/30">
+                                <div class="flex items-center justify-between mb-2">
+                                    <h3 class="text-lg font-semibold text-blue-300 flex items-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-house-heart-fill mr-2" viewBox="0 0 16 16">
+                                            <path d="M7.293 1.5a1 1 0 0 1 1.414 0L11 3.793V2.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v3.293l2.354 2.353a.5.5 0 0 1-.708.708L8 2.207l-5.646 5.647a.5.5 0 0 1-.708-.708z"/>
+                                            <path d="m14 9.293-6-6-6 6V13.5A1.5 1.5 0 0 0 3.5 15h9a1.5 1.5 0 0 0 1.5-1.5zm-6-.811c1.664-1.673 5.825 1.254 0 5.018-5.825-3.764-1.664-6.691 0-5.018"/>
+                                        </svg>
+                                        住宿費用
+                                    </h3>
+                                    <span class="text-lg font-bold text-blue-200">$1,193/人</span>
+                                </div>
+                                <p class="text-sm text-gray-300">仰森水畔民宿 $16,700 ÷ 14人</p>
+                            </div>
+
+                            <!-- 交通費用 -->
+                            <div class="p-4 bg-gradient-to-r from-orange-500/20 to-red-500/20 rounded-xl border border-orange-400/30">
+                                <div class="flex items-center justify-between mb-2">
+                                    <h3 class="text-lg font-semibold text-orange-300 flex items-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-car-front-fill mr-2" viewBox="0 0 16 16">
+                                            <path d="M2.52 3.515A2.5 2.5 0 0 1 4.82 2h6.362c1 0 1.904.596 2.298 1.515l.792 1.848c.075.175.21.319.38.404.5.25.855.715.965 1.262l.335 1.679q.05.242.049.49v.413c0 .814-.39 1.543-1 1.997V13.5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1-.5-.5v-1.338c-1.292.048-2.745.088-4 .088s-2.708-.04-4-.088V13.5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1-.5-.5v-1.892c-.61-.454-1-1.183-1-1.997v-.413a2.5 2.5 0 0 1 .049-.49l.335-1.68c.11-.546.465-1.012.964-1.261a.8.8 0 0 0 .381-.404l.792-1.848ZM3 10a1 1 0 1 0 0-2 1 1 0 0 0 0 2m10 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2M6 8a1 1 0 0 0 0 2h4a1 1 0 1 0 0-2zM2.906 5.189a.51.51 0 0 0 .497.731c.91-.073 3.35-.17 4.597-.17s3.688.097 4.597.17a.51.51 0 0 0 .497-.731l-.956-1.913A.5.5 0 0 0 11.691 3H4.309a.5.5 0 0 0-.447.276L2.906 5.19Z"/>
+                                        </svg>
+                                        交通費用
+                                    </h3>
+                                    <span class="text-lg font-bold text-orange-200">$200/人</span>
+                                </div>
+                                <p class="text-sm text-gray-300">分車油錢 + 過路費</p>
+                            </div>
+
+                            <!-- 區塊鏈課程費用 -->
+                            <div class="p-4 bg-gradient-to-r from-purple-500/20 to-indigo-500/20 rounded-xl border border-purple-400/30">
+                                <div class="flex items-center justify-between mb-2">
+                                    <h3 class="text-lg font-semibold text-purple-300 flex items-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-mortarboard-fill mr-2" viewBox="0 0 16 16">
+                                            <path d="M8.211 2.047a.5.5 0 0 0-.422 0L.5 5.5v5a.5.5 0 0 0 .5.5h15a.5.5 0 0 0 .5-.5v-5zM8 7.993c1.664-1.711 5.825 1.283 0 5.132-5.825-3.85-1.664-6.843 0-5.132"/>
+                                            <path d="M2 11.5a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5m4.5-.5a.5.5 0 0 0 0 1h3a.5.5 0 0 0 0-1z"/>
+                                        </svg>
+                                        區塊鏈課程
+                                    </h3>
+                                    <span class="text-lg font-bold text-purple-200">$200/人</span>
+                                </div>
+                                <p class="text-sm text-gray-300">浩崴區塊鏈分享課程費用</p>
+                            </div>
+
+                            <!-- 餐飲費用 -->
+                            <div class="p-4 bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-xl border border-green-400/30">
+                                <div class="flex items-center justify-between mb-2">
+                                    <h3 class="text-lg font-semibold text-green-300 flex items-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-cup-hot-fill mr-2" viewBox="0 0 16 16">
+                                            <path fill-rule="evenodd" d="M.5 6a.5.5 0 0 0-.488.608l1.652 7.434A2.5 2.5 0 0 0 4.104 16h5.792a2.5 2.5 0 0 0 2.44-1.958l.131-.59a3 3 0 0 0 1.3-5.854l.221-.99A.5.5 0 0 0 13.5 6zM13 12.5a2.01 2.01 0 0 1-.316-.025l.867-3.898A2.001 2.001 0 0 1 13 12.5"/>
+                                            <path d="m4.4.8-.003.004-.014.019a4 4 0 0 0-.204.31 2 2 0 0 0-.141.267c-.026.06-.034.092-.037.103v.004a.6.6 0 0 0 .091.248c.075.133.178.272.308.445l.01.012c.118.158.26.347.37.543.112.2.22.455.22.745 0 .188-.065.368-.119.494a3 3 0 0 1-.202.388 5 5 0 0 1-.253.382l-.018.025-.005.008-.002.002A.5.5 0 0 1 3.6 4.2l.003-.004.014-.019a4 4 0 0 0 .204-.31 2 2 0 0 0 .141-.267c.026-.06.034-.092.037-.103a.6.6 0 0 0-.09-.252A4 4 0 0 0 3.6 2.8l-.01-.012a5 5 0 0 1-.37-.543A1.53 1.53 0 0 1 3 1.5c0-.188.065-.368.119-.494.059-.138.134-.274.202-.388a6 6 0 0 1 .253-.382l.025-.035A.5.5 0 0 1 4.4.8m3 0-.003.004-.014.019a4 4 0 0 0-.204.31 2 2 0 0 0-.141.267c-.026.06-.034.092-.037.103v.004a.6.6 0 0 0 .091.248c.075.133.178.272.308.445l.01.012c.118.158.26.347.37.543.112.2.22.455.22.745 0 .188-.065.368-.119.494a3 3 0 0 1-.202.388 5 5 0 0 1-.253.382l-.018.025-.005.008-.002.002A.5.5 0 0 1 6.6 4.2l.003-.004.014-.019a4 4 0 0 0 .204-.31 2 2 0 0 0 .141-.267c.026-.06.034-.092.037-.103a.6.6 0 0 0-.09-.252A4 4 0 0 0 6.6 2.8l-.01-.012a5 5 0 0 1-.37-.543A1.53 1.53 0 0 1 6 1.5c0-.188.065-.368.119-.494.059-.138.134-.274.202-.388a6 6 0 0 1 .253-.382l.025-.035A.5.5 0 0 1 7.4.8m3 0-.003.004-.014.019a4 4 0 0 0-.204.31 2 2 0 0 0-.141.267c-.026.06-.034.092-.037.103v.004a.6.6 0 0 0 .091.248c.075.133.178.272.308.445l.01.012c.118.158.26.347.37.543.112.2.22.455.22.745 0 .188-.065.368-.119.494a3 3 0 0 1-.202.388 5 5 0 0 1-.253.382l-.018.025-.005.008-.002.002A.5.5 0 0 1 9.6 4.2l.003-.004.014-.019a4 4 0 0 0 .204-.31 2 2 0 0 0 .141-.267c.026-.06.034-.092.037-.103a.6.6 0 0 0-.09-.252A4 4 0 0 0 9.6 2.8l-.01-.012a5 5 0 0 1-.37-.543A1.53 1.53 0 0 1 9 1.5c0-.188.065-.368.119-.494.059-.138.134-.274.202-.388a6 6 0 0 1 .253-.382l.025-.035A.5.5 0 0 1 10.4.8"/>
+                                        </svg>
+                                        餐飲費用
+                                    </h3>
+                                    <span class="text-lg font-bold text-green-200">$800/人</span>
+                                </div>
+                                <div class="text-sm text-gray-300 space-y-1">
+                                    <div>• 第一天晚餐：$400</div>
+                                    <div>• 第二天午餐：$400</div>
+                                    <div>• 登山行動糧：自備</div>
+                                </div>
+                            </div>
+
+                            <!-- 溫泉費用 -->
+                            <div class="p-4 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 rounded-xl border border-cyan-400/30">
+                                <div class="flex items-center justify-between mb-2">
+                                    <h3 class="text-lg font-semibold text-cyan-300 flex items-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-droplet-fill mr-2" viewBox="0 0 16 16">
+                                            <path d="M8 16a6 6 0 0 0 6-6c0-1.655-1.122-2.904-2.432-4.362C10.254 4.176 8.75 2.503 8 0c0 0-6 5.686-6 10a6 6 0 0 0 6 6M6.646 4.646l.708.708c-.29.29-1.128 1.311-1.907 2.87l-.894-.448c.85-1.702 1.803-2.838 2.093-3.13"/>
+                                        </svg>
+                                        溫泉/按摩
+                                    </h3>
+                                    <span class="text-lg font-bold text-cyan-200">$200-1,100</span>
+                                </div>
+                                <div class="text-sm text-gray-300 space-y-1">
+                                    <div>• 森林風呂：$188-250</div>
+                                    <div>• 川湯春天：$380</div>
+                                    <div>• 四季溫泉：$300</div>
+                                    <div>• 湯圍溝按摩：$1,100</div>
+                                </div>
+                                <p class="text-xs text-amber-300 mt-2">💡 個人選擇項目，可自由參加</p>
+                            </div>
+
+                            <!-- 總預算 -->
+                            <div class="p-4 bg-gradient-to-r from-purple-500/30 to-pink-500/30 rounded-xl border border-purple-400/50">
+                                <div class="flex items-center justify-between">
+                                    <h3 class="text-xl font-bold text-purple-200 flex items-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-calculator-fill mr-2" viewBox="0 0 16 16">
+                                            <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2zm2 .5v2a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5v-2a.5.5 0 0 0-.5-.5h-7a.5.5 0 0 0-.5.5m0 4v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5M4.5 9a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5zM4 12.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5M7.5 6a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5zM7 9.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5m.5 2.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5zM10 6.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5m.5 2.5a.5.5 0 0 0-.5.5v4a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-4a.5.5 0 0 0-.5-.5z"/>
+                                        </svg>
+                                        預計總花費
+                                    </h3>
+                                    <span class="text-2xl font-bold text-purple-100">$2,393/人</span>
+                                </div>
+                                <p class="text-sm text-purple-200 mt-2">基本費用：$2,393/人 (住宿+交通+區塊鏈+餐飲)</p>
+                                <p class="text-sm text-purple-200">含溫泉/按摩：$2,593-3,493/人</p>
+                            </div>
+                        </div>
+
+                        <div class="mt-6 pt-4 border-t border-white/20">
+                            <div class="flex items-center text-amber-300">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-info-circle-fill mr-2" viewBox="0 0 16 16">
+                                    <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2"/>
+                                </svg>
+                                <h4 class="font-semibold">費用說明</h4>
+                            </div>
+                            <div class="text-sm text-gray-200 mt-2 pl-1 space-y-1">
+                                <p>• 以上為預估費用，實際金額可能有所調整</p>
+                                <p>• 溫泉/按摩為個人選擇項目，可自由參加</p>
+                                <p>• 建議多準備 $500 作為額外支出</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- 底部導航 -->
+    <nav class="bottom-nav">
+        <div class="flex">
+            <div class="nav-item active" onclick="showPage('home-page')" data-page="home-page">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-house-fill" viewBox="0 0 16 16">
+                    <path d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.708L8 2.207l6.646 6.647a.5.5 0 0 0 .708-.708L13 7.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v3.293z"/>
+                    <path d="m8 3.293 6 6V13.5a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 2 13.5V9.293z"/>
+                </svg>
+                <span class="text-xs mt-1">首頁</span>
+            </div>
+            <div class="nav-item" onclick="showPage('schedule-page')" data-page="schedule-page">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-calendar-event-fill" viewBox="0 0 16 16">
+                    <path d="M4 .5a.5.5 0 0 0-1 0V1H2a2 2 0 0 0-2 2v1h16V3a2 2 0 0 0-2-2h-1V.5a.5.5 0 0 0-1 0V1H4zM16 14V5H0v9a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2m-3.5-7h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5"/>
+                </svg>
+                <span class="text-xs mt-1">行程</span>
+            </div>
+            <div class="nav-item" onclick="showPage('checklist-page')" data-page="checklist-page">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-card-checklist" viewBox="0 0 16 16">
+                    <path d="M14.5 3a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5zM1 4v8.5h14V4z"/>
+                    <path d="M7 5.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5m-1.496-.854a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0l-.5-.5a.5.5 0 1 1 .708-.708l.146.147 1.146-1.147a.5.5 0 0 1 .708 0M7 9.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5m-1.496-.854a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0l-.5-.5a.5.5 0 0 1 .708-.708l.146.147 1.146-1.147a.5.5 0 0 1 .708 0"/>
+                </svg>
+                <span class="text-xs mt-1">提醒</span>
+            </div>
+            <div class="nav-item" onclick="showPage('info-page')" data-page="info-page">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-droplet-fill" viewBox="0 0 16 16">
+                    <path d="M8 16a6 6 0 0 0 6-6c0-1.655-1.122-2.904-2.432-4.362C10.254 4.176 8.75 2.503 8 0c0 0-6 5.686-6 10a6 6 0 0 0 6 6M6.646 4.646l.708.708c-.29.29-1.128 1.311-1.907 2.87l-.894-.448c.85-1.702 1.803-2.838 2.093-3.13"/>
+                </svg>
+                <span class="text-xs mt-1">資訊</span>
+            </div>
+        </div>
+    </nav>
+    
+    <script>
+        // 頁面切換功能
+        function showPage(pageId) {
+            // 隱藏所有頁面
+            const pages = document.querySelectorAll('.page-container');
+            pages.forEach(page => {
+                page.classList.remove('active');
+            });
+            
+            // 顯示目標頁面
+            const targetPage = document.getElementById(pageId);
+            if (targetPage) {
+                targetPage.classList.add('active');
+            }
+            
+            // 更新底部導航狀態
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            const activeNavItem = document.querySelector(`[data-page="${pageId}"]`);
+            if (activeNavItem) {
+                activeNavItem.classList.add('active');
+            }
+        }
+
+        // 日期切換
+        const day1Btn = document.getElementById('day1-btn');
+        const day2Btn = document.getElementById('day2-btn');
+        const day1Content = document.getElementById('day1-content');
+        const day2Content = document.getElementById('day2-content');
+
+        day1Btn.addEventListener('click', () => {
+            day1Content.style.display = 'block';
+            day2Content.style.display = 'none';
+            day1Btn.classList.add('bg-white/20', 'text-white');
+            day1Btn.classList.remove('text-gray-300');
+            day2Btn.classList.add('text-gray-300');
+            day2Btn.classList.remove('bg-white/20', 'text-white');
+        });
+
+        day2Btn.addEventListener('click', () => {
+            day1Content.style.display = 'none';
+            day2Content.style.display = 'block';
+            day2Btn.classList.add('bg-white/20', 'text-white');
+            day2Btn.classList.remove('text-gray-300');
+            day1Btn.classList.add('text-gray-300');
+            day1Btn.classList.remove('bg-white/20', 'text-white');
+        });
+
+        
+
+        // 區塊鏈海報彈出視窗功能
+        const blockchainDetailsBtn = document.getElementById('blockchain-details-btn');
+        const blockchainModal = document.getElementById('blockchain-modal');
+        const closeBlockchainModal = document.getElementById('close-blockchain-modal');
+        const blockchainOverlay = document.getElementById('blockchain-overlay');
+
+        function openBlockchainModal() {
+            blockchainModal.classList.remove('hidden');
+            setTimeout(() => blockchainModal.classList.add('opacity-100'), 10);
+            document.body.style.overflow = 'hidden'; // 防止背景滾動
+        }
+
+        function closeBlockchainModalFunc() {
+            blockchainModal.classList.remove('opacity-100');
+            setTimeout(() => blockchainModal.classList.add('hidden'), 300);
+            document.body.style.overflow = 'auto'; // 恢復滾動
+        }
+
+        blockchainDetailsBtn.addEventListener('click', openBlockchainModal);
+        closeBlockchainModal.addEventListener('click', closeBlockchainModalFunc);
+        blockchainOverlay.addEventListener('click', closeBlockchainModalFunc);
+
+        // 按ESC鍵關閉彈出視窗
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && !blockchainModal.classList.contains('hidden')) {
+                closeBlockchainModalFunc();
+            }
+        });
+
+        // 核選方塊功能
+        const checkboxes = document.querySelectorAll('#checklist-section input[type="checkbox"]');
+        
+        // 載入已保存的核選方塊狀態
+        function loadCheckboxStates() {
+            checkboxes.forEach((checkbox, index) => {
+                const savedState = localStorage.getItem(`checklist-item-${index}`);
+                if (savedState === 'true') {
+                    checkbox.checked = true;
+                }
+            });
+        }
+        
+        // 保存核選方塊狀態
+        function saveCheckboxState(checkbox, index) {
+            localStorage.setItem(`checklist-item-${index}`, checkbox.checked);
+        }
+        
+        // 為每個核選方塊添加事件監聽器
+        checkboxes.forEach((checkbox, index) => {
+            checkbox.addEventListener('change', () => {
+                saveCheckboxState(checkbox, index);
+            });
+        });
+        
+        // 頁面載入時恢復核選方塊狀態
+        document.addEventListener('DOMContentLoaded', function() {
+            loadCheckboxStates();
+            
+            // 檢查是否有來自照片牆頁面的導航請求
+            const targetPage = localStorage.getItem('targetPage');
+            if (targetPage) {
+                // 清除 localStorage 中的目標頁面
+                localStorage.removeItem('targetPage');
+                
+                // 延遲一點時間確保頁面完全載入後再切換
+                setTimeout(() => {
+                    showPage(targetPage);
+                }, 100);
+            }
+        });
+
+        // 響應式照片導航函數
+        function handlePhotoNavigation() {
+            // 檢測是否為手機設備
+            const isMobile = window.innerWidth <= 768 || /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            
+            if (isMobile) {
+                // 手機用戶：當前頁面導航
+                window.location.href = '照片牆.html';
+            } else {
+                // 電腦用戶：新分頁開啟
+                window.open('照片牆.html', '_blank');
+            }
+        }
+
+    </script>
+
+</body>
+</html>
+
