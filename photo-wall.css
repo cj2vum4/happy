@@ -18,6 +18,166 @@ body {
     overflow: hidden;
 }
 
+/* 照片牆專用樣式 */
+.nature-title {
+    background: linear-gradient(135deg, #22c55e, #16a34a, #15803d);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* 照片輪播容器 */
+#photo-carousel {
+    transition: all 0.3s ease-in-out;
+}
+
+#photo-carousel:hover #prev-btn,
+#photo-carousel:hover #next-btn {
+    opacity: 1 !important;
+}
+
+/* 輪播軌道 */
+#carousel-track {
+    transition: transform 0.5s ease-in-out;
+}
+
+/* 照片指示器 */
+#photo-indicators button {
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+#photo-indicators button:hover {
+    transform: scale(1.2);
+}
+
+/* 控制按鈕樣式 */
+#auto-play-btn,
+#fullscreen-btn,
+#add-photo-btn {
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+}
+
+#auto-play-btn:hover,
+#fullscreen-btn:hover,
+#add-photo-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* 導航按鈕 */
+#prev-btn,
+#next-btn {
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+}
+
+#prev-btn:hover,
+#next-btn:hover {
+    background-color: rgba(0, 0, 0, 0.8);
+    transform: scale(1.1);
+}
+
+/* 載入動畫 */
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.animate-spin {
+    animation: spin 1s linear infinite;
+}
+
+/* 淡入動畫 */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.6s ease-out;
+}
+
+/* 照片載入效果 */
+#carousel-track img {
+    transition: opacity 0.3s ease;
+    /* 確保圖片品質最佳 */
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: high-quality;
+    /* 防止圖片被壓縮 */
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    /* 確保高解析度顯示 */
+    transform: translateZ(0);
+    /* 防止瀏覽器壓縮 */
+    -webkit-transform: translateZ(0);
+}
+
+#carousel-track img:not([src]) {
+    opacity: 0;
+}
+
+/* 照片容器優化 */
+#carousel-track > div {
+    /* 確保容器不會影響圖片品質 */
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+}
+
+/* 全螢幕模式樣式 */
+#photo-carousel:fullscreen {
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#photo-carousel:fullscreen #carousel-track {
+    max-height: 100vh;
+}
+
+/* 響應式設計 */
+@media (max-width: 768px) {
+    #prev-btn,
+    #next-btn {
+        display: none;
+    }
+    
+    #photo-carousel {
+        padding: 0;
+    }
+    
+    .bottom-nav {
+        padding: 12px 0;
+    }
+}
+
+/* 觸控設備優化 */
+@media (hover: none) and (pointer: coarse) {
+    #prev-btn,
+    #next-btn {
+        opacity: 0.8;
+    }
+    
+    #auto-play-btn,
+    #fullscreen-btn,
+    #add-photo-btn {
+        padding: 12px 16px;
+        font-size: 14px;
+    }
+}
+
 /* 頁面容器樣式 */
 .page-container {
     position: fixed;

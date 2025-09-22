@@ -924,10 +924,6 @@
                                 </label>
                                 <label class="checklist-item flex items-center space-x-3 cursor-pointer rounded-lg p-2">
                                     <input type="checkbox" class="w-5 h-5 text-green-600 bg-gray-700 border-gray-600 rounded focus:ring-green-500 focus:ring-2">
-                                    <span class="text-sm">抹茶餅乾</span>
-                                </label>
-                                <label class="checklist-item flex items-center space-x-3 cursor-pointer rounded-lg p-2">
-                                    <input type="checkbox" class="w-5 h-5 text-green-600 bg-gray-700 border-gray-600 rounded focus:ring-green-500 focus:ring-2">
                                     <span class="text-sm">毛巾</span>
                                 </label>
                             </div>
@@ -946,10 +942,6 @@
                                 <label class="checklist-item flex items-center space-x-3 cursor-pointer rounded-lg p-2">
                                     <input type="checkbox" class="w-5 h-5 text-green-600 bg-gray-700 border-gray-600 rounded focus:ring-green-500 focus:ring-2">
                                     <span class="text-sm">健保卡 / 身分證</span>
-                                </label>
-                                <label class="checklist-item flex items-center space-x-3 cursor-pointer rounded-lg p-2">
-                                    <input type="checkbox" class="w-5 h-5 text-green-600 bg-gray-700 border-gray-600 rounded focus:ring-green-500 focus:ring-2">
-                                    <span class="text-sm">牙刷 / 牙膏</span>
                                 </label>
                                 <label class="checklist-item flex items-center space-x-3 cursor-pointer rounded-lg p-2">
                                     <input type="checkbox" class="w-5 h-5 text-green-600 bg-gray-700 border-gray-600 rounded focus:ring-green-500 focus:ring-2">
@@ -1389,6 +1381,34 @@
         }
 
     </script>
+
+<audio id="bgm" loop muted>
+    <source src="上路.mp3" type="audio/mpeg">
+</audio>
+<script>
+    // 點擊頁面解除靜音
+    document.addEventListener('click', function(){
+        const audio = document.getElementById('bgm');
+        if (audio) {
+            audio.muted = false;
+            audio.volume = 0.3; // 調低音量避免過於嚇人
+            audio.play().catch(e => console.log('Audio play failed:', e));
+        }
+    }, {once:true});
+
+    // 監聽頁面可見性變化，以處理在LINE等App內建瀏覽器中，關閉視窗後音樂仍持續播放的問題
+    document.addEventListener('visibilitychange', function() {
+        const audio = document.getElementById('bgm');
+        if (audio) {
+            if (document.hidden) {
+                // 當頁面變得不可見時（例如切換App、關閉內建瀏覽器視窗），就暫停音樂
+                audio.pause();
+            }
+        }
+    });
+</script>
+
+
 
 </body>
 </html>

@@ -25,47 +25,15 @@
                     <p class="text-gray-300 mt-2">珍貴的出遊回憶</p>
                 </header>
 
-                <!-- 載入狀態 -->
-                <div id="loading-state" class="text-center py-12">
-                    <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-pink-400"></div>
-                    <p id="loading-text" class="text-gray-300 mt-4">載入照片中...</p>
-                    <div id="loading-progress" class="mt-4 max-w-xs mx-auto">
-                        <div class="bg-gray-700 rounded-full h-2">
-                            <div id="progress-bar" class="bg-pink-400 h-2 rounded-full transition-all duration-1000" style="width: 0%"></div>
-                        </div>
-                        <p id="progress-text" class="text-xs text-gray-400 mt-2">正在連接到雲端...</p>
-                    </div>
-                </div>
-
-                <!-- 錯誤狀態 -->
-                <div id="error-state" class="text-center py-12 hidden">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" class="bi bi-exclamation-triangle-fill mx-auto mb-4 text-yellow-400" viewBox="0 0 16 16">
-                        <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5m.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2"/>
-                    </svg>
-                    <p class="text-gray-300 mb-4">載入照片時發生錯誤</p>
-                    <div class="space-y-2">
-                        <button id="retry-btn" class="bg-pink-500 hover:bg-pink-600 text-white px-4 py-2 rounded-lg transition-colors block mx-auto">
-                            重新載入
-                        </button>
-                    </div>
-                    <p class="text-xs text-gray-400 mt-4">請檢查瀏覽器控制台（F12）查看詳細錯誤訊息</p>
-                </div>
 
                 <!-- 照片輪播 -->
-                <div id="photo-carousel" class="relative w-full max-w-2xl mx-auto hidden">
+                <div id="photo-carousel" class="relative w-full max-w-2xl mx-auto">
                     <!-- 照片容器 -->
                     <div class="relative overflow-hidden rounded-2xl bg-gray-800/50 aspect-[4/3]">
                         <div id="carousel-track" class="flex transition-transform duration-500 ease-in-out h-full">
                             <!-- 照片會動態載入到這裡 -->
                         </div>
                         
-                        <!-- 載入指示器 -->
-                        <div id="carousel-loading" class="absolute inset-0 flex items-center justify-center bg-gray-800/50">
-                            <div class="text-center">
-                                <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-pink-400 mb-2"></div>
-                                <p class="text-gray-300 text-sm">載入照片中...</p>
-                            </div>
-                        </div>
                     </div>
                     
                     <!-- 導航按鈕 -->
@@ -105,30 +73,10 @@
                                 </svg>
                                 <span>全螢幕</span>
                             </button>
-                            <button id="add-photo-btn" class="flex items-center space-x-2 px-3 py-1 bg-green-500/20 hover:bg-green-500/30 text-green-300 rounded-lg transition-colors text-sm">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-circle-fill" viewBox="0 0 16 16">
-                                    <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3z"/>
-                                </svg>
-                                <span>新增照片</span>
-                            </button>
                         </div>
                     </div>
                 </div>
 
-                <!-- 空狀態 -->
-                <div id="empty-state" class="text-center py-12 hidden">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" class="bi bi-images mx-auto mb-4 text-gray-400" viewBox="0 0 16 16">
-                        <path d="M4.502 9a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3"/>
-                        <path d="M14.002 13a2 2 0 0 1-2 2h-10a2 2 0 0 1-2-2V5A2 2 0 0 1 2.002 3h10a2 2 0 0 1 2 2v8a2 2 0 0 1-.002 0zM2.002 4a1 1 0 0 0-1 1v8l2.646-2.354a.5.5 0 0 1 .63-.062l2.66 1.773 3.71-3.71a.5.5 0 0 1 .577-.094l1.777 1.947V5a1 1 0 0 0-1-1h-10z"/>
-                    </svg>
-                    <p class="text-gray-300 mb-6">目前沒有照片</p>
-                    <button id="empty-add-photo-btn" class="inline-flex items-center space-x-2 bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-lg transition-colors shadow-lg hover:shadow-xl">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-plus-circle-fill" viewBox="0 0 16 16">
-                            <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3z"/>
-                        </svg>
-                        <span class="font-medium">新增照片</span>
-                    </button>
-                </div>
             </main>
         </div>
     </div>
@@ -165,7 +113,289 @@
         </div>
     </nav>
     
-    <script src="photo-wall.js"></script>
+    <script>
+        // 照片資料 - 用戶提供的7張照片（更新為高畫質版本）
+        const PHOTO_DATA = [
+            { url: 'https://i.postimg.cc/YCgxQ16V/LINE-ALBUM-250922-1.jpg', title: '抹茶山回憶 - 照片 1' },
+            { url: 'https://i.postimg.cc/hPNrJCdT/LINE-ALBUM-250922-2.jpg', title: '抹茶山回憶 - 照片 2' },
+            { url: 'https://i.postimg.cc/Gh4Km0Hb/LINE-ALBUM-250922-3.jpg', title: '抹茶山回憶 - 照片 3' },
+            { url: 'https://i.postimg.cc/kGpyvshr/LINE-ALBUM-250922-4.jpg', title: '抹茶山回憶 - 照片 4' },
+            { url: 'https://i.postimg.cc/j25XfmcQ/LINE-ALBUM-250922-5.jpg', title: '抹茶山回憶 - 照片 5' },
+            { url: 'https://i.postimg.cc/ZRjHC485/LINE-ALBUM-250922-6.jpg', title: '抹茶山回憶 - 照片 6' },
+            { url: 'https://i.postimg.cc/KYDrHxsD/unnamed.png', title: '抹茶山回憶 - 照片 7' }
+        ];
+
+        // 輪播相關變數
+        let currentPhotoIndex = 0;
+        let totalPhotos = PHOTO_DATA.length;
+        let autoPlayInterval = null;
+        let isAutoPlaying = false;
+
+        // 載入照片
+        function loadPhotos() {
+            const carouselTrack = document.getElementById('carousel-track');
+            
+            // 清空輪播軌道
+            carouselTrack.innerHTML = '';
+            
+            // 創建所有照片元素
+            PHOTO_DATA.forEach((photo, index) => {
+                const photoSlide = document.createElement('div');
+                photoSlide.className = 'w-full flex-shrink-0 relative';
+                
+                const img = document.createElement('img');
+                img.src = photo.url;
+                img.alt = photo.title;
+                img.className = 'w-full h-full object-cover cursor-pointer';
+                
+                photoSlide.appendChild(img);
+                carouselTrack.appendChild(photoSlide);
+            });
+            
+            // 初始化輪播控制項
+            initializeCarouselControls();
+            updateCarouselDisplay();
+            
+            // 開始自動播放
+            startAutoPlay();
+        }
+
+        // 初始化輪播控制項
+        function initializeCarouselControls() {
+            const prevBtn = document.getElementById('prev-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const autoPlayBtn = document.getElementById('auto-play-btn');
+            const fullscreenBtn = document.getElementById('fullscreen-btn');
+            
+            // 左右按鈕事件
+            prevBtn.addEventListener('click', () => {
+                goToPrevPhoto();
+                pauseAutoPlay();
+            });
+            
+            nextBtn.addEventListener('click', () => {
+                goToNextPhoto();
+                pauseAutoPlay();
+            });
+            
+            // 自動播放按鈕
+            autoPlayBtn.addEventListener('click', toggleAutoPlay);
+            
+            // 全螢幕按鈕
+            fullscreenBtn.addEventListener('click', toggleFullscreen);
+            
+            
+            // 鍵盤導航
+            document.addEventListener('keydown', handleKeyNavigation);
+            
+            // 觸控滑動
+            initializeTouchSwipe();
+        }
+
+        // 更新輪播顯示
+        function updateCarouselDisplay() {
+            const carouselTrack = document.getElementById('carousel-track');
+            const photoCounter = document.getElementById('photo-counter');
+            
+            // 移動輪播軌道
+            const translateX = -currentPhotoIndex * 100;
+            carouselTrack.style.transform = `translateX(${translateX}%)`;
+            
+            // 更新計數器
+            photoCounter.textContent = `${currentPhotoIndex + 1} / ${totalPhotos}`;
+            
+            // 更新指示器
+            updateIndicators();
+        }
+
+        // 更新指示器
+        function updateIndicators() {
+            const indicators = document.getElementById('photo-indicators');
+            indicators.innerHTML = '';
+            
+            for (let i = 0; i < totalPhotos; i++) {
+                const indicator = document.createElement('button');
+                indicator.className = `w-2 h-2 rounded-full transition-all duration-300 ${
+                    i === currentPhotoIndex 
+                        ? 'bg-pink-400 w-6' 
+                        : 'bg-gray-600 hover:bg-gray-500'
+                }`;
+                indicator.addEventListener('click', () => {
+                    goToPhoto(i);
+                    pauseAutoPlay();
+                });
+                indicators.appendChild(indicator);
+            }
+        }
+
+        // 跳到指定照片
+        function goToPhoto(index) {
+            if (index >= 0 && index < totalPhotos) {
+                currentPhotoIndex = index;
+                updateCarouselDisplay();
+            }
+        }
+
+        // 上一張照片
+        function goToPrevPhoto() {
+            currentPhotoIndex = currentPhotoIndex === 0 ? totalPhotos - 1 : currentPhotoIndex - 1;
+            updateCarouselDisplay();
+        }
+
+        // 下一張照片
+        function goToNextPhoto() {
+            currentPhotoIndex = currentPhotoIndex === totalPhotos - 1 ? 0 : currentPhotoIndex + 1;
+            updateCarouselDisplay();
+        }
+
+        // 開始自動播放
+        function startAutoPlay() {
+            if (!isAutoPlaying && totalPhotos > 1) {
+                isAutoPlaying = true;
+                autoPlayInterval = setInterval(() => {
+                    goToNextPhoto();
+                }, 3000); // 3秒間隔
+                
+                // 更新按鈕狀態
+                updateAutoPlayButton();
+            }
+        }
+
+        // 暫停自動播放
+        function pauseAutoPlay() {
+            if (isAutoPlaying) {
+                isAutoPlaying = false;
+                clearInterval(autoPlayInterval);
+                autoPlayInterval = null;
+                updateAutoPlayButton();
+            }
+        }
+
+        // 切換自動播放
+        function toggleAutoPlay() {
+            if (isAutoPlaying) {
+                pauseAutoPlay();
+            } else {
+                startAutoPlay();
+            }
+        }
+
+        // 更新自動播放按鈕
+        function updateAutoPlayButton() {
+            const playIcon = document.getElementById('play-icon');
+            const pauseIcon = document.getElementById('pause-icon');
+            const autoPlayText = document.getElementById('auto-play-text');
+            
+            if (isAutoPlaying) {
+                playIcon.classList.add('hidden');
+                pauseIcon.classList.remove('hidden');
+                autoPlayText.textContent = '暫停';
+            } else {
+                playIcon.classList.remove('hidden');
+                pauseIcon.classList.add('hidden');
+                autoPlayText.textContent = '自動播放';
+            }
+        }
+
+        // 全螢幕功能
+        function toggleFullscreen() {
+            const carousel = document.getElementById('photo-carousel');
+            
+            if (!document.fullscreenElement) {
+                carousel.requestFullscreen().catch(err => {
+                    console.error('無法進入全螢幕模式:', err);
+                });
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        // 鍵盤導航
+        function handleKeyNavigation(e) {
+            switch(e.key) {
+                case 'ArrowLeft':
+                    e.preventDefault();
+                    goToPrevPhoto();
+                    pauseAutoPlay();
+                    break;
+                case 'ArrowRight':
+                    e.preventDefault();
+                    goToNextPhoto();
+                    pauseAutoPlay();
+                    break;
+                case ' ': // 空白鍵
+                    e.preventDefault();
+                    toggleAutoPlay();
+                    break;
+                case 'Escape':
+                    pauseAutoPlay();
+                    break;
+            }
+        }
+
+        // 觸控滑動
+        function initializeTouchSwipe() {
+            const carousel = document.getElementById('photo-carousel');
+            let startX = 0;
+            let startY = 0;
+            let isDragging = false;
+            
+            carousel.addEventListener('touchstart', (e) => {
+                startX = e.touches[0].clientX;
+                startY = e.touches[0].clientY;
+                isDragging = true;
+            }, { passive: true });
+            
+            carousel.addEventListener('touchmove', (e) => {
+                if (!isDragging) return;
+                e.preventDefault();
+            }, { passive: false });
+            
+            carousel.addEventListener('touchend', (e) => {
+                if (!isDragging) return;
+                isDragging = false;
+                
+                const endX = e.changedTouches[0].clientX;
+                const endY = e.changedTouches[0].clientY;
+                const deltaX = startX - endX;
+                const deltaY = startY - endY;
+                
+                // 檢查是否為水平滑動
+                if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 50) {
+                    if (deltaX > 0) {
+                        // 向左滑動，顯示下一張
+                        goToNextPhoto();
+                    } else {
+                        // 向右滑動，顯示上一張
+                        goToPrevPhoto();
+                    }
+                    pauseAutoPlay();
+                }
+            }, { passive: true });
+        }
+
+
+        // 導航到 index.html 對應頁面的函數
+        function navigateToIndex(pageId) {
+            // 清除首頁自動播放
+            if (autoPlayInterval) {
+                clearInterval(autoPlayInterval);
+                autoPlayInterval = null;
+                isAutoPlaying = false;
+            }
+            
+            // 儲存目標頁面到 localStorage，以便 index.html 可以讀取
+            localStorage.setItem('targetPage', pageId);
+            
+            // 導航到 index.html
+            window.location.href = 'index.html';
+        }
+
+        // 頁面載入時直接載入照片
+        document.addEventListener('DOMContentLoaded', function() {
+            loadPhotos();
+        });
+    </script>
 
 </body>
 </html>
