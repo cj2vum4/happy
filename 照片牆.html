@@ -384,6 +384,9 @@
                 isAutoPlaying = false;
             }
             
+            // 保存當前音樂狀態
+            saveMusicState();
+            
             // 儲存目標頁面到 localStorage，以便 index.html 可以讀取
             localStorage.setItem('targetPage', pageId);
             
@@ -396,6 +399,88 @@
             loadPhotos();
         });
     </script>
+
+<audio id="bgm" loop muted>
+    <source src="完美的一天.mp3" type="audio/mpeg">
+</audio>
+<script>
+    // 點擊頁面解除靜音
+    document.addEventListener('click', function(){
+        const audio = document.getElementById('bgm');
+        if (audio) {
+            audio.muted = false;
+            audio.volume = 0.3; // 調低音量避免過於嚇人
+            audio.play().catch(e => console.log('Audio play failed:', e));
+        }
+    }, {once:true});
+
+    // 監聽頁面可見性變化，以處理在LINE等App內建瀏覽器中，關閉視窗後音樂仍持續播放的問題
+    document.addEventListener('visibilitychange', function() {
+        const audio = document.getElementById('bgm');
+        if (audio) {
+            if (document.hidden) {
+                // 當頁面變得不可見時（例如切換App、關閉內建瀏覽器視窗），就暫停音樂
+                audio.pause();
+            }
+        }
+    });
+
+    // 音樂同步功能
+    function syncMusicWithIndex() {
+        const audio = document.getElementById('bgm');
+        if (!audio) return;
+        
+        // 檢查是否有來自index.html的音樂狀態
+        const musicState = localStorage.getItem('musicState');
+        if (musicState) {
+            try {
+                const state = JSON.parse(musicState);
+                
+                // 同步音樂狀態
+                if (state.currentTime !== undefined && state.currentTime > 0) {
+                    audio.currentTime = state.currentTime;
+                }
+                
+                if (state.playing && !audio.paused) {
+                    // 如果音樂應該在播放且當前沒有暫停，就播放
+                    audio.muted = false;
+                    audio.volume = 0.3;
+                    audio.play().catch(e => console.log('Audio play failed:', e));
+                }
+            } catch (e) {
+                console.log('Failed to parse music state:', e);
+            }
+        }
+    }
+
+    // 保存音樂狀態到localStorage
+    function saveMusicState() {
+        const audio = document.getElementById('bgm');
+        if (!audio) return;
+        
+        const musicState = {
+            currentTime: audio.currentTime,
+            playing: !audio.paused && !audio.muted,
+            volume: audio.volume,
+            timestamp: Date.now()
+        };
+        
+        localStorage.setItem('musicState', JSON.stringify(musicState));
+    }
+
+    // 定期保存音樂狀態（每2秒）
+    setInterval(saveMusicState, 2000);
+
+    // 頁面載入時同步音樂
+    document.addEventListener('DOMContentLoaded', function() {
+        // 延遲一點時間確保音頻元素已載入
+        setTimeout(syncMusicWithIndex, 500);
+    });
+
+    // 頁面離開時保存音樂狀態
+    window.addEventListener('beforeunload', saveMusicState);
+    window.addEventListener('pagehide', saveMusicState);
+</script>
 
 </body>
 </html>

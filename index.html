@@ -1368,6 +1368,9 @@
 
         // 響應式照片導航函數
         function handlePhotoNavigation() {
+            // 保存當前音樂狀態
+            saveMusicState();
+            
             // 檢測是否為手機設備
             const isMobile = window.innerWidth <= 768 || /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
             
@@ -1406,6 +1409,67 @@
             }
         }
     });
+
+    // 音樂同步功能
+    function syncMusicWithPhotoWall() {
+        const audio = document.getElementById('bgm');
+        if (!audio) return;
+        
+        // 檢查是否有來自照片牆的音樂狀態
+        const musicState = localStorage.getItem('musicState');
+        if (musicState) {
+            try {
+                const state = JSON.parse(musicState);
+                
+                // 檢查時間戳，避免使用過期的狀態（超過5秒就認為過期）
+                if (Date.now() - state.timestamp > 5000) {
+                    return;
+                }
+                
+                // 同步音樂狀態
+                if (state.currentTime !== undefined && state.currentTime > 0) {
+                    audio.currentTime = state.currentTime;
+                }
+                
+                if (state.playing && !audio.paused) {
+                    // 如果音樂應該在播放且當前沒有暫停，就播放
+                    audio.muted = false;
+                    audio.volume = 0.3;
+                    audio.play().catch(e => console.log('Audio play failed:', e));
+                }
+            } catch (e) {
+                console.log('Failed to parse music state:', e);
+            }
+        }
+    }
+
+    // 保存音樂狀態到localStorage
+    function saveMusicState() {
+        const audio = document.getElementById('bgm');
+        if (!audio) return;
+        
+        const musicState = {
+            currentTime: audio.currentTime,
+            playing: !audio.paused && !audio.muted,
+            volume: audio.volume,
+            timestamp: Date.now()
+        };
+        
+        localStorage.setItem('musicState', JSON.stringify(musicState));
+    }
+
+    // 定期保存音樂狀態（每2秒）
+    setInterval(saveMusicState, 2000);
+
+    // 頁面載入時同步音樂
+    document.addEventListener('DOMContentLoaded', function() {
+        // 延遲一點時間確保音頻元素已載入
+        setTimeout(syncMusicWithPhotoWall, 500);
+    });
+
+    // 頁面離開時保存音樂狀態
+    window.addEventListener('beforeunload', saveMusicState);
+    window.addEventListener('pagehide', saveMusicState);
 </script>
 
 
