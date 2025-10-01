@@ -1,0 +1,384 @@
+html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 2rem;
+}
+body {
+    font-family: 'Noto Sans TC', sans-serif;
+    background: linear-gradient(135deg, 
+        rgba(34, 139, 34, 0.1) 0%, 
+        rgba(0, 100, 0, 0.2) 25%, 
+        rgba(0, 80, 0, 0.3) 50%, 
+        rgba(0, 60, 0, 0.4) 75%, 
+        rgba(0, 40, 0, 0.5) 100%),
+        url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?q=80&w=2070&auto=format&fit=crop');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    position: relative;
+    overflow: hidden;
+}
+
+/* 照片牆專用樣式 */
+.nature-title {
+    background: linear-gradient(135deg, #22c55e, #16a34a, #15803d);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* 照片輪播容器 */
+#photo-carousel {
+    transition: all 0.3s ease-in-out;
+}
+
+#photo-carousel:hover #prev-btn,
+#photo-carousel:hover #next-btn {
+    opacity: 1 !important;
+}
+
+/* 輪播軌道 */
+#carousel-track {
+    transition: transform 0.5s ease-in-out;
+}
+
+/* 照片指示器 */
+#photo-indicators button {
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+#photo-indicators button:hover {
+    transform: scale(1.2);
+}
+
+/* 控制按鈕樣式 */
+#auto-play-btn,
+#fullscreen-btn,
+#add-photo-btn {
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+}
+
+#auto-play-btn:hover,
+#fullscreen-btn:hover,
+#add-photo-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* 導航按鈕 */
+#prev-btn,
+#next-btn {
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+}
+
+#prev-btn:hover,
+#next-btn:hover {
+    background-color: rgba(0, 0, 0, 0.8);
+    transform: scale(1.1);
+}
+
+/* 載入動畫 */
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.animate-spin {
+    animation: spin 1s linear infinite;
+}
+
+/* 淡入動畫 */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.6s ease-out;
+}
+
+/* 照片載入效果 */
+#carousel-track img {
+    transition: opacity 0.3s ease;
+    /* 確保圖片品質最佳 */
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: high-quality;
+    /* 防止圖片被壓縮 */
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    /* 確保高解析度顯示 */
+    transform: translateZ(0);
+    /* 防止瀏覽器壓縮 */
+    -webkit-transform: translateZ(0);
+}
+
+#carousel-track img:not([src]) {
+    opacity: 0;
+}
+
+/* 照片容器優化 */
+#carousel-track > div {
+    /* 確保容器不會影響圖片品質 */
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+}
+
+/* 全螢幕模式樣式 */
+#photo-carousel:fullscreen {
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#photo-carousel:fullscreen #carousel-track {
+    max-height: 100vh;
+}
+
+/* 響應式設計 */
+@media (max-width: 768px) {
+    #prev-btn,
+    #next-btn {
+        display: none;
+    }
+    
+    #photo-carousel {
+        padding: 0;
+    }
+    
+    .bottom-nav {
+        padding: 12px 0;
+    }
+}
+
+/* 觸控設備優化 */
+@media (hover: none) and (pointer: coarse) {
+    #prev-btn,
+    #next-btn {
+        opacity: 0.8;
+    }
+    
+    #auto-play-btn,
+    #fullscreen-btn,
+    #add-photo-btn {
+        padding: 12px 16px;
+        font-size: 14px;
+    }
+}
+
+/* 頁面容器樣式 */
+.page-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    opacity: 0;
+    transform: translateX(100%);
+    transition: all 0.3s ease-in-out;
+    z-index: 10;
+    overflow-y: auto;
+}
+
+.page-container.active {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.page-container.prev {
+    transform: translateX(-100%);
+}
+
+/* 自然氛圍效果 */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+        radial-gradient(circle at 20% 80%, rgba(34, 139, 34, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(0, 100, 0, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 40% 40%, rgba(0, 80, 0, 0.1) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: -1;
+}
+
+/* 動態光線效果 */
+body::after {
+    content: '';
+    position: fixed;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, 
+        transparent 30%, 
+        rgba(255, 255, 255, 0.02) 50%, 
+        transparent 70%);
+    animation: sunlight 20s ease-in-out infinite;
+    pointer-events: none;
+    z-index: -1;
+}
+
+@keyframes sunlight {
+    0%, 100% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+    50% { transform: translateX(0%) translateY(0%) rotate(45deg); }
+}
+/* 玻璃擬態效果 */
+.backdrop-blur-md {
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+}
+
+/* 自然卡片效果 */
+.nature-card {
+    background: linear-gradient(135deg, 
+        rgba(0, 50, 0, 0.3) 0%, 
+        rgba(0, 80, 0, 0.2) 50%, 
+        rgba(0, 100, 0, 0.3) 100%);
+    border: 1px solid rgba(34, 139, 34, 0.3);
+    box-shadow: 
+        0 8px 32px rgba(0, 50, 0, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.nature-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 
+        0 12px 40px rgba(0, 50, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    transition: all 0.3s ease;
+}
+
+/* 自然標題效果 */
+.nature-title {
+    background: linear-gradient(135deg, #22c55e, #16a34a, #15803d);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* 時間軸自然效果 */
+.timeline-circle {
+    background: linear-gradient(135deg, 
+        rgba(34, 139, 34, 0.8) 0%, 
+        rgba(0, 100, 0, 0.9) 100%);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 
+        0 4px 12px rgba(0, 50, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.timeline-circle.highlight {
+    background: linear-gradient(135deg, 
+        rgba(34, 197, 94, 0.9) 0%, 
+        rgba(22, 163, 74, 1) 100%);
+    box-shadow: 
+        0 6px 16px rgba(34, 197, 94, 0.5),
+        0 0 20px rgba(34, 197, 94, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+/* 自定義滾動條 */
+::-webkit-scrollbar {
+    width: 5px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 10px;
+}
+.timeline-item::before {
+    content: '';
+    position: absolute;
+    left: 1.25rem; /* 对应 w-10 的一半 */
+    top: 1.25rem;
+    bottom: -1.25rem;
+    width: 2px;
+    background-color: rgba(255, 255, 255, 0.2);
+}
+.timeline-item:last-child::before {
+    display: none;
+}
+
+/* 側邊欄樣式 */
+#sidebar {
+    transition: transform 0.3s ease-in-out;
+    transform: translateX(-100%);
+}
+#sidebar.open {
+    transform: translateX(0);
+}
+#overlay {
+    transition: opacity 0.3s ease-in-out;
+}
+
+/* 核選方塊樣式 */
+.checklist-item {
+    transition: all 0.2s ease;
+}
+
+.checklist-item:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.checklist-item input[type="checkbox"] {
+    accent-color: #22c55e;
+}
+
+.checklist-item input[type="checkbox"]:checked + span {
+    text-decoration: line-through;
+    opacity: 0.7;
+}
+
+/* 底部導航樣式 */
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(12px);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    z-index: 50;
+    padding: 8px 0;
+}
+
+.nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 8px 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.nav-item.active {
+    color: #22c55e;
+}
+
+.nav-item:hover {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.nav-item.active:hover {
+    color: #16a34a;
+}
