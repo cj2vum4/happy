@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>眠月線登山之旅</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="photo-wall.css">
+</head>
+<body class="bg-gray-900 text-white">
+
+    <!-- 首頁 -->
+    <div id="home-page" class="page-container active">
+        <div class="min-h-screen w-full flex flex-col items-center p-4 sm:p-6 pb-20">
+            <main class="w-full max-w-4xl mx-auto">
+                <!-- 網站標題 -->
+                <header class="text-center my-8">
+                    <h1 class="text-4xl font-bold tracking-tight nature-title text-shadow-lg">眠月線登山之旅 🌲</h1>
+                    <p class="text-lg text-gray-200 mt-2">2025 / 11 / 29 - 30</p>
+                    <p class="text-gray-300 mt-2">兩天一夜森林療癒之旅</p>
+                </header>
+
+
+
+                <!-- 空狀態 -->
+                <div class="text-center py-12">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="currentColor" class="bi bi-images mx-auto mb-4 text-gray-400" viewBox="0 0 16 16">
+                        <path d="M4.502 9a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3"/>
+                        <path d="M14.002 13a2 2 0 0 1-2 2h-10a2 2 0 0 1-2-2V5A2 2 0 0 1 2.002 3h10a2 2 0 0 1 2 2v8a2 2 0 0 1-.002 0zM2.002 4a1 1 0 0 0-1 1v8l2.646-2.354a.5.5 0 0 1 .63-.062l2.66 1.773 3.71-3.71a.5.5 0 0 1 .577-.094l1.777 1.947V5a1 1 0 0 0-1-1h-10z"/>
+                    </svg>
+                    <h3 class="text-xl font-semibold text-gray-300 mb-2">暫無照片</h3>
+                    <p class="text-gray-400 mb-4">登山活動結束後，照片將在此顯示</p>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- 底部導航 -->
+    <nav class="bottom-nav">
+        <div class="flex">
+            <div class="nav-item" onclick="navigateToIndex('home-page')" data-page="home-page">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-house-fill" viewBox="0 0 16 16">
+                    <path d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.708L8 2.207l6.646 6.647a.5.5 0 0 0 .708-.708L13 7.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v3.293z"/>
+                    <path d="m8 3.293 6 6V13.5a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 2 13.5V9.293z"/>
+                </svg>
+                <span class="text-xs mt-1">首頁</span>
+            </div>
+            <div class="nav-item" onclick="navigateToIndex('schedule-page')" data-page="schedule-page">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-calendar-event-fill" viewBox="0 0 16 16">
+                    <path d="M4 .5a.5.5 0 0 0-1 0V1H2a2 2 0 0 0-2 2v1h16V3a2 2 0 0 0-2-2h-1V.5a.5.5 0 0 0-1 0V1H4zM16 14V5H0v9a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2m-3.5-7h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5"/>
+                </svg>
+                <span class="text-xs mt-1">行程</span>
+            </div>
+            <div class="nav-item" onclick="navigateToIndex('checklist-page')" data-page="checklist-page">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-card-checklist" viewBox="0 0 16 16">
+                    <path d="M14.5 3a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5zM1 4v8.5h14V4z"/>
+                    <path d="M7 5.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5m-1.496-.854a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0l-.5-.5a.5.5 0 1 1 .708-.708l.146.147 1.146-1.147a.5.5 0 0 1 .708 0M7 9.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5m-1.496-.854a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0l-.5-.5a.5.5 0 0 1 .708-.708l.146.147 1.146-1.147a.5.5 0 0 1 .708 0"/>
+                </svg>
+                <span class="text-xs mt-1">提醒</span>
+            </div>
+            <div class="nav-item" onclick="navigateToIndex('info-page')" data-page="info-page">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-droplet-fill" viewBox="0 0 16 16">
+                    <path d="M8 16a6 6 0 0 0 6-6c0-1.655-1.122-2.904-2.432-4.362C10.254 4.176 8.75 2.503 8 0c0 0-6 5.686-6 10a6 6 0 0 0 6 6M6.646 4.646l.708.708c-.29.29-1.128 1.311-1.907 2.87l-.894-.448c.85-1.702 1.803-2.838 2.093-3.13"/>
+                </svg>
+                <span class="text-xs mt-1">資訊</span>
+            </div>
+        </div>
+    </nav>
+    
+    <script>
+        // 導航到 index.html 對應頁面的函數
+        function navigateToIndex(pageId) {
+            // 保存當前音樂狀態
+            saveMusicState();
+            
+            // 儲存目標頁面到 localStorage，以便 index.html 可以讀取
+            localStorage.setItem('targetPage', pageId);
+            
+            // 導航到 index.html
+            window.location.href = 'index.html';
+        }
+    </script>
+
+<audio id="bgm" loop muted>
+    <source src="左左.mp3" type="audio/mpeg">
+</audio>
+<script>
+    // 點擊頁面解除靜音
+    document.addEventListener('click', function(){
+        const audio = document.getElementById('bgm');
+        if (audio) {
+            audio.muted = false;
+            audio.volume = 0.3; // 調低音量避免過於嚇人
+            audio.play().catch(e => console.log('Audio play failed:', e));
+        }
+    }, {once:true});
+
+    // 監聽頁面可見性變化，以處理在LINE等App內建瀏覽器中，關閉視窗後音樂仍持續播放的問題
+    document.addEventListener('visibilitychange', function() {
+        const audio = document.getElementById('bgm');
+        if (audio) {
+            if (document.hidden) {
+                // 當頁面變得不可見時（例如切換App、關閉內建瀏覽器視窗），就暫停音樂
+                audio.pause();
+            }
+        }
+    });
+
+    // 音樂同步功能
+    function syncMusicWithIndex() {
+        const audio = document.getElementById('bgm');
+        if (!audio) return;
+        
+        // 檢查是否有來自index.html的音樂狀態
+        const musicState = localStorage.getItem('musicState');
+        if (musicState) {
+            try {
+                const state = JSON.parse(musicState);
+                
+                // 同步音樂狀態
+                if (state.currentTime !== undefined && state.currentTime > 0) {
+                    audio.currentTime = state.currentTime;
+                }
+                
+                if (state.playing && !audio.paused) {
+                    // 如果音樂應該在播放且當前沒有暫停，就播放
+                    audio.muted = false;
+                    audio.volume = 0.3;
+                    audio.play().catch(e => console.log('Audio play failed:', e));
+                }
+            } catch (e) {
+                console.log('Failed to parse music state:', e);
+            }
+        }
+    }
+
+    // 保存音樂狀態到localStorage
+    function saveMusicState() {
+        const audio = document.getElementById('bgm');
+        if (!audio) return;
+        
+        const musicState = {
+            currentTime: audio.currentTime,
+            playing: !audio.paused && !audio.muted,
+            volume: audio.volume,
+            timestamp: Date.now()
+        };
+        
+        localStorage.setItem('musicState', JSON.stringify(musicState));
+    }
+
+    // 定期保存音樂狀態（每2秒）
+    setInterval(saveMusicState, 2000);
+
+    // 頁面載入時同步音樂
+    document.addEventListener('DOMContentLoaded', function() {
+        // 延遲一點時間確保音頻元素已載入
+        setTimeout(syncMusicWithIndex, 500);
+    });
+
+    // 頁面離開時保存音樂狀態
+    window.addEventListener('beforeunload', saveMusicState);
+    window.addEventListener('pagehide', saveMusicState);
+</script>
+
+</body>
+</html>
