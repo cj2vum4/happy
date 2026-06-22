@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>快樂出遊 — 旅遊記錄</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background:
+                linear-gradient(135deg,
+                    rgba(10, 20, 40, 0.85) 0%,
+                    rgba(5, 30, 50, 0.9) 50%,
+                    rgba(0, 20, 35, 0.95) 100%),
+                url('https://images.unsplash.com/photo-1469474968028-56623f02e42e?q=80&w=2074&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            min-height: 100vh;
+            color: white;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background:
+                radial-gradient(circle at 15% 85%, rgba(34, 197, 94, 0.08) 0%, transparent 45%),
+                radial-gradient(circle at 85% 15%, rgba(56, 189, 248, 0.08) 0%, transparent 45%),
+                radial-gradient(circle at 50% 50%, rgba(139, 92, 246, 0.05) 0%, transparent 60%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.07);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        .glass-dark {
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        /* Trip card hover */
+        .trip-card {
+            transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.35s ease;
+            cursor: pointer;
+        }
+        .trip-card:hover {
+            transform: translateY(-8px) scale(1.01);
+            box-shadow: 0 24px 48px rgba(0, 0, 0, 0.5);
+        }
+        .trip-card:active {
+            transform: translateY(-4px) scale(0.995);
+        }
+
+        /* Card accent bar */
+        .accent-green  { border-top: 3px solid #4ade80; }
+        .accent-blue   { border-top: 3px solid #38bdf8; }
+        .accent-purple { border-top: 3px solid #a78bfa; }
+
+        /* Badge */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 10px;
+            border-radius: 999px;
+            font-size: 0.72rem;
+            font-weight: 500;
+            letter-spacing: 0.03em;
+        }
+        .badge-green  { background: rgba(74, 222, 128, 0.18); color: #86efac; border: 1px solid rgba(74, 222, 128, 0.25); }
+        .badge-blue   { background: rgba(56, 189, 248, 0.18); color: #7dd3fc; border: 1px solid rgba(56, 189, 248, 0.25); }
+        .badge-purple { background: rgba(167, 139, 250, 0.18); color: #c4b5fd; border: 1px solid rgba(167, 139, 250, 0.25); }
+        .badge-gray   { background: rgba(255,255,255,0.1); color: #cbd5e1; border: 1px solid rgba(255,255,255,0.15); }
+
+        /* Hero gradient text */
+        .gradient-text {
+            background: linear-gradient(135deg, #86efac 0%, #38bdf8 50%, #c4b5fd 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Stats number */
+        .stat-num {
+            background: linear-gradient(135deg, #f0fdf4, #e0f2fe);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Floating particles */
+        .particle {
+            position: fixed;
+            border-radius: 50%;
+            animation: float linear infinite;
+            pointer-events: none;
+            z-index: 0;
+        }
+        @keyframes float {
+            0%   { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10%  { opacity: 1; }
+            90%  { opacity: 0.4; }
+            100% { transform: translateY(-10vh) rotate(720deg); opacity: 0; }
+        }
+
+        /* Timeline dot pulse */
+        .dot-pulse {
+            animation: pulse 2.5s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(0.85); }
+        }
+
+        /* Section fade-in on scroll */
+        .reveal {
+            opacity: 0;
+            transform: translateY(24px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Cover image overlay */
+        .cover-img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            border-radius: 12px 12px 0 0;
+        }
+        .cover-overlay {
+            position: absolute;
+            inset: 0;
+            border-radius: 12px 12px 0 0;
+            background: linear-gradient(to bottom, transparent 30%, rgba(0,0,0,0.65) 100%);
+        }
+
+        /* Scroll indicator */
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(6px); }
+        }
+        .bounce { animation: bounce 1.6s ease-in-out infinite; }
+
+        /* Nav link */
+        .nav-link {
+            transition: color 0.2s;
+        }
+        .nav-link:hover { color: #86efac; }
+
+        /* CTA button */
+        .btn-primary {
+            background: linear-gradient(135deg, rgba(74,222,128,0.2), rgba(56,189,248,0.2));
+            border: 1px solid rgba(74,222,128,0.4);
+            transition: all 0.25s ease;
+        }
+        .btn-primary:hover {
+            background: linear-gradient(135deg, rgba(74,222,128,0.35), rgba(56,189,248,0.35));
+            border-color: rgba(74,222,128,0.6);
+            transform: translateY(-1px);
+        }
+    </style>
+</head>
+<body class="relative">
+
+    <!-- Floating particles -->
+    <div id="particles"></div>
+
+    <!-- ── NAV ───────────────────────────────────────────── -->
+    <nav class="fixed top-0 left-0 right-0 z-50 glass-dark">
+        <div class="max-w-5xl mx-auto px-6 py-3 flex items-center justify-between">
+            <span class="font-bold text-lg tracking-wider gradient-text">快樂出遊 🌿</span>
+            <div class="flex items-center gap-6 text-sm text-slate-300">
+                <a href="#trips" class="nav-link">旅遊記錄</a>
+                <a href="#stats" class="nav-link">統計</a>
+                <a href="#timeline" class="nav-link">時間軸</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ── HERO ──────────────────────────────────────────── -->
+    <section class="relative min-h-screen flex flex-col items-center justify-center px-6 text-center z-10 pt-16">
+        <div class="reveal">
+            <p class="text-sm tracking-widest text-slate-400 uppercase mb-3">2025 年度旅遊記錄</p>
+            <h1 class="text-5xl md:text-7xl font-black mb-4 leading-tight">
+                <span class="gradient-text">一起出發</span>
+            </h1>
+            <p class="text-slate-300 text-lg md:text-xl max-w-xl mx-auto leading-relaxed mb-8">
+                記錄每一段山海之間的足跡<br>與最好的朋友，走過最美的路
+            </p>
+
+            <!-- Quick stats strip -->
+            <div class="flex flex-wrap justify-center gap-4 mb-10">
+                <div class="badge badge-green text-sm px-4 py-1.5">🏔 3 次出遊</div>
+                <div class="badge badge-blue text-sm px-4 py-1.5">👥 42 人次</div>
+                <div class="badge badge-purple text-sm px-4 py-1.5">📍 台灣各地</div>
+            </div>
+
+            <a href="#trips" class="btn-primary inline-block rounded-full px-8 py-3 text-white font-medium text-base">
+                查看旅遊記錄 ↓
+            </a>
+        </div>
+
+        <!-- Scroll hint -->
+        <div class="absolute bottom-8 left-1/2 -translate-x-1/2 text-slate-500 bounce text-xs flex flex-col items-center gap-1">
+            <span>向下滑動</span>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M8 3v10M3 9l5 5 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </div>
+    </section>
+
+    <!-- ── STATS ─────────────────────────────────────────── -->
+    <section id="stats" class="relative z-10 py-16 px-6">
+        <div class="max-w-5xl mx-auto">
+            <div class="reveal grid grid-cols-2 md:grid-cols-4 gap-4">
+
+                <div class="glass rounded-2xl p-5 text-center">
+                    <div class="text-4xl font-black stat-num mb-1">3</div>
+                    <div class="text-slate-400 text-sm">次出遊</div>
+                </div>
+
+                <div class="glass rounded-2xl p-5 text-center">
+                    <div class="text-4xl font-black stat-num mb-1">42</div>
+                    <div class="text-slate-400 text-sm">人次參與</div>
+                </div>
+
+                <div class="glass rounded-2xl p-5 text-center">
+                    <div class="text-4xl font-black stat-num mb-1">5</div>
+                    <div class="text-slate-400 text-sm">天旅程</div>
+                </div>
+
+                <div class="glass rounded-2xl p-5 text-center">
+                    <div class="text-4xl font-black stat-num mb-1">3</div>
+                    <div class="text-slate-400 text-sm">個縣市</div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ── TRIP CARDS ────────────────────────────────────── -->
+    <section id="trips" class="relative z-10 py-8 px-6 pb-20">
+        <div class="max-w-5xl mx-auto">
+
+            <div class="reveal mb-10 text-center">
+                <h2 class="text-2xl font-bold text-white mb-2">旅遊記錄</h2>
+                <p class="text-slate-400 text-sm">點擊卡片查看完整行程資訊</p>
+            </div>
+
+            <div class="reveal grid grid-cols-1 md:grid-cols-3 gap-6">
+
+                <!-- ── Trip 1: 抹茶山 ── -->
+                <div class="trip-card glass rounded-2xl overflow-hidden accent-green"
+                     onclick="location.href='20250919/index.html'">
+
+                    <div class="relative">
+                        <img class="cover-img"
+                             src="https://images.unsplash.com/photo-1470770841072-f978cf4d019e?q=80&w=800&auto=format&fit=crop"
+                             alt="抹茶山">
+                        <div class="cover-overlay"></div>
+                        <div class="absolute bottom-3 left-4">
+                            <span class="badge badge-green">登山健行</span>
+                        </div>
+                        <div class="absolute top-3 right-3">
+                            <span class="badge badge-gray">一日一夜</span>
+                        </div>
+                    </div>
+
+                    <div class="p-5">
+                        <div class="text-xs text-slate-400 mb-1">2025 / 09 / 20 – 21</div>
+                        <h3 class="text-lg font-bold text-white mb-1">抹茶山出遊小隊</h3>
+                        <p class="text-sm text-slate-400 mb-4">宜蘭 · 抹茶山 · 溫泉 · 區塊鏈之夜</p>
+
+                        <div class="grid grid-cols-2 gap-2 mb-4 text-xs">
+                            <div class="glass rounded-lg p-2 text-center">
+                                <div class="text-green-400 font-bold text-base">15</div>
+                                <div class="text-slate-500">位夥伴</div>
+                            </div>
+                            <div class="glass rounded-lg p-2 text-center">
+                                <div class="text-green-400 font-bold text-base">770m</div>
+                                <div class="text-slate-500">爬升高度</div>
+                            </div>
+                            <div class="glass rounded-lg p-2 text-center">
+                                <div class="text-green-400 font-bold text-base">5.3km</div>
+                                <div class="text-slate-500">登山路程</div>
+                            </div>
+                            <div class="glass rounded-lg p-2 text-center">
+                                <div class="text-green-400 font-bold text-base">$2,393</div>
+                                <div class="text-slate-500">人均費用</div>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-wrap gap-1 mb-4">
+                            <span class="badge badge-gray">🚗 4台共乘</span>
+                            <span class="badge badge-gray">♨️ 溫泉</span>
+                            <span class="badge badge-gray">🏕 住宿</span>
+                        </div>
+
+                        <div class="flex items-center justify-between text-xs text-slate-500">
+                            <span>宜蘭縣</span>
+                            <span class="text-green-400 font-medium flex items-center gap-1">
+                                查看完整行程
+                                <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                                    <path d="M2 6h8M6 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── Trip 2: 溯溪 ── -->
+                <div class="trip-card glass rounded-2xl overflow-hidden accent-blue"
+                     onclick="location.href='20251019/index.html'">
+
+                    <div class="relative">
+                        <img class="cover-img"
+                             src="https://images.unsplash.com/photo-1544551763-46a013bb70d5?q=80&w=800&auto=format&fit=crop"
+                             alt="溯溪">
+                        <div class="cover-overlay"></div>
+                        <div class="absolute bottom-3 left-4">
+                            <span class="badge badge-blue">溯溪探險</span>
+                        </div>
+                        <div class="absolute top-3 right-3">
+                            <span class="badge badge-gray">一日遊</span>
+                        </div>
+                    </div>
+
+                    <div class="p-5">
+                        <div class="text-xs text-slate-400 mb-1">2025 / 10 / 19</div>
+                        <h3 class="text-lg font-bold text-white mb-1">溯溪出遊小隊</h3>
+                        <p class="text-sm text-slate-400 mb-4">基隆 · 半屏溪 · 大鬼瀑布</p>
+
+                        <div class="grid grid-cols-2 gap-2 mb-4 text-xs">
+                            <div class="glass rounded-lg p-2 text-center">
+                                <div class="text-sky-400 font-bold text-base">20</div>
+                                <div class="text-slate-500">位夥伴</div>
+                            </div>
+                            <div class="glass rounded-lg p-2 text-center">
+                                <div class="text-sky-400 font-bold text-base">107m</div>
+                                <div class="text-slate-500">爬升高度</div>
+                            </div>
+                            <div class="glass rounded-lg p-2 text-center">
+                                <div class="text-sky-400 font-bold text-base">2.7km</div>
+                                <div class="text-slate-500">溯溪路程</div>
+                            </div>
+                            <div class="glass rounded-lg p-2 text-center">
+                                <div class="text-sky-400 font-bold text-base">$450</div>
+                                <div class="text-slate-500">人均費用</div>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-wrap gap-1 mb-4">
+                            <span class="badge badge-gray">🚗 4台共乘</span>
+                            <span class="badge badge-gray">💦 瀑布跳水</span>
+                            <span class="badge badge-gray">🪖 裝備齊全</span>
+                        </div>
+
+                        <div class="flex items-center justify-between text-xs text-slate-500">
+                            <span>基隆市</span>
+                            <span class="text-sky-400 font-medium flex items-center gap-1">
+                                查看完整行程
+                                <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                                    <path d="M2 6h8M6 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── Trip 3: 眠月線 ── -->
+                <div class="trip-card glass rounded-2xl overflow-hidden accent-purple"
+                     onclick="location.href='20251129/index.html'">
+
+                    <div class="relative">
+                        <img class="cover-img"
+                             src="https://images.unsplash.com/photo-1448375240586-882707db888b?q=80&w=800&auto=format&fit=crop"
+                             alt="眠月線">
+                        <div class="cover-overlay"></div>
+                        <div class="absolute bottom-3 left-4">
+                            <span class="badge badge-purple">森林健行</span>
+                        </div>
+                        <div class="absolute top-3 right-3">
+                            <span class="badge badge-gray">二日一夜</span>
+                        </div>
+                    </div>
+
+                    <div class="p-5">
+                        <div class="text-xs text-slate-400 mb-1">2025 / 11 / 29 – 30</div>
+                        <h3 class="text-lg font-bold text-white mb-1">眠月線登山之旅</h3>
+                        <p class="text-sm text-slate-400 mb-4">嘉義 · 阿里山 · 廢棄鐵道</p>
+
+                        <div class="grid grid-cols-2 gap-2 mb-4 text-xs">
+                            <div class="glass rounded-lg p-2 text-center">
+                                <div class="text-violet-400 font-bold text-base">7</div>
+                                <div class="text-slate-500">位夥伴</div>
+                            </div>
+                            <div class="glass rounded-lg p-2 text-center">
+                                <div class="text-violet-400 font-bold text-base">2,200m</div>
+                                <div class="text-slate-500">海拔高度</div>
+                            </div>
+                            <div class="glass rounded-lg p-2 text-center">
+                                <div class="text-violet-400 font-bold text-base">9km</div>
+                                <div class="text-slate-500">單程路程</div>
+                            </div>
+                            <div class="glass rounded-lg p-2 text-center">
+                                <div class="text-violet-400 font-bold text-base">石猴站</div>
+                                <div class="text-slate-500">營地</div>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-wrap gap-1 mb-4">
+                            <span class="badge badge-gray">🚂 台鐵＋公車</span>
+                            <span class="badge badge-gray">⛺ 野外紮營</span>
+                            <span class="badge badge-gray">🌲 廢棄鐵道</span>
+                        </div>
+
+                        <div class="flex items-center justify-between text-xs text-slate-500">
+                            <span>嘉義縣</span>
+                            <span class="text-violet-400 font-medium flex items-center gap-1">
+                                查看完整行程
+                                <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                                    <path d="M2 6h8M6 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ── TIMELINE ──────────────────────────────────────── -->
+    <section id="timeline" class="relative z-10 py-8 px-6 pb-24">
+        <div class="max-w-2xl mx-auto">
+
+            <div class="reveal mb-10 text-center">
+                <h2 class="text-2xl font-bold text-white mb-2">時間軸</h2>
+                <p class="text-slate-400 text-sm">2025 年的旅遊足跡</p>
+            </div>
+
+            <div class="reveal relative">
+                <!-- vertical line -->
+                <div class="absolute left-5 top-2 bottom-2 w-px bg-gradient-to-b from-green-500/50 via-sky-500/50 to-violet-500/50"></div>
+
+                <div class="space-y-6">
+
+                    <!-- Sep -->
+                    <div class="flex gap-5 items-start">
+                        <div class="relative flex-none w-10 flex justify-center pt-1">
+                            <div class="w-3.5 h-3.5 rounded-full bg-green-400 ring-2 ring-green-400/30 dot-pulse z-10"></div>
+                        </div>
+                        <div class="glass rounded-xl p-4 flex-1 cursor-pointer hover:bg-white/10 transition-colors"
+                             onclick="location.href='20250919/index.html'">
+                            <div class="flex items-center justify-between mb-1">
+                                <span class="text-xs text-green-400 font-medium tracking-wider">2025 / 09 / 20</span>
+                                <span class="badge badge-green">登山</span>
+                            </div>
+                            <h4 class="font-bold text-white text-sm mb-0.5">抹茶山出遊小隊</h4>
+                            <p class="text-xs text-slate-400">宜蘭 · 15人 · 一日一夜</p>
+                        </div>
+                    </div>
+
+                    <!-- Oct -->
+                    <div class="flex gap-5 items-start">
+                        <div class="relative flex-none w-10 flex justify-center pt-1">
+                            <div class="w-3.5 h-3.5 rounded-full bg-sky-400 ring-2 ring-sky-400/30 dot-pulse z-10" style="animation-delay:0.8s"></div>
+                        </div>
+                        <div class="glass rounded-xl p-4 flex-1 cursor-pointer hover:bg-white/10 transition-colors"
+                             onclick="location.href='20251019/index.html'">
+                            <div class="flex items-center justify-between mb-1">
+                                <span class="text-xs text-sky-400 font-medium tracking-wider">2025 / 10 / 19</span>
+                                <span class="badge badge-blue">溯溪</span>
+                            </div>
+                            <h4 class="font-bold text-white text-sm mb-0.5">溯溪出遊小隊</h4>
+                            <p class="text-xs text-slate-400">基隆半屏溪 · 20人 · 一日遊</p>
+                        </div>
+                    </div>
+
+                    <!-- Nov -->
+                    <div class="flex gap-5 items-start">
+                        <div class="relative flex-none w-10 flex justify-center pt-1">
+                            <div class="w-3.5 h-3.5 rounded-full bg-violet-400 ring-2 ring-violet-400/30 dot-pulse z-10" style="animation-delay:1.6s"></div>
+                        </div>
+                        <div class="glass rounded-xl p-4 flex-1 cursor-pointer hover:bg-white/10 transition-colors"
+                             onclick="location.href='20251129/index.html'">
+                            <div class="flex items-center justify-between mb-1">
+                                <span class="text-xs text-violet-400 font-medium tracking-wider">2025 / 11 / 29</span>
+                                <span class="badge badge-purple">健行</span>
+                            </div>
+                            <h4 class="font-bold text-white text-sm mb-0.5">眠月線登山之旅</h4>
+                            <p class="text-xs text-slate-400">嘉義阿里山 · 7人 · 二日一夜</p>
+                        </div>
+                    </div>
+
+                    <!-- Future placeholder -->
+                    <div class="flex gap-5 items-start opacity-40">
+                        <div class="relative flex-none w-10 flex justify-center pt-1">
+                            <div class="w-3.5 h-3.5 rounded-full border-2 border-dashed border-slate-500 z-10"></div>
+                        </div>
+                        <div class="rounded-xl border border-dashed border-slate-600 p-4 flex-1">
+                            <p class="text-xs text-slate-500 text-center">下一次出遊，敬請期待 ✨</p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── FOOTER ────────────────────────────────────────── -->
+    <footer class="relative z-10 glass-dark py-6 text-center text-slate-500 text-xs">
+        <p>快樂出遊 &nbsp;·&nbsp; 2025 年度旅遊記錄</p>
+        <p class="mt-1 text-slate-600">用雙腳丈量台灣的美好</p>
+    </footer>
+
+    <script>
+        // ── Floating particles ──────────────────────────────
+        (function () {
+            const container = document.getElementById('particles');
+            const colors = ['rgba(74,222,128,0.3)', 'rgba(56,189,248,0.3)', 'rgba(167,139,250,0.3)', 'rgba(255,255,255,0.15)'];
+            for (let i = 0; i < 18; i++) {
+                const p = document.createElement('div');
+                const size = Math.random() * 4 + 1.5;
+                p.className = 'particle';
+                p.style.cssText = [
+                    `width:${size}px`, `height:${size}px`,
+                    `left:${Math.random() * 100}%`,
+                    `background:${colors[Math.floor(Math.random() * colors.length)]}`,
+                    `animation-duration:${Math.random() * 18 + 12}s`,
+                    `animation-delay:${Math.random() * 15}s`
+                ].join(';');
+                container.appendChild(p);
+            }
+        })();
+
+        // ── Scroll reveal ────────────────────────────────────
+        (function () {
+            const els = document.querySelectorAll('.reveal');
+            const io = new IntersectionObserver((entries) => {
+                entries.forEach(e => {
+                    if (e.isIntersecting) {
+                        e.target.classList.add('visible');
+                        io.unobserve(e.target);
+                    }
+                });
+            }, { threshold: 0.12 });
+            els.forEach(el => io.observe(el));
+        })();
+    </script>
+</body>
+</html>
