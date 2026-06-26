@@ -304,38 +304,90 @@
         @keyframes spin { to { transform: rotate(360deg); } }
         .map-hint { text-align: center; color: #64748b; font-size: 0.72rem; margin-top: 12px; }
 
-        /* ── Ready Player Me Modal ─────────────────────── */
-        .rpm-modal {
+        /* ── Avatar Builder Modal ─────────────────────── */
+        .builder-modal {
             position: fixed; inset: 0; z-index: 300;
-            background: rgba(0, 0, 0, 0.88);
-            display: flex; flex-direction: column;
-            align-items: center; justify-content: center;
-            -webkit-backdrop-filter: blur(6px);
-            backdrop-filter: blur(6px);
+            background: rgba(0,0,0,0.82);
+            display: flex; align-items: center; justify-content: center;
+            -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
         }
-        .rpm-modal.hidden { display: none; }
-        .rpm-inner {
-            position: relative;
-            width: min(500px, 96vw);
-            height: min(660px, 92vh);
-            border-radius: 22px;
-            overflow: hidden;
-            border: 1px solid rgba(255,255,255,0.14);
-            box-shadow: 0 32px 64px rgba(0,0,0,0.7);
+        .builder-modal.hidden { display: none; }
+        .builder-panel {
+            width: min(420px, 96vw);
+            background: rgba(8,16,32,0.97);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 24px; padding: 24px;
+            box-shadow: 0 32px 64px rgba(0,0,0,0.75);
+            max-height: 92vh; overflow-y: auto;
         }
-        .rpm-inner iframe { width: 100%; height: 100%; border: none; display: block; }
-        .rpm-top {
+        .builder-header {
             display: flex; align-items: center; justify-content: space-between;
-            padding: 12px 16px 0;
-            color: #94a3b8; font-size: 0.8rem;
+            margin-bottom: 22px;
         }
-        .rpm-close {
-            padding: 6px 16px; border-radius: 999px; cursor: pointer;
-            background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.18);
-            color: #e2e8f0; font-size: 0.8rem;
-            transition: background 0.2s;
+        .builder-title { font-size: 1.05rem; font-weight: 700; color: #f1f5f9; }
+        .builder-close {
+            padding: 5px 14px; border-radius: 999px; cursor: pointer;
+            background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
+            color: #94a3b8; font-size: 0.78rem; transition: background 0.2s; font-family: inherit;
         }
-        .rpm-close:hover { background: rgba(255,255,255,0.18); }
+        .builder-close:hover { background: rgba(255,255,255,0.16); }
+        .builder-section { margin-bottom: 20px; }
+        .builder-label {
+            font-size: 0.72rem; font-weight: 700; color: #64748b;
+            text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 10px;
+        }
+        /* Face upload */
+        .builder-face-row { display: flex; align-items: center; gap: 16px; }
+        #face-preview {
+            width: 72px; height: 72px; border-radius: 50%; flex-shrink: 0;
+            border: 2px solid rgba(255,255,255,0.18);
+            background: rgba(255,255,255,0.06);
+        }
+        .face-upload-btn {
+            cursor: pointer; padding: 8px 18px; border-radius: 999px;
+            background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.16);
+            color: #e2e8f0; font-size: 0.82rem; transition: background 0.2s;
+            font-family: inherit; display: inline-block;
+        }
+        .face-upload-btn:hover { background: rgba(255,255,255,0.15); }
+        .face-hint { color: #475569; font-size: 0.7rem; line-height: 1.4; }
+        /* Swatches */
+        .swatch-row { display: flex; flex-wrap: wrap; gap: 9px; align-items: center; }
+        .swatch {
+            width: 28px; height: 28px; border-radius: 50%; cursor: pointer;
+            border: 2px solid transparent; transition: transform 0.15s, border-color 0.15s;
+            flex-shrink: 0;
+        }
+        .swatch:hover { transform: scale(1.22); }
+        .swatch.active { border-color: #fff; box-shadow: 0 0 0 2px rgba(255,255,255,0.3); transform: scale(1.18); }
+        .custom-swatch {
+            width: 28px; height: 28px; border-radius: 50%; cursor: pointer;
+            background: rgba(255,255,255,0.1); border: 1px dashed rgba(255,255,255,0.3);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.8rem; position: relative; overflow: hidden; flex-shrink: 0;
+        }
+        .custom-swatch input[type=color] { position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%; }
+        /* Name */
+        .name-input {
+            width: 100%; padding: 10px 14px; border-radius: 12px;
+            background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.13);
+            color: #f1f5f9; font-size: 0.9rem; font-family: inherit;
+            outline: none; transition: border-color 0.2s; box-sizing: border-box;
+        }
+        .name-input:focus { border-color: rgba(134,239,172,0.5); }
+        .name-input::placeholder { color: #334155; }
+        /* Spawn btn */
+        .spawn-btn {
+            width: 100%; padding: 13px; border-radius: 999px; cursor: pointer;
+            background: linear-gradient(135deg,rgba(74,222,128,0.28),rgba(56,189,248,0.28));
+            border: 1px solid rgba(74,222,128,0.5); color: #fff;
+            font-size: 0.95rem; font-weight: 700; font-family: inherit;
+            transition: all 0.25s; margin-top: 4px;
+        }
+        .spawn-btn:hover {
+            background: linear-gradient(135deg,rgba(74,222,128,0.46),rgba(56,189,248,0.46));
+            transform: translateY(-2px); box-shadow: 0 8px 24px rgba(74,222,128,0.25);
+        }
         .rpm-btn {
             display: inline-flex; align-items: center; gap: 8px;
             padding: 10px 22px; border-radius: 999px; cursor: pointer;
@@ -346,8 +398,7 @@
         }
         .rpm-btn:hover {
             background: linear-gradient(135deg, rgba(134,239,172,0.38), rgba(56,189,248,0.38));
-            transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(74,222,128,0.2);
+            transform: translateY(-2px); box-shadow: 0 8px 24px rgba(74,222,128,0.2);
         }
     </style>
 </head>
@@ -422,7 +473,7 @@
                 </div>
             </div>
             <div class="flex justify-center mt-5">
-                <button class="rpm-btn" onclick="window.openRPM()">
+                <button class="rpm-btn" onclick="window.openBuilder()">
                     🎨 捏我的角色，放上地圖
                 </button>
             </div>
@@ -770,18 +821,67 @@
         })();
     </script>
 
-    <!-- ── Ready Player Me Modal ───────────────────────────── -->
-    <div id="rpm-modal" class="rpm-modal hidden" onclick="if(event.target===this)window.closeRPM()">
-        <div style="width:min(500px,96vw)">
-            <div class="rpm-top">
-                <span>捏好後點「Next」→「Export」即可出現在地圖上 🗺️</span>
-                <button class="rpm-close" onclick="window.closeRPM()">✕ 關閉</button>
+    <!-- ── Avatar Builder Modal ────────────────────────────── -->
+    <div id="builder-modal" class="builder-modal hidden" onclick="if(event.target===this)window.closeBuilder()">
+        <div class="builder-panel">
+            <div class="builder-header">
+                <span class="builder-title">🎨 捏我的角色</span>
+                <button class="builder-close" onclick="window.closeBuilder()">✕ 關閉</button>
             </div>
-            <div class="rpm-inner" style="margin-top:10px">
-                <iframe id="rpm-frame"
-                    allow="camera *; microphone *"
-                    allowusermedia></iframe>
+
+            <div class="builder-section">
+                <div class="builder-label">頭像照片（選填）</div>
+                <div class="builder-face-row">
+                    <canvas id="face-preview" width="72" height="72"></canvas>
+                    <label class="face-upload-btn">
+                        📷 上傳照片
+                        <input type="file" id="face-file" accept="image/*" style="display:none">
+                    </label>
+                    <span class="face-hint">照片會貼到<br>3D 小人臉上</span>
+                </div>
             </div>
+
+            <div class="builder-section">
+                <div class="builder-label">上衣顏色</div>
+                <div class="swatch-row">
+                    <button class="swatch active" data-for="shirt" data-color="#ef4444" style="background:#ef4444"></button>
+                    <button class="swatch" data-for="shirt" data-color="#f97316" style="background:#f97316"></button>
+                    <button class="swatch" data-for="shirt" data-color="#eab308" style="background:#eab308"></button>
+                    <button class="swatch" data-for="shirt" data-color="#22c55e" style="background:#22c55e"></button>
+                    <button class="swatch" data-for="shirt" data-color="#3b82f6" style="background:#3b82f6"></button>
+                    <button class="swatch" data-for="shirt" data-color="#a855f7" style="background:#a855f7"></button>
+                    <button class="swatch" data-for="shirt" data-color="#f1f5f9" style="background:#f1f5f9"></button>
+                    <button class="swatch" data-for="shirt" data-color="#1e293b" style="background:#1e293b"></button>
+                    <label class="custom-swatch" title="自訂色">
+                        🎨<input type="color" id="shirt-custom" value="#ef4444">
+                    </label>
+                </div>
+            </div>
+
+            <div class="builder-section">
+                <div class="builder-label">褲子顏色</div>
+                <div class="swatch-row">
+                    <button class="swatch active" data-for="pants" data-color="#1e293b" style="background:#1e293b"></button>
+                    <button class="swatch" data-for="pants" data-color="#1d4ed8" style="background:#1d4ed8"></button>
+                    <button class="swatch" data-for="pants" data-color="#92400e" style="background:#92400e"></button>
+                    <button class="swatch" data-for="pants" data-color="#4b5563" style="background:#4b5563"></button>
+                    <button class="swatch" data-for="pants" data-color="#6b7280" style="background:#6b7280"></button>
+                    <button class="swatch" data-for="pants" data-color="#f1f5f9" style="background:#f1f5f9"></button>
+                    <label class="custom-swatch" title="自訂色">
+                        🎨<input type="color" id="pants-custom" value="#1e293b">
+                    </label>
+                </div>
+            </div>
+
+            <div class="builder-section">
+                <div class="builder-label">你的名字</div>
+                <input type="text" id="avatar-name-input" class="name-input"
+                       placeholder="輸入名字…" maxlength="8">
+            </div>
+
+            <button class="spawn-btn" onclick="window.spawnMyAvatar()">
+                🗺️ 放上地圖！
+            </button>
         </div>
     </div>
 
@@ -789,7 +889,6 @@
     <script type="module">
     import * as THREE from 'three';
     import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-    import { GLTFLoader }    from 'three/addons/loaders/GLTFLoader.js';
 
     const container  = document.getElementById('three-container');
     const labelLayer = document.getElementById('map-labels');
@@ -861,9 +960,9 @@
     const tripCentroid = {};    // key -> Vector3 (top surface)
     const people = [];
 
-    // ── Ready Player Me 角色狀態 ──
-    const gltfLoader = new GLTFLoader();
-    let myAvatar = null;   // { model, mixer, home, target, speed, phase, hasAnim }
+    // ── 自訂角色狀態 ──
+    let myAvatar = null;   // { model, halo, nameEl, home, target, speed, phase }
+    let faceCanvasData = null;  // ImageData / Canvas for face texture
 
     // Toast 通知
     function showToast(msg, ms = 0) {
@@ -879,120 +978,218 @@
         return el;
     }
 
-    // 開 / 關 Modal
-    window.openRPM = function () {
-        const frame = document.getElementById('rpm-frame');
-        if (!frame.src) frame.src = 'https://demo.readyplayer.me/avatar?frameApi&clearCache';
-        document.getElementById('rpm-modal').classList.remove('hidden');
+    // ── Builder 開 / 關 ──
+    window.openBuilder = function () {
+        document.getElementById('builder-modal').classList.remove('hidden');
+        drawFacePlaceholder();
     };
-    window.closeRPM = function () {
-        document.getElementById('rpm-modal').classList.add('hidden');
+    window.closeBuilder = function () {
+        document.getElementById('builder-modal').classList.add('hidden');
     };
 
-    // 接收 RPM postMessage
-    window.addEventListener('message', (e) => {
-        // 新版格式 (JSON object)
-        if (e.data?.source === 'readyplayerme' && e.data?.eventName === 'v1.avatar.exported') {
-            window.closeRPM();
-            loadMyAvatar(e.data.data.url);
-            return;
-        }
-        // 舊版格式 (raw string URL)
-        if (typeof e.data === 'string' && e.data.includes('models.readyplayer.me')) {
-            window.closeRPM();
-            loadMyAvatar(e.data);
-        }
-    });
-
-    // 載入角色 GLB（含走路動畫）
-    async function loadMyAvatar(baseUrl) {
-        // 把走路動畫烤進 GLB 一起下載
-        const url = baseUrl.split('?')[0] +
-            '?morphTargets=ARKit&textureAtlas=1024' +
-            '&animations[0]=https://models.readyplayer.me/animations/M_Walk_001.glb';
-        const toast = showToast('⏳ 正在載入你的角色…');
-        try {
-            const gltf = await gltfLoader.loadAsync(url);
-            toast.remove();
-
-            // 移除舊角色
-            if (myAvatar) {
-                scene.remove(myAvatar.model);
-                myAvatar.mixer?.stopAllAction();
-            }
-
-            const model = gltf.scene;
-            model.scale.setScalar(1.5);
-            model.traverse(n => { if (n.isMesh) { n.castShadow = true; n.receiveShadow = true; } });
-
-            // 放到宜蘭附近出發
-            const home = (tripCentroid['宜蘭'] || new THREE.Vector3(0, DEPTH, 0)).clone();
-            model.position.set(home.x + 3, DEPTH, home.z + 2);
-            scene.add(model);
-
-            // 金色星星浮在頭頂
-            const starMat = new THREE.MeshStandardMaterial({ color: 0xffd700, emissive: 0xffd700, emissiveIntensity: 1.3 });
-            const star = new THREE.Mesh(new THREE.OctahedronGeometry(0.42, 0), starMat);
-            star.position.y = 3.0;
-            star.userData.isStar = true;
-            model.add(star);
-
-            // 光暈圓環
-            const haloMat = new THREE.MeshBasicMaterial({ color: 0xffd700, transparent: true, opacity: 0.45, side: THREE.DoubleSide });
-            const halo = new THREE.Mesh(new THREE.RingGeometry(1.2, 1.7, 36), haloMat);
-            halo.rotation.x = -Math.PI / 2;
-            halo.position.set(home.x + 3, DEPTH + 0.08, home.z + 2);
-            scene.add(halo);
-
-            // AnimationMixer
-            const mixer = new THREE.AnimationMixer(model);
-            let hasAnim = false;
-            if (gltf.animations?.length) {
-                mixer.clipAction(gltf.animations[0]).play();
-                hasAnim = true;
-            }
-
-            myAvatar = {
-                model, mixer, halo, home,
-                target: newTarget(home),
-                speed: 2.4 + Math.random() * 0.8,
-                phase: 0, hasAnim
-            };
-
-            showToast('🎉 你的角色已出現在宜蘭！快去找找看', 3000);
-            focusOn(home);   // 鏡頭拉近看
-        } catch (err) {
-            toast.remove();
-            showToast('⚠️ 載入失敗，請重試', 3000);
-            console.error(err);
-        }
+    // 預設臉部佔位圖（笑臉）
+    function drawFacePlaceholder() {
+        const c = document.getElementById('face-preview');
+        if (!c || faceCanvasData) return;
+        const ctx = c.getContext('2d');
+        ctx.clearRect(0, 0, 72, 72);
+        ctx.fillStyle = '#1e3a5f';
+        ctx.beginPath(); ctx.arc(36, 36, 34, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#ffd700';
+        ctx.font = '38px serif';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText('😊', 36, 38);
     }
 
-    // 每幀更新自訂角色
+    // 照片上傳處理
+    function initFaceUpload() {
+        const input = document.getElementById('face-file');
+        if (!input || input._bound) return;
+        input._bound = true;
+        input.addEventListener('change', () => {
+            const file = input.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    const c = document.getElementById('face-preview');
+                    const ctx = c.getContext('2d');
+                    ctx.clearRect(0, 0, 72, 72);
+                    ctx.save();
+                    ctx.beginPath();
+                    ctx.arc(36, 36, 34, 0, Math.PI * 2);
+                    ctx.clip();
+                    const s = Math.min(img.width, img.height);
+                    const ox = (img.width - s) / 2, oy = (img.height - s) / 2;
+                    ctx.drawImage(img, ox, oy, s, s, 2, 2, 68, 68);
+                    ctx.restore();
+                    faceCanvasData = c;   // 記住，待會做 texture
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+
+    // 色塊點選
+    function initSwatches() {
+        document.querySelectorAll('.swatch[data-for]').forEach(btn => {
+            if (btn._bound) return;
+            btn._bound = true;
+            btn.addEventListener('click', () => {
+                const g = btn.dataset.for;
+                document.querySelectorAll(`.swatch[data-for="${g}"]`).forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                const pid = g === 'shirt' ? 'shirt-custom' : 'pants-custom';
+                document.getElementById(pid).value = btn.dataset.color;
+            });
+        });
+        ['shirt-custom', 'pants-custom'].forEach(id => {
+            const inp = document.getElementById(id);
+            if (!inp || inp._bound) return;
+            inp._bound = true;
+            inp.addEventListener('input', () => {
+                const g = id.replace('-custom', '');
+                document.querySelectorAll(`.swatch[data-for="${g}"]`).forEach(b => b.classList.remove('active'));
+            });
+        });
+    }
+
+    // ── 建立 3D 角色 ──
+    function makeMyPerson3D(faceTex, shirtColor, pantsColor) {
+        const g = new THREE.Group();
+
+        // 頭（貼臉部照片，或預設膚色）
+        const headMat = new THREE.MeshStandardMaterial({
+            map: faceTex || null,
+            color: faceTex ? 0xffffff : 0xffd8b4,
+            roughness: 0.7
+        });
+        const head = new THREE.Mesh(new THREE.SphereGeometry(0.42, 32, 32), headMat);
+        head.position.y = 1.92; head.castShadow = true;
+        g.add(head);
+
+        // 身體 / 上衣
+        const bodyMat = new THREE.MeshStandardMaterial({ color: shirtColor, roughness: 0.72 });
+        const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.33, 0.78, 4, 8), bodyMat);
+        body.position.y = 1.06; body.castShadow = true;
+        g.add(body);
+
+        // 手臂
+        const armL = new THREE.Mesh(new THREE.CapsuleGeometry(0.11, 0.46, 4, 6), bodyMat);
+        armL.position.set(-0.47, 1.1, 0); armL.rotation.z = 0.22; armL.castShadow = true;
+        g.add(armL);
+        const armR = armL.clone(); armR.position.x = 0.47; armR.rotation.z = -0.22;
+        g.add(armR);
+
+        // 腿 / 褲子
+        const legMat = new THREE.MeshStandardMaterial({ color: pantsColor, roughness: 0.76 });
+        const legL = new THREE.Mesh(new THREE.CapsuleGeometry(0.14, 0.58, 4, 8), legMat);
+        legL.position.set(-0.17, 0.43, 0); legL.castShadow = true;
+        const legR = legL.clone(); legR.position.x = 0.17;
+        g.add(legL); g.add(legR);
+        g.userData = { legL, legR };
+        return g;
+    }
+
+    // ── 點「放上地圖」時執行 ──
+    window.spawnMyAvatar = function () {
+        initFaceUpload(); initSwatches();  // 確保已綁定
+        const nameVal = (document.getElementById('avatar-name-input')?.value || '').trim() || '旅人';
+        const shirtHex = document.getElementById('shirt-custom')?.value || '#ef4444';
+        const pantsHex = document.getElementById('pants-custom')?.value || '#1e293b';
+
+        // 臉部 Texture（256×256 圓形裁切）
+        let faceTex = null;
+        if (faceCanvasData) {
+            const tc = document.createElement('canvas');
+            tc.width = tc.height = 256;
+            const ctx = tc.getContext('2d');
+            ctx.save();
+            ctx.beginPath(); ctx.arc(128, 128, 126, 0, Math.PI * 2); ctx.clip();
+            ctx.drawImage(faceCanvasData, 0, 0, 72, 72, 2, 2, 252, 252);
+            ctx.restore();
+            faceTex = new THREE.CanvasTexture(tc);
+            faceTex.colorSpace = THREE.SRGBColorSpace;
+        }
+
+        window.closeBuilder();
+
+        // 移除舊角色
+        if (myAvatar) {
+            scene.remove(myAvatar.model);
+            if (myAvatar.halo) scene.remove(myAvatar.halo);
+            if (myAvatar.nameEl) myAvatar.nameEl.remove();
+        }
+
+        const model = makeMyPerson3D(faceTex, new THREE.Color(shirtHex), new THREE.Color(pantsHex));
+        model.scale.setScalar(1.48);
+        const home = (tripCentroid['宜蘭'] || new THREE.Vector3(0, DEPTH, 0)).clone();
+        model.position.set(home.x + 3, DEPTH, home.z + 2);
+        scene.add(model);
+
+        // 旋轉金星
+        const starMat = new THREE.MeshStandardMaterial({ color: 0xffd700, emissive: 0xffd700, emissiveIntensity: 1.4 });
+        const star = new THREE.Mesh(new THREE.OctahedronGeometry(0.42, 0), starMat);
+        star.position.y = 3.1; star.userData.isStar = true;
+        model.add(star);
+
+        // 地面光暈
+        const haloMat = new THREE.MeshBasicMaterial({ color: 0xffd700, transparent: true, opacity: 0.42, side: THREE.DoubleSide });
+        const halo = new THREE.Mesh(new THREE.RingGeometry(1.2, 1.8, 36), haloMat);
+        halo.rotation.x = -Math.PI / 2;
+        halo.position.set(model.position.x, DEPTH + 0.06, model.position.z);
+        scene.add(halo);
+
+        // 名字標籤（CSS overlay）
+        const nameEl = document.createElement('div');
+        nameEl.className = 'map-label';
+        nameEl.style.setProperty('--c', '#ffd700');
+        nameEl.style.pointerEvents = 'none';
+        nameEl.innerHTML = `<span class="dot"></span><b>${nameVal}</b>`;
+        labelLayer.appendChild(nameEl);
+
+        myAvatar = { model, halo, nameEl, home, target: newTarget(home), speed: 2.4 + Math.random() * 0.8, phase: 0 };
+        showToast(`🎉 ${nameVal} 已出現在宜蘭！`, 3000);
+        focusOn(home);
+    };
+
+    // ── 每幀更新自訂角色 ──
     function updateMyAvatar(dt) {
         if (!myAvatar) return;
-        const { model, mixer, halo, home, hasAnim } = myAvatar;
+        const { model, halo, nameEl, home } = myAvatar;
 
-        if (mixer) mixer.update(dt);
-
-        // 旋轉星星
+        // 旋轉金星
         model.traverse(n => { if (n.userData.isStar) n.rotation.y += dt * 2.5; });
 
-        // 移動邏輯（同 people）
+        // 移動
         const d = myAvatar.target.clone().sub(model.position); d.y = 0;
         if (d.length() < 0.5) { myAvatar.target = newTarget(home); return; }
         d.normalize();
         model.position.addScaledVector(d, myAvatar.speed * dt);
         model.rotation.y = Math.atan2(d.x, d.z);
 
-        // 無骨架動畫時用程序式上下浮動
-        if (!hasAnim) {
-            myAvatar.phase += dt * 9;
-            model.position.y = DEPTH + Math.abs(Math.sin(myAvatar.phase)) * 0.14;
-        }
+        // 走路：腿擺動 + 上下浮動
+        myAvatar.phase += dt * 9;
+        const sw = Math.sin(myAvatar.phase);
+        model.position.y = DEPTH + Math.abs(sw) * 0.12;
+        if (model.userData.legL) model.userData.legL.rotation.x = sw * 0.65;
+        if (model.userData.legR) model.userData.legR.rotation.x = -sw * 0.65;
 
         // 光暈跟著走
-        if (halo) halo.position.set(model.position.x, DEPTH + 0.08, model.position.z);
+        if (halo) halo.position.set(model.position.x, DEPTH + 0.06, model.position.z);
+
+        // 名字標籤投影到螢幕
+        if (nameEl) {
+            const r = renderer.domElement.getBoundingClientRect();
+            v.set(model.position.x, model.position.y + 3.1 * model.scale.y, model.position.z).project(camera);
+            if (v.z > 1) { nameEl.style.display = 'none'; return; }
+            nameEl.style.display = 'flex';
+            const sx = (v.x * 0.5 + 0.5) * r.width;
+            const sy = (-v.y * 0.5 + 0.5) * r.height;
+            nameEl.style.transform = `translate(-50%,-120%) translate(${sx}px,${sy}px)`;
+        }
     }
 
     function setProj(minLng, maxLng, minLat, maxLat) {
@@ -1360,6 +1557,8 @@
         loop();
     }
     init();
+    initFaceUpload();
+    initSwatches();
     </script>
 </body>
 </html>
