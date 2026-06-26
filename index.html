@@ -303,6 +303,52 @@
         }
         @keyframes spin { to { transform: rotate(360deg); } }
         .map-hint { text-align: center; color: #64748b; font-size: 0.72rem; margin-top: 12px; }
+
+        /* ── Ready Player Me Modal ─────────────────────── */
+        .rpm-modal {
+            position: fixed; inset: 0; z-index: 300;
+            background: rgba(0, 0, 0, 0.88);
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            -webkit-backdrop-filter: blur(6px);
+            backdrop-filter: blur(6px);
+        }
+        .rpm-modal.hidden { display: none; }
+        .rpm-inner {
+            position: relative;
+            width: min(500px, 96vw);
+            height: min(660px, 92vh);
+            border-radius: 22px;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.14);
+            box-shadow: 0 32px 64px rgba(0,0,0,0.7);
+        }
+        .rpm-inner iframe { width: 100%; height: 100%; border: none; display: block; }
+        .rpm-top {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 12px 16px 0;
+            color: #94a3b8; font-size: 0.8rem;
+        }
+        .rpm-close {
+            padding: 6px 16px; border-radius: 999px; cursor: pointer;
+            background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.18);
+            color: #e2e8f0; font-size: 0.8rem;
+            transition: background 0.2s;
+        }
+        .rpm-close:hover { background: rgba(255,255,255,0.18); }
+        .rpm-btn {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 10px 22px; border-radius: 999px; cursor: pointer;
+            background: linear-gradient(135deg, rgba(134,239,172,0.22), rgba(56,189,248,0.22));
+            border: 1px solid rgba(134,239,172,0.45); color: #fff;
+            font-size: 0.9rem; font-weight: 600;
+            transition: all 0.25s; font-family: inherit;
+        }
+        .rpm-btn:hover {
+            background: linear-gradient(135deg, rgba(134,239,172,0.38), rgba(56,189,248,0.38));
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(74,222,128,0.2);
+        }
     </style>
 </head>
 <body class="relative">
@@ -375,7 +421,12 @@
                     <div id="map-status"><span class="spin"></span><span>載入地圖中…</span></div>
                 </div>
             </div>
-            <p class="map-hint">資料來源：g0v 開放地圖 · 拖曳旋轉視角，點選縣市放大</p>
+            <div class="flex justify-center mt-5">
+                <button class="rpm-btn" onclick="window.openRPM()">
+                    🎨 捏我的角色，放上地圖
+                </button>
+            </div>
+            <p class="map-hint mt-3">資料來源：g0v 開放地圖 · 拖曳旋轉視角，點選縣市放大</p>
         </div>
     </section>
 
@@ -719,10 +770,26 @@
         })();
     </script>
 
+    <!-- ── Ready Player Me Modal ───────────────────────────── -->
+    <div id="rpm-modal" class="rpm-modal hidden" onclick="if(event.target===this)window.closeRPM()">
+        <div style="width:min(500px,96vw)">
+            <div class="rpm-top">
+                <span>捏好後點「Next」→「Export」即可出現在地圖上 🗺️</span>
+                <button class="rpm-close" onclick="window.closeRPM()">✕ 關閉</button>
+            </div>
+            <div class="rpm-inner" style="margin-top:10px">
+                <iframe id="rpm-frame"
+                    allow="camera *; microphone *"
+                    allowusermedia></iframe>
+            </div>
+        </div>
+    </div>
+
     <!-- ── 3D 台灣地圖 (three.js) ─────────────────────────── -->
     <script type="module">
     import * as THREE from 'three';
     import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+    import { GLTFLoader }    from 'three/addons/loaders/GLTFLoader.js';
 
     const container  = document.getElementById('three-container');
     const labelLayer = document.getElementById('map-labels');
@@ -793,6 +860,140 @@
     const tripMeshes = {};      // key -> Group
     const tripCentroid = {};    // key -> Vector3 (top surface)
     const people = [];
+
+    // ── Ready Player Me 角色狀態 ──
+    const gltfLoader = new GLTFLoader();
+    let myAvatar = null;   // { model, mixer, home, target, speed, phase, hasAnim }
+
+    // Toast 通知
+    function showToast(msg, ms = 0) {
+        const el = document.createElement('div');
+        el.style.cssText = `position:fixed;bottom:32px;left:50%;transform:translateX(-50%);z-index:999;
+            background:rgba(8,16,30,0.92);color:#f1f5f9;padding:10px 24px;border-radius:999px;
+            font-size:0.83rem;border:1px solid rgba(255,255,255,0.14);backdrop-filter:blur(14px);
+            box-shadow:0 8px 28px rgba(0,0,0,0.5);pointer-events:none;white-space:nowrap;
+            font-family:'Noto Sans TC',sans-serif;`;
+        el.textContent = msg;
+        document.body.appendChild(el);
+        if (ms) setTimeout(() => el.remove(), ms);
+        return el;
+    }
+
+    // 開 / 關 Modal
+    window.openRPM = function () {
+        const frame = document.getElementById('rpm-frame');
+        if (!frame.src) frame.src = 'https://demo.readyplayer.me/avatar?frameApi&clearCache';
+        document.getElementById('rpm-modal').classList.remove('hidden');
+    };
+    window.closeRPM = function () {
+        document.getElementById('rpm-modal').classList.add('hidden');
+    };
+
+    // 接收 RPM postMessage
+    window.addEventListener('message', (e) => {
+        // 新版格式 (JSON object)
+        if (e.data?.source === 'readyplayerme' && e.data?.eventName === 'v1.avatar.exported') {
+            window.closeRPM();
+            loadMyAvatar(e.data.data.url);
+            return;
+        }
+        // 舊版格式 (raw string URL)
+        if (typeof e.data === 'string' && e.data.includes('models.readyplayer.me')) {
+            window.closeRPM();
+            loadMyAvatar(e.data);
+        }
+    });
+
+    // 載入角色 GLB（含走路動畫）
+    async function loadMyAvatar(baseUrl) {
+        // 把走路動畫烤進 GLB 一起下載
+        const url = baseUrl.split('?')[0] +
+            '?morphTargets=ARKit&textureAtlas=1024' +
+            '&animations[0]=https://models.readyplayer.me/animations/M_Walk_001.glb';
+        const toast = showToast('⏳ 正在載入你的角色…');
+        try {
+            const gltf = await gltfLoader.loadAsync(url);
+            toast.remove();
+
+            // 移除舊角色
+            if (myAvatar) {
+                scene.remove(myAvatar.model);
+                myAvatar.mixer?.stopAllAction();
+            }
+
+            const model = gltf.scene;
+            model.scale.setScalar(1.5);
+            model.traverse(n => { if (n.isMesh) { n.castShadow = true; n.receiveShadow = true; } });
+
+            // 放到宜蘭附近出發
+            const home = (tripCentroid['宜蘭'] || new THREE.Vector3(0, DEPTH, 0)).clone();
+            model.position.set(home.x + 3, DEPTH, home.z + 2);
+            scene.add(model);
+
+            // 金色星星浮在頭頂
+            const starMat = new THREE.MeshStandardMaterial({ color: 0xffd700, emissive: 0xffd700, emissiveIntensity: 1.3 });
+            const star = new THREE.Mesh(new THREE.OctahedronGeometry(0.42, 0), starMat);
+            star.position.y = 3.0;
+            star.userData.isStar = true;
+            model.add(star);
+
+            // 光暈圓環
+            const haloMat = new THREE.MeshBasicMaterial({ color: 0xffd700, transparent: true, opacity: 0.45, side: THREE.DoubleSide });
+            const halo = new THREE.Mesh(new THREE.RingGeometry(1.2, 1.7, 36), haloMat);
+            halo.rotation.x = -Math.PI / 2;
+            halo.position.set(home.x + 3, DEPTH + 0.08, home.z + 2);
+            scene.add(halo);
+
+            // AnimationMixer
+            const mixer = new THREE.AnimationMixer(model);
+            let hasAnim = false;
+            if (gltf.animations?.length) {
+                mixer.clipAction(gltf.animations[0]).play();
+                hasAnim = true;
+            }
+
+            myAvatar = {
+                model, mixer, halo, home,
+                target: newTarget(home),
+                speed: 2.4 + Math.random() * 0.8,
+                phase: 0, hasAnim
+            };
+
+            showToast('🎉 你的角色已出現在宜蘭！快去找找看', 3000);
+            focusOn(home);   // 鏡頭拉近看
+        } catch (err) {
+            toast.remove();
+            showToast('⚠️ 載入失敗，請重試', 3000);
+            console.error(err);
+        }
+    }
+
+    // 每幀更新自訂角色
+    function updateMyAvatar(dt) {
+        if (!myAvatar) return;
+        const { model, mixer, halo, home, hasAnim } = myAvatar;
+
+        if (mixer) mixer.update(dt);
+
+        // 旋轉星星
+        model.traverse(n => { if (n.userData.isStar) n.rotation.y += dt * 2.5; });
+
+        // 移動邏輯（同 people）
+        const d = myAvatar.target.clone().sub(model.position); d.y = 0;
+        if (d.length() < 0.5) { myAvatar.target = newTarget(home); return; }
+        d.normalize();
+        model.position.addScaledVector(d, myAvatar.speed * dt);
+        model.rotation.y = Math.atan2(d.x, d.z);
+
+        // 無骨架動畫時用程序式上下浮動
+        if (!hasAnim) {
+            myAvatar.phase += dt * 9;
+            model.position.y = DEPTH + Math.abs(Math.sin(myAvatar.phase)) * 0.14;
+        }
+
+        // 光暈跟著走
+        if (halo) halo.position.set(model.position.x, DEPTH + 0.08, model.position.z);
+    }
 
     function setProj(minLng, maxLng, minLat, maxLat) {
         const cLng = (minLng + maxLng) / 2, cLat = (minLat + maxLat) / 2;
@@ -1119,6 +1320,7 @@
         if (!visible) return;
         updateTween(dt);
         updatePeople(dt);
+        updateMyAvatar(dt);
         const ts = clock.elapsedTime;
         TRIPS.forEach((t, i) => {
             if (t._pin) t._pin.userData.ball.position.y = 4.6 + Math.sin(ts * 2 + i) * 0.25;
