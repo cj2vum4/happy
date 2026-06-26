@@ -388,6 +388,40 @@
             background: linear-gradient(135deg,rgba(74,222,128,0.46),rgba(56,189,248,0.46));
             transform: translateY(-2px); box-shadow: 0 8px 24px rgba(74,222,128,0.25);
         }
+        /* ── 裁切 Modal ──────────────────────────────── */
+        .crop-modal {
+            position: fixed; inset: 0; z-index: 400;
+            background: rgba(0,0,0,0.93);
+            display: flex; align-items: center; justify-content: center;
+            -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px);
+        }
+        .crop-modal.hidden { display: none; }
+        .crop-panel {
+            display: flex; flex-direction: column; align-items: center; gap: 16px;
+            padding: 20px 16px;
+        }
+        .crop-title { color: #f1f5f9; font-size: 1rem; font-weight: 700; text-align: center; }
+        .crop-hint { color: #64748b; font-size: 0.72rem; margin-top: 3px; }
+        #crop-canvas {
+            border-radius: 10px; cursor: grab; touch-action: none;
+            display: block; border: 1px solid rgba(255,255,255,0.1);
+        }
+        #crop-canvas:active { cursor: grabbing; }
+        .crop-actions { display: flex; gap: 12px; }
+        .crop-actions button {
+            padding: 10px 26px; border-radius: 999px; cursor: pointer;
+            font-family: inherit; font-size: 0.88rem; transition: background 0.2s;
+            border: 1px solid rgba(255,255,255,0.15); color: #e2e8f0;
+            background: rgba(255,255,255,0.08);
+        }
+        .crop-actions button:hover { background: rgba(255,255,255,0.16); }
+        .crop-confirm {
+            background: linear-gradient(135deg,rgba(74,222,128,0.28),rgba(56,189,248,0.28)) !important;
+            border-color: rgba(74,222,128,0.5) !important; font-weight: 700 !important;
+        }
+        .crop-confirm:hover {
+            background: linear-gradient(135deg,rgba(74,222,128,0.46),rgba(56,189,248,0.46)) !important;
+        }
         .rpm-btn {
             display: inline-flex; align-items: center; gap: 8px;
             padding: 10px 22px; border-radius: 999px; cursor: pointer;
@@ -821,6 +855,21 @@
         })();
     </script>
 
+    <!-- ── 臉部裁切 Modal ───────────────────────────────────── -->
+    <div id="crop-modal" class="crop-modal hidden">
+        <div class="crop-panel">
+            <div class="crop-title">
+                調整臉部範圍
+                <div class="crop-hint">拖曳移動 ·  滾輪 / 雙指 縮放</div>
+            </div>
+            <canvas id="crop-canvas"></canvas>
+            <div class="crop-actions">
+                <button onclick="window.cancelCrop()">取消</button>
+                <button class="crop-confirm" onclick="window.confirmCrop()">✓ 確認裁切</button>
+            </div>
+        </div>
+    </div>
+
     <!-- ── Avatar Builder Modal ────────────────────────────── -->
     <div id="builder-modal" class="builder-modal hidden" onclick="if(event.target===this)window.closeBuilder()">
         <div class="builder-panel">
@@ -1001,7 +1050,7 @@
         ctx.fillText('😊', 36, 38);
     }
 
-    // 照片上傳處理
+    // ── 照片上傳 → 開裁切 Modal ──
     function initFaceUpload() {
         const input = document.getElementById('face-file');
         if (!input || input._bound) return;
@@ -1009,28 +1058,142 @@
         input.addEventListener('change', () => {
             const file = input.files[0];
             if (!file) return;
+            input.value = '';   // 讓同一張照片可以重複上傳
             const reader = new FileReader();
-            reader.onload = (e) => {
-                const img = new Image();
-                img.onload = () => {
-                    const c = document.getElementById('face-preview');
-                    const ctx = c.getContext('2d');
-                    ctx.clearRect(0, 0, 72, 72);
-                    ctx.save();
-                    ctx.beginPath();
-                    ctx.arc(36, 36, 34, 0, Math.PI * 2);
-                    ctx.clip();
-                    const s = Math.min(img.width, img.height);
-                    const ox = (img.width - s) / 2, oy = (img.height - s) / 2;
-                    ctx.drawImage(img, ox, oy, s, s, 2, 2, 68, 68);
-                    ctx.restore();
-                    faceCanvasData = c;   // 記住，待會做 texture
-                };
-                img.src = e.target.result;
-            };
+            reader.onload = (e) => openCropModal(e.target.result);
             reader.readAsDataURL(file);
         });
     }
+
+    // ── 裁切器 ──────────────────────────────────────────────
+    const crop = { img: null, x: 0, y: 0, scale: 1, dragging: false, lx: 0, ly: 0 };
+    const CROP_SIZE = Math.min(Math.round(Math.min(window.innerWidth, 500) * 0.85), 340);
+
+    function openCropModal(src) {
+        const img = new Image();
+        img.onload = () => {
+            crop.img = img;
+            // 預設縮放：讓照片剛好填滿正圓（cover）
+            crop.scale = Math.max(CROP_SIZE / img.width, CROP_SIZE / img.height);
+            crop.x = (CROP_SIZE - img.width  * crop.scale) / 2;
+            crop.y = (CROP_SIZE - img.height * crop.scale) / 2;
+            const c = document.getElementById('crop-canvas');
+            c.width = c.height = CROP_SIZE;
+            drawCrop();
+            document.getElementById('crop-modal').classList.remove('hidden');
+        };
+        img.src = src;
+    }
+
+    function drawCrop() {
+        const { img, x, y, scale } = crop;
+        const c = document.getElementById('crop-canvas');
+        const S = c.width, cx = S / 2, r = S / 2 - 3;
+        const ctx = c.getContext('2d');
+        ctx.clearRect(0, 0, S, S);
+
+        // 全圖
+        ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
+
+        // 圓外暗罩（evenodd 挖洞）
+        ctx.save();
+        ctx.fillStyle = 'rgba(0,0,0,0.62)';
+        ctx.beginPath();
+        ctx.rect(0, 0, S, S);
+        ctx.arc(cx, cx, r, 0, Math.PI * 2, true);
+        ctx.fill('evenodd');
+        ctx.restore();
+
+        // 圓內清晰版（重新 clip 畫一次）
+        ctx.save();
+        ctx.beginPath(); ctx.arc(cx, cx, r, 0, Math.PI * 2); ctx.clip();
+        ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
+        ctx.restore();
+
+        // 圓框
+        ctx.strokeStyle = 'rgba(255,215,0,0.85)';
+        ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.arc(cx, cx, r, 0, Math.PI * 2); ctx.stroke();
+    }
+
+    function initCropEvents() {
+        const c = document.getElementById('crop-canvas');
+        if (!c || c._bound) return;
+        c._bound = true;
+
+        // 滑鼠拖曳
+        c.addEventListener('mousedown', e => { crop.dragging = true; crop.lx = e.clientX; crop.ly = e.clientY; });
+        window.addEventListener('mousemove', e => {
+            if (!crop.dragging) return;
+            crop.x += e.clientX - crop.lx; crop.y += e.clientY - crop.ly;
+            crop.lx = e.clientX; crop.ly = e.clientY;
+            drawCrop();
+        });
+        window.addEventListener('mouseup', () => { crop.dragging = false; });
+
+        // 滾輪縮放（以圓心為錨點）
+        c.addEventListener('wheel', e => {
+            e.preventDefault();
+            const delta = e.deltaY > 0 ? 0.92 : 1.09;
+            const cx = CROP_SIZE / 2;
+            crop.x = cx + (crop.x - cx) * delta;
+            crop.y = cx + (crop.y - cx) * delta;
+            crop.scale *= delta;
+            drawCrop();
+        }, { passive: false });
+
+        // 觸控拖曳 + 雙指縮放
+        let lastDist = null;
+        c.addEventListener('touchstart', e => {
+            e.preventDefault();
+            if (e.touches.length === 1) { crop.dragging = true; crop.lx = e.touches[0].clientX; crop.ly = e.touches[0].clientY; }
+            else if (e.touches.length === 2) lastDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+        }, { passive: false });
+        c.addEventListener('touchmove', e => {
+            e.preventDefault();
+            if (e.touches.length === 1 && crop.dragging) {
+                crop.x += e.touches[0].clientX - crop.lx; crop.y += e.touches[0].clientY - crop.ly;
+                crop.lx = e.touches[0].clientX; crop.ly = e.touches[0].clientY;
+                drawCrop();
+            } else if (e.touches.length === 2) {
+                const dist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+                if (lastDist) {
+                    const delta = dist / lastDist, cx = CROP_SIZE / 2;
+                    crop.x = cx + (crop.x - cx) * delta; crop.y = cx + (crop.y - cx) * delta;
+                    crop.scale *= delta; drawCrop();
+                }
+                lastDist = dist;
+            }
+        }, { passive: false });
+        c.addEventListener('touchend', () => { crop.dragging = false; lastDist = null; });
+    }
+
+    window.cancelCrop = function () { document.getElementById('crop-modal').classList.add('hidden'); };
+
+    window.confirmCrop = function () {
+        const { img, x, y, scale } = crop;
+        // 輸出 256×256 圓形裁切
+        const out = document.createElement('canvas');
+        out.width = out.height = 256;
+        const ctx = out.getContext('2d');
+        ctx.save();
+        ctx.beginPath(); ctx.arc(128, 128, 126, 0, Math.PI * 2); ctx.clip();
+        const ratio = 256 / CROP_SIZE;
+        ctx.drawImage(img, x * ratio, y * ratio, img.width * scale * ratio, img.height * scale * ratio);
+        ctx.restore();
+        faceCanvasData = out;
+
+        // 更新 builder 裡的小預覽
+        const prev = document.getElementById('face-preview');
+        const pCtx = prev.getContext('2d');
+        pCtx.clearRect(0, 0, 72, 72);
+        pCtx.save();
+        pCtx.beginPath(); pCtx.arc(36, 36, 34, 0, Math.PI * 2); pCtx.clip();
+        pCtx.drawImage(out, 0, 0, 256, 256, 2, 2, 68, 68);
+        pCtx.restore();
+
+        document.getElementById('crop-modal').classList.add('hidden');
+    };
 
     // 色塊點選
     function initSwatches() {
@@ -1095,7 +1258,7 @@
 
     // ── 點「放上地圖」時執行 ──
     window.spawnMyAvatar = function () {
-        initFaceUpload(); initSwatches();  // 確保已綁定
+        initFaceUpload(); initSwatches(); initCropEvents();  // 確保已綁定
         const nameVal = (document.getElementById('avatar-name-input')?.value || '').trim() || '旅人';
         const shirtHex = document.getElementById('shirt-custom')?.value || '#ef4444';
         const pantsHex = document.getElementById('pants-custom')?.value || '#1e293b';
@@ -1559,6 +1722,7 @@
     init();
     initFaceUpload();
     initSwatches();
+    initCropEvents();
     </script>
 </body>
 </html>
