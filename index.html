@@ -195,61 +195,8 @@
             height: clamp(440px, 70vh, 760px);
             border-radius: 22px;
             overflow: hidden;
-            cursor: grab;
-            background:
-                radial-gradient(circle at 50% 25%, rgba(56,189,248,0.12), transparent 55%),
-                radial-gradient(circle at 50% 100%, rgba(10,20,35,0.85), rgba(8,16,30,0.95));
         }
-        #three-container:active { cursor: grabbing; }
-        #three-container canvas { display: block; width: 100%; height: 100%; }
-
-        /* 浮動 HTML 標籤（CSS + 3D 投影） */
-        #map-labels {
-            position: absolute;
-            inset: 0;
-            pointer-events: none;
-            z-index: 5;
-            overflow: hidden;
-        }
-        .map-label {
-            position: absolute;
-            left: 0; top: 0;
-            pointer-events: auto;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 7px;
-            padding: 6px 13px;
-            border-radius: 999px;
-            background: rgba(10, 20, 35, 0.62);
-            -webkit-backdrop-filter: blur(10px);
-            backdrop-filter: blur(10px);
-            border: 1px solid var(--c, #86efac);
-            color: #fff;
-            font-size: 0.8rem;
-            white-space: nowrap;
-            box-shadow: 0 6px 22px rgba(0,0,0,0.45);
-            will-change: transform;
-            transition: background 0.2s, box-shadow 0.2s;
-        }
-        .map-label:hover {
-            background: rgba(22, 38, 60, 0.9);
-            box-shadow: 0 8px 28px rgba(0,0,0,0.6);
-        }
-        .map-label .dot {
-            width: 8px; height: 8px;
-            border-radius: 50%;
-            background: var(--c, #86efac);
-            box-shadow: 0 0 12px var(--c, #86efac);
-        }
-        .map-label b { font-weight: 700; }
-        .map-label i { font-style: normal; color: #cbd5e1; font-size: 0.72rem; }
-        .map-label em {
-            font-style: normal;
-            color: var(--c, #86efac);
-            font-size: 0.72rem;
-            font-weight: 600;
-        }
+        #gmap { position: absolute; inset: 0; border-radius: 22px; }
 
         /* 控制按鈕 */
         .map-controls {
@@ -281,27 +228,6 @@
             color: #fff;
         }
 
-        /* 載入提示 */
-        #map-status {
-            position: absolute;
-            left: 50%; top: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 4;
-            color: #94a3b8;
-            font-size: 0.85rem;
-            letter-spacing: 0.05em;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        #map-status .spin {
-            width: 16px; height: 16px;
-            border: 2px solid rgba(255,255,255,0.2);
-            border-top-color: #86efac;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
         .map-hint { text-align: center; color: #64748b; font-size: 0.72rem; margin-top: 12px; }
 
     </style>
@@ -361,22 +287,21 @@
         <div class="max-w-5xl mx-auto">
             <div class="reveal mb-8 text-center">
                 <h2 class="text-2xl font-bold text-white mb-2">台灣旅遊地圖</h2>
-                <p class="text-slate-400 text-sm">拖曳旋轉地圖，點選縣市放大查看 — 小夥伴們正在路上 🚶</p>
+                <p class="text-slate-400 text-sm">衛星地圖 + 3D 縣市高亮 · 拖曳旋轉視角，點選旅遊標記查看詳情 🗺️</p>
             </div>
 
             <div class="reveal map-wrap glass rounded-3xl p-2">
                 <div id="three-container">
+                    <div id="gmap"></div>
                     <div id="map-controls" class="map-controls">
                         <button data-view="all" class="active">🌏 全島</button>
                         <button data-trip="宜蘭">宜蘭 · 抹茶山</button>
                         <button data-trip="基隆">基隆 · 溯溪</button>
                         <button data-trip="嘉義縣">嘉義 · 眠月線</button>
                     </div>
-                    <div id="map-labels"></div>
-                    <div id="map-status"><span class="spin"></span><span>載入地圖中…</span></div>
                 </div>
             </div>
-            <p class="map-hint mt-3">資料來源：g0v 開放地圖 · 拖曳旋轉視角，點選縣市放大</p>
+            <p class="map-hint mt-3">底圖：Google Maps 衛星 · 縣市 3D 輪廓：g0v 開放地理資料 · 點選標記查看遊記</p>
         </div>
     </section>
 
@@ -720,114 +645,57 @@
         })();
     </script>
 
-    <!-- ── 3D 台灣地圖 (three.js) ─────────────────────────── -->
+    <!-- ── 3D 台灣地圖 (Google Maps + Three.js WebGLOverlayView) ── -->
     <script type="module">
     import * as THREE from 'three';
-    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-    const container  = document.getElementById('three-container');
-    const labelLayer = document.getElementById('map-labels');
-    const statusEl   = document.getElementById('map-status');
-
-    // 三趟旅遊對應的縣市
     const TRIPS = [
-        { key: '宜蘭',   label: '宜蘭', sub: '抹茶山', color: 0x4ade80, css: '#4ade80', href: '20250919/index.html', approx: [121.74, 24.70] },
-        { key: '基隆',   label: '基隆', sub: '溯溪',   color: 0x38bdf8, css: '#38bdf8', href: '20251019/index.html', approx: [121.74, 25.13] },
-        { key: '嘉義縣', label: '嘉義', sub: '眠月線', color: 0xa78bfa, css: '#a78bfa', href: '20251129/index.html', approx: [120.62, 23.46] },
+        { key: '宜蘭',   label: '宜蘭', sub: '抹茶山', color: 0x4ade80, css: '#4ade80', href: '20250919/index.html', center: {lat:24.70, lng:121.74} },
+        { key: '基隆',   label: '基隆', sub: '溯溪',   color: 0x38bdf8, css: '#38bdf8', href: '20251019/index.html', center: {lat:25.13, lng:121.74} },
+        { key: '嘉義縣', label: '嘉義', sub: '眠月線', color: 0xa78bfa, css: '#a78bfa', href: '20251129/index.html', center: {lat:23.46, lng:120.62} },
     ];
-    const PALETTE = [0xff8fab, 0xffd166, 0x06d6a0, 0x4cc9f0, 0xf4978e, 0xffffff, 0x90be6d, 0xc77dff];
 
-    const DEPTH  = 2.6;   // 地形擠出厚度
-    const TARGET = 66;    // 地圖最大尺寸
+    // ── 1. 動態載入 Google Maps API ──
+    await new Promise(resolve => {
+        window.__gmCb = resolve;
+        const s = document.createElement('script');
+        s.src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyDohDNbe_FmGwtBsvnMsb1V3eEO1n-Ukeo&callback=__gmCb&libraries=marker&v=beta';
+        document.head.appendChild(s);
+    });
 
-    // ── 場景基礎 ──
-    const scene = new THREE.Scene();
-    scene.fog = new THREE.Fog(0x0a1424, 130, 320);
+    // ── 2. 建立 Google Maps ──
+    const gmap = new google.maps.Map(document.getElementById('gmap'), {
+        center: { lat: 23.8, lng: 121.0 },
+        zoom: 8,
+        tilt: 45,
+        heading: 0,
+        mapTypeId: 'satellite',
+        mapId: 'DEMO_MAP_ID',
+        gestureHandling: 'greedy',
+        disableDefaultUI: true,
+        zoomControl: true,
+        rotateControl: true,
+        fullscreenControl: true,
+    });
 
-    const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 2000);
-    camera.position.set(0, 72, 92);
+    // ── 3. 座標工具 ──
+    // WebGLOverlayView 使用 ENU 座標系，單位 m，參考點為台灣中心
+    // Three.js 場景: x=東, y=上(高度), z=南(負北)
+    // countyGroup.rotation.x=-PI/2 將 shape 的 XY(東,北) 轉成 世界的 XZ(東,南)
+    const REF   = { lat: 23.8, lng: 121.0 };
+    const M_LAT = 111320;
+    const M_LNG = M_LAT * Math.cos(REF.lat * Math.PI / 180);
+    const EXTRUDE_H = 18000; // 18 km 高度
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-    container.appendChild(renderer.domElement);
-
-    // ── 燈光 ──
-    scene.add(new THREE.AmbientLight(0xffffff, 0.55));
-    scene.add(new THREE.HemisphereLight(0x9fd8ff, 0x16324a, 0.6));
-    const dir = new THREE.DirectionalLight(0xffffff, 1.15);
-    dir.position.set(40, 95, 55);
-    dir.castShadow = true;
-    dir.shadow.mapSize.set(1024, 1024);
-    dir.shadow.camera.near = 1;
-    dir.shadow.camera.far = 400;
-    dir.shadow.camera.left = -80; dir.shadow.camera.right = 80;
-    dir.shadow.camera.top = 80;   dir.shadow.camera.bottom = -80;
-    scene.add(dir);
-
-    // ── 控制 ──
-    const controls = new OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true;
-    controls.dampingFactor = 0.08;
-    controls.enablePan = false;
-    controls.enableZoom = false;          // 關閉滾輪縮放，避免卡住頁面捲動
-    controls.minPolarAngle = 0.28;
-    controls.maxPolarAngle = 1.25;
-    controls.target.set(0, 4, 0);
-    controls.autoRotate = true;
-    controls.autoRotateSpeed = 0.5;
-    controls.addEventListener('start', () => { controls.autoRotate = false; });
-
-    // ── 海平面 ──
-    const sea = new THREE.Mesh(
-        new THREE.CircleGeometry(220, 64),
-        new THREE.MeshStandardMaterial({ color: 0x0b2740, transparent: true, opacity: 0.5, roughness: 0.95 })
-    );
-    sea.rotation.x = -Math.PI / 2;
-    sea.position.y = -0.2;
-    sea.receiveShadow = true;
-    scene.add(sea);
-
-    // ── 投影 / 共用狀態 ──
-    let proj = null;
-    const tripMeshes = {};      // key -> Group
-    const tripCentroid = {};    // key -> Vector3 (top surface)
-    const people = [];
-
-    // Toast 通知
-    function showToast(msg, ms = 0) {
-        const el = document.createElement('div');
-        el.style.cssText = `position:fixed;bottom:32px;left:50%;transform:translateX(-50%);z-index:999;
-            background:rgba(8,16,30,0.92);color:#f1f5f9;padding:10px 24px;border-radius:999px;
-            font-size:0.83rem;border:1px solid rgba(255,255,255,0.14);backdrop-filter:blur(14px);
-            box-shadow:0 8px 28px rgba(0,0,0,0.5);pointer-events:none;white-space:nowrap;
-            font-family:'Noto Sans TC',sans-serif;`;
-        el.textContent = msg;
-        document.body.appendChild(el);
-        if (ms) setTimeout(() => el.remove(), ms);
-        return el;
-    }
-
-    function setProj(minLng, maxLng, minLat, maxLat) {
-        const cLng = (minLng + maxLng) / 2, cLat = (minLat + maxLat) / 2;
-        const scale = TARGET / Math.max(maxLng - minLng, maxLat - minLat);
-        proj = {
-            sx: lng => (lng - cLng) * scale,
-            sy: lat => (lat - cLat) * scale,
-            toWorldTop: (lng, lat) => new THREE.Vector3((lng - cLng) * scale, DEPTH, -(lat - cLat) * scale)
+    function toLoc(lat, lng) {
+        return {
+            x: (lng - REF.lng) * M_LNG,   // 東偏移 (m)
+            y: (lat - REF.lat) * M_LAT     // 北偏移 (m)
         };
     }
 
-    // 只保留台灣本島 + 鄰近離島，排除金門/馬祖/南海諸島避免比例失真
-    function inWin(lng, lat) { return lng >= 119.3 && lng <= 122.2 && lat >= 21.8 && lat <= 25.4; }
-
-    function featPolys(f) {
-        const g = f.geometry;
-        if (!g) return [];
-        if (g.type === 'Polygon') return [g.coordinates];
-        if (g.type === 'MultiPolygon') return g.coordinates;
-        return [];
+    function inWin(lng, lat) {
+        return lng >= 119.3 && lng <= 122.2 && lat >= 21.8 && lat <= 25.4;
     }
 
     function matchTrip(f) {
@@ -836,343 +704,178 @@
         return null;
     }
 
-    // ── 用 GeoJSON 建立各縣市 3D 立體塊 ──
-    function buildMap(features) {
-        let minLng = Infinity, maxLng = -Infinity, minLat = Infinity, maxLat = -Infinity;
-        features.forEach(f => featPolys(f).forEach(poly => poly[0].forEach(([lng, lat]) => {
-            if (!inWin(lng, lat)) return;
-            if (lng < minLng) minLng = lng; if (lng > maxLng) maxLng = lng;
-            if (lat < minLat) minLat = lat; if (lat > maxLat) maxLat = lat;
-        })));
-        setProj(minLng, maxLng, minLat, maxLat);
+    // ── 4. Three.js WebGLOverlayView ──
+    let scene, camera, renderer;
+    const countyGroup = new THREE.Group();
+    countyGroup.rotation.x = -Math.PI / 2;   // 讓形狀平躺、往上拉伸
 
+    const overlay = new google.maps.WebGLOverlayView();
+
+    overlay.onAdd = () => {
+        scene = new THREE.Scene();
+        camera = new THREE.PerspectiveCamera();
+        scene.add(new THREE.AmbientLight(0xffffff, 1.1));
+        const sun = new THREE.DirectionalLight(0xffffff, 1.6);
+        sun.position.set(0.4, 1, 0.3);
+        scene.add(sun);
+        scene.add(countyGroup);
+
+        // 非同步載入 GeoJSON
+        (async () => {
+            const SOURCES = [
+                'https://cdn.jsdelivr.net/gh/g0v/twgeojson@master/json/twCounty2010.geo.json',
+                'https://raw.githubusercontent.com/g0v/twgeojson/master/json/twCounty2010.geo.json',
+            ];
+            for (const url of SOURCES) {
+                try {
+                    const res = await fetch(url, { mode: 'cors' });
+                    if (!res.ok) continue;
+                    const data = await res.json();
+                    if (data.features?.length) { buildCounties(data.features); break; }
+                } catch { /* 換備援來源 */ }
+            }
+        })();
+    };
+
+    overlay.onContextRestored = ({ gl }) => {
+        renderer = new THREE.WebGLRenderer({ canvas: gl.canvas, context: gl, antialias: false });
+        renderer.autoClear = false;
+    };
+
+    overlay.onDraw = ({ gl, transformer }) => {
+        camera.projectionMatrix = new THREE.Matrix4().fromArray(
+            transformer.fromLatLngAltitude({ lat: REF.lat, lng: REF.lng, altitude: 0 })
+        );
+        renderer.resetState();
+        renderer.render(scene, camera);
+        overlay.requestRedraw();
+    };
+
+    overlay.setMap(gmap);
+
+    // ── 5. 建立縣市 3D 拉伸塊 ──
+    function buildCounties(features) {
         features.forEach(f => {
-            const polys = featPolys(f);
-            if (!polys.length) return;
+            const geom = f.geometry;
+            if (!geom) return;
+            const polys = geom.type === 'Polygon'      ? [geom.coordinates]
+                        : geom.type === 'MultiPolygon' ?  geom.coordinates : [];
+
             const trip = matchTrip(f);
-            const mat = new THREE.MeshStandardMaterial({
-                color: trip ? trip.color : 0x35506b,
-                roughness: 0.75, metalness: 0.05,
-                emissive: trip ? trip.color : 0x000000,
-                emissiveIntensity: trip ? 0.28 : 0
+            const mat = new THREE.MeshPhongMaterial({
+                color:            trip ? trip.color : 0x1a3a5c,
+                emissive:         trip ? trip.color : 0x0a1828,
+                emissiveIntensity: trip ? 0.22 : 0.06,
+                transparent: true,
+                opacity:     trip ? 0.88 : 0.52,
+                side: THREE.DoubleSide,
+                shininess: 55,
             });
-            const group = new THREE.Group();
-            let bestRing = null;
 
             polys.forEach(poly => {
-                const outer = poly[0];
-                if (!outer.length || !inWin(outer[0][0], outer[0][1])) return;  // 跳過離島
-                if (!bestRing || outer.length > bestRing.length) bestRing = outer;
+                const ring = poly[0];
+                // 用重心判斷是否在台灣本島視窗內
+                const cx = ring.reduce((s, p) => s + p[0], 0) / ring.length;
+                const cy = ring.reduce((s, p) => s + p[1], 0) / ring.length;
+                if (!inWin(cx, cy)) return;
 
                 const shape = new THREE.Shape();
-                outer.forEach(([lng, lat], i) => {
-                    const x = proj.sx(lng), y = proj.sy(lat);
-                    i === 0 ? shape.moveTo(x, y) : shape.lineTo(x, y);
+                ring.forEach(([lng, lat], i) => {
+                    const p = toLoc(lat, lng);
+                    i === 0 ? shape.moveTo(p.x, p.y) : shape.lineTo(p.x, p.y);
                 });
-                for (let h = 1; h < poly.length; h++) {
+
+                // 孔洞（如有）
+                poly.slice(1).forEach(hole => {
                     const path = new THREE.Path();
-                    poly[h].forEach(([lng, lat], i) => {
-                        const x = proj.sx(lng), y = proj.sy(lat);
-                        i === 0 ? path.moveTo(x, y) : path.lineTo(x, y);
+                    hole.forEach(([lng, lat], i) => {
+                        const p = toLoc(lat, lng);
+                        i === 0 ? path.moveTo(p.x, p.y) : path.lineTo(p.x, p.y);
                     });
                     shape.holes.push(path);
-                }
-                const geo = new THREE.ExtrudeGeometry(shape, {
-                    depth: DEPTH, bevelEnabled: true, bevelThickness: 0.25, bevelSize: 0.18, bevelSegments: 1
                 });
-                const m = new THREE.Mesh(geo, mat);
-                m.rotation.x = -Math.PI / 2;
-                m.castShadow = true; m.receiveShadow = true;
-                group.add(m);
 
-                // 縣市邊界描邊
-                const pts = outer.map(([lng, lat]) => new THREE.Vector3(proj.sx(lng), proj.sy(lat), DEPTH + 0.02));
-                const line = new THREE.LineLoop(
-                    new THREE.BufferGeometry().setFromPoints(pts),
-                    new THREE.LineBasicMaterial({ color: trip ? 0xffffff : 0x9fb6cc, transparent: true, opacity: trip ? 0.9 : 0.22 })
-                );
-                line.rotation.x = -Math.PI / 2;
-                group.add(line);
-            });
-
-            if (group.children.length) scene.add(group);
-            if (trip && bestRing) {
-                tripMeshes[trip.key] = group;
-                let sx = 0, sy = 0;
-                bestRing.forEach(([lng, lat]) => { sx += proj.sx(lng); sy += proj.sy(lat); });
-                sx /= bestRing.length; sy /= bestRing.length;
-                tripCentroid[trip.key] = new THREE.Vector3(sx, DEPTH, -sy);
-            }
-        });
-    }
-
-    // ── 簡化台灣輪廓（GeoJSON 載入失敗時的後備） ──
-    function buildFallback() {
-        const outline = [
-            [121.60,25.30],[121.95,25.00],[121.90,24.85],[121.83,24.50],[121.78,24.00],
-            [121.60,23.50],[121.40,23.10],[121.30,22.80],[120.90,22.30],[120.75,22.00],
-            [120.65,22.35],[120.30,22.55],[120.15,23.00],[120.10,23.50],[120.15,24.10],
-            [120.50,24.60],[120.85,24.85],[121.20,25.05],[121.40,25.15]
-        ];
-        let minLng = Infinity, maxLng = -Infinity, minLat = Infinity, maxLat = -Infinity;
-        outline.forEach(([lng, lat]) => {
-            if (lng < minLng) minLng = lng; if (lng > maxLng) maxLng = lng;
-            if (lat < minLat) minLat = lat; if (lat > maxLat) maxLat = lat;
-        });
-        setProj(minLng, maxLng, minLat, maxLat);
-
-        const shape = new THREE.Shape();
-        outline.forEach(([lng, lat], i) => {
-            const x = proj.sx(lng), y = proj.sy(lat);
-            i === 0 ? shape.moveTo(x, y) : shape.lineTo(x, y);
-        });
-        const geo = new THREE.ExtrudeGeometry(shape, { depth: DEPTH, bevelEnabled: true, bevelThickness: 0.3, bevelSize: 0.25, bevelSegments: 1 });
-        const mesh = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ color: 0x2f4a63, roughness: 0.8, metalness: 0.05 }));
-        mesh.rotation.x = -Math.PI / 2;
-        mesh.castShadow = true; mesh.receiveShadow = true;
-        scene.add(mesh);
-
-        const pts = outline.map(([lng, lat]) => new THREE.Vector3(proj.sx(lng), proj.sy(lat), DEPTH + 0.02));
-        const line = new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(pts),
-            new THREE.LineBasicMaterial({ color: 0x9fb6cc, transparent: true, opacity: 0.4 }));
-        line.rotation.x = -Math.PI / 2;
-        scene.add(line);
-
-        TRIPS.forEach(t => { tripCentroid[t.key] = proj.toWorldTop(t.approx[0], t.approx[1]); });
-    }
-
-    // ── 地標 pin ──
-    function makePin(color) {
-        const g = new THREE.Group();
-        const stem = new THREE.Mesh(
-            new THREE.CylinderGeometry(0.16, 0.16, 4, 8),
-            new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: color, emissiveIntensity: 0.6 })
-        );
-        stem.position.y = 2; g.add(stem);
-        const ball = new THREE.Mesh(
-            new THREE.SphereGeometry(0.9, 20, 20),
-            new THREE.MeshStandardMaterial({ color, emissive: color, emissiveIntensity: 0.85, roughness: 0.3 })
-        );
-        ball.position.y = 4.6; ball.castShadow = true; g.add(ball);
-        g.userData.ball = ball;
-        return g;
-    }
-
-    // ── 走動的小人 ──
-    function makeLeg(mat) {
-        const grp = new THREE.Group();
-        const box = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.6, 0.16), mat);
-        box.position.y = -0.3; box.castShadow = true;
-        grp.add(box);
-        return grp;
-    }
-    function makePerson(color) {
-        const g = new THREE.Group();
-        const bodyMat = new THREE.MeshStandardMaterial({ color, roughness: 0.6 });
-        const legMat  = new THREE.MeshStandardMaterial({ color: 0x223044, roughness: 0.7 });
-        const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.32, 0.6, 4, 8), bodyMat);
-        body.position.y = 1.0; body.castShadow = true; g.add(body);
-        const head = new THREE.Mesh(new THREE.SphereGeometry(0.3, 16, 16), new THREE.MeshStandardMaterial({ color: 0xffe0bd }));
-        head.position.y = 1.62; head.castShadow = true; g.add(head);
-        const legL = makeLeg(legMat); legL.position.set(-0.13, 0.55, 0); g.add(legL);
-        const legR = makeLeg(legMat); legR.position.set( 0.13, 0.55, 0); g.add(legR);
-        g.userData = { legL, legR };
-        return g;
-    }
-    function newTarget(c) {
-        const a = Math.random() * Math.PI * 2, r = 1.5 + Math.random() * 6;
-        return new THREE.Vector3(c.x + Math.cos(a) * r, DEPTH, c.z + Math.sin(a) * r);
-    }
-
-    // ── 建立 pin / 標籤 / 小人 ──
-    function createWorld() {
-        TRIPS.forEach((t, i) => {
-            const pos = tripCentroid[t.key] ? tripCentroid[t.key].clone() : proj.toWorldTop(t.approx[0], t.approx[1]);
-            t._pos = pos;
-
-            const pin = makePin(t.color); pin.position.copy(pos); scene.add(pin); t._pin = pin;
-
-            const ring = new THREE.Mesh(
-                new THREE.RingGeometry(1.7, 2.3, 40),
-                new THREE.MeshBasicMaterial({ color: t.color, transparent: true, opacity: 0.5, side: THREE.DoubleSide })
-            );
-            ring.rotation.x = -Math.PI / 2;
-            ring.position.set(pos.x, DEPTH + 0.06, pos.z);
-            scene.add(ring); t._ring = ring;
-
-            const el = document.createElement('button');
-            el.className = 'map-label';
-            el.style.setProperty('--c', t.css);
-            el.innerHTML = `<span class="dot"></span><b>${t.label}</b><i>${t.sub}</i><em>看行程 →</em>`;
-            el.addEventListener('click', () => { location.href = t.href; });
-            labelLayer.appendChild(el); t._el = el;
-
-            for (let k = 0; k < 4; k++) {
-                const person = makePerson(PALETTE[(i * 4 + k) % PALETTE.length]);
-                person.scale.setScalar(1.3);
-                const a = Math.random() * Math.PI * 2, r = 2 + Math.random() * 4;
-                person.position.set(pos.x + Math.cos(a) * r, DEPTH, pos.z + Math.sin(a) * r);
-                person.userData.home   = pos.clone();
-                person.userData.target = newTarget(pos);
-                person.userData.speed  = 2.2 + Math.random() * 1.6;
-                person.userData.phase  = Math.random() * Math.PI * 2;
-                scene.add(person); people.push(person);
-            }
-        });
-    }
-
-    function updatePeople(dt) {
-        people.forEach(p => {
-            const d = p.userData.target.clone().sub(p.position); d.y = 0;
-            const dist = d.length();
-            if (dist < 0.4) { p.userData.target = newTarget(p.userData.home); return; }
-            d.normalize();
-            p.position.addScaledVector(d, p.userData.speed * dt);
-            p.rotation.y = Math.atan2(d.x, d.z);
-            p.userData.phase += dt * 10;
-            const sw = Math.sin(p.userData.phase);
-            p.position.y = DEPTH + Math.abs(sw) * 0.12;
-            p.userData.legL.rotation.x = sw * 0.6;
-            p.userData.legR.rotation.x = -sw * 0.6;
-        });
-    }
-
-    // ── 鏡頭聚焦動畫 ──
-    let tween = null;
-    function startTween(camPos, target) {
-        tween = { fromP: camera.position.clone(), toP: camPos, fromT: controls.target.clone(), toT: target, t: 0, dur: 1.1 };
-        controls.autoRotate = false;
-    }
-    function focusOn(pos) {
-        startTween(new THREE.Vector3(pos.x, 28, pos.z + 36), new THREE.Vector3(pos.x, 4, pos.z));
-    }
-    function resetView() {
-        startTween(new THREE.Vector3(0, 72, 92), new THREE.Vector3(0, 4, 0));
-    }
-    const easeInOut = x => x < 0.5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2;
-    function updateTween(dt) {
-        if (!tween) return;
-        tween.t = Math.min(1, tween.t + dt / tween.dur);
-        const e = easeInOut(tween.t);
-        camera.position.lerpVectors(tween.fromP, tween.toP, e);
-        controls.target.lerpVectors(tween.fromT, tween.toT, e);
-        if (tween.t >= 1) tween = null;
-    }
-
-    // ── 按鈕 ──
-    function wireButtons() {
-        document.querySelectorAll('#map-controls button').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('#map-controls button').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                if (btn.dataset.view === 'all') resetView();
-                else {
-                    const t = TRIPS.find(x => x.key === btn.dataset.trip);
-                    if (t && t._pos) focusOn(t._pos);
-                }
+                const geo = new THREE.ExtrudeGeometry(shape, { depth: EXTRUDE_H, bevelEnabled: false });
+                countyGroup.add(new THREE.Mesh(geo, mat));
             });
         });
     }
 
-    // ── 點擊縣市放大 ──
-    const ray = new THREE.Raycaster();
-    const mouse = new THREE.Vector2();
-    let downXY = null;
-    renderer.domElement.addEventListener('pointerdown', e => { downXY = [e.clientX, e.clientY]; });
-    renderer.domElement.addEventListener('pointerup', e => {
-        if (!downXY) return;
-        const moved = Math.hypot(e.clientX - downXY[0], e.clientY - downXY[1]);
-        downXY = null;
-        if (moved > 6) return;  // 拖曳就不觸發
-        const r = renderer.domElement.getBoundingClientRect();
-        mouse.x = ((e.clientX - r.left) / r.width) * 2 - 1;
-        mouse.y = -((e.clientY - r.top) / r.height) * 2 + 1;
-        ray.setFromCamera(mouse, camera);
-        const objs = [];
-        Object.values(tripMeshes).forEach(g => g.traverse(o => { if (o.isMesh) objs.push(o); }));
-        const hit = ray.intersectObjects(objs, false)[0];
-        if (!hit) return;
-        for (const t of TRIPS) {
-            const g = tripMeshes[t.key];
-            if (g && g.getObjectById(hit.object.id)) { focusOn(t._pos); break; }
-        }
+    // ── 6. 旅遊地點標記 (AdvancedMarkerElement) ──
+    TRIPS.forEach(trip => {
+        const div = document.createElement('div');
+        div.style.cssText = `
+            font-family:'Noto Sans TC',sans-serif;
+            background:rgba(6,12,26,0.92);
+            border:2px solid ${trip.css};
+            border-radius:14px;
+            padding:7px 14px 7px 10px;
+            color:#fff;
+            font-size:13px;
+            font-weight:700;
+            box-shadow:0 0 0 4px ${trip.css}33, 0 6px 24px ${trip.css}88;
+            cursor:pointer;
+            transition:transform .18s, box-shadow .18s;
+            white-space:nowrap;
+            display:flex; align-items:center; gap:7px;
+        `;
+        div.innerHTML = `
+            <span style="display:inline-block;width:10px;height:10px;border-radius:50%;
+                         background:${trip.css};box-shadow:0 0 8px ${trip.css};flex-shrink:0;"></span>
+            <span>${trip.label}</span>
+            <span style="font-weight:400;font-size:11px;color:#94a3b8;">· ${trip.sub}</span>
+        `;
+        div.addEventListener('mouseenter', () => {
+            div.style.transform = 'scale(1.07) translateY(-2px)';
+            div.style.boxShadow = `0 0 0 5px ${trip.css}55, 0 10px 32px ${trip.css}aa`;
+        });
+        div.addEventListener('mouseleave', () => {
+            div.style.transform = '';
+            div.style.boxShadow = `0 0 0 4px ${trip.css}33, 0 6px 24px ${trip.css}88`;
+        });
+
+        const AME = google.maps.marker?.AdvancedMarkerElement;
+        const marker = AME
+            ? new AME({ map: gmap, position: trip.center, content: div, title: `${trip.label} · ${trip.sub}` })
+            : new google.maps.Marker({ map: gmap, position: trip.center, title: `${trip.label} · ${trip.sub}` });
+
+        const iw = new google.maps.InfoWindow({
+            content: `<div style="font-family:'Noto Sans TC',sans-serif;padding:8px 10px;min-width:150px;line-height:1.7">
+                <b style="color:${trip.css};font-size:14px;">${trip.label}</b>
+                <span style="color:#555;font-size:12px;"> · ${trip.sub}</span><br>
+                <a href="${trip.href}" style="color:#059669;font-size:12px;font-weight:600;text-decoration:none;">
+                    查看遊記 →
+                </a>
+            </div>`,
+        });
+
+        const clickFn = () => {
+            iw.open({ map: gmap, anchor: marker });
+            gmap.panTo(trip.center);
+            gmap.setZoom(11);
+            gmap.setTilt(65);
+            document.querySelectorAll('#map-controls button').forEach(b => b.classList.remove('active'));
+        };
+        marker.addListener('click', clickFn);
+        div.addEventListener('click', clickFn);
     });
 
-    // ── 標籤投影到螢幕 ──
-    const v = new THREE.Vector3();
-    function updateLabels() {
-        const r = renderer.domElement.getBoundingClientRect();
-        TRIPS.forEach(t => {
-            if (!t._el || !t._pos) return;
-            v.set(t._pos.x, t._pos.y + 6, t._pos.z).project(camera);
-            if (v.z > 1) { t._el.style.display = 'none'; return; }
-            t._el.style.display = 'flex';
-            const x = (v.x * 0.5 + 0.5) * r.width;
-            const y = (-v.y * 0.5 + 0.5) * r.height;
-            t._el.style.transform = `translate(-50%, -120%) translate(${x}px, ${y}px)`;
-        });
-    }
-
-    // ── resize ──
-    function resize() {
-        const w = container.clientWidth, h = container.clientHeight;
-        if (!w || !h) return;
-        renderer.setSize(w, h, false);
-        camera.aspect = w / h;
-        camera.updateProjectionMatrix();
-    }
-    new ResizeObserver(resize).observe(container);
-
-    // ── 渲染迴圈 ──
-    const clock = new THREE.Clock();
-    let visible = true;
-    new IntersectionObserver(es => { visible = es[0].isIntersecting; }, { threshold: 0.01 }).observe(container);
-
-    function loop() {
-        requestAnimationFrame(loop);
-        const dt = Math.min(clock.getDelta(), 0.05);
-        if (!visible) return;
-        updateTween(dt);
-        updatePeople(dt);
-        const ts = clock.elapsedTime;
-        TRIPS.forEach((t, i) => {
-            if (t._pin) t._pin.userData.ball.position.y = 4.6 + Math.sin(ts * 2 + i) * 0.25;
-            if (t._ring) {
-                const s = 1 + Math.sin(ts * 2 + i) * 0.15;
-                t._ring.scale.set(s, s, s);
-                t._ring.material.opacity = 0.35 + 0.25 * (0.5 + 0.5 * Math.sin(ts * 2 + i));
+    // ── 7. 按鈕控制 ──
+    document.querySelectorAll('#map-controls button').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('#map-controls button').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            if (btn.dataset.view === 'all') {
+                gmap.panTo({ lat: 23.8, lng: 121.0 });
+                gmap.setZoom(8);
+                gmap.setTilt(45);
+                gmap.setHeading(0);
+            } else {
+                const trip = TRIPS.find(t => t.key === btn.dataset.trip);
+                if (trip) { gmap.panTo(trip.center); gmap.setZoom(11); gmap.setTilt(65); }
             }
         });
-        controls.update();
-        renderer.render(scene, camera);
-        updateLabels();
-    }
-
-    // ── 載入 GeoJSON（含後備） ──
-    const SOURCES = [
-        'https://cdn.jsdelivr.net/gh/g0v/twgeojson@master/json/twCounty2010.geo.json',
-        'https://raw.githubusercontent.com/g0v/twgeojson/master/json/twCounty2010.geo.json'
-    ];
-    async function init() {
-        let built = false;
-        for (const url of SOURCES) {
-            try {
-                const res = await fetch(url, { mode: 'cors' });
-                if (!res.ok) continue;
-                const data = await res.json();
-                const feats = data.features || [];
-                if (feats.length) { buildMap(feats); built = true; break; }
-            } catch (e) { /* 換下一個來源 */ }
-        }
-        if (built) statusEl.style.display = 'none';
-        else { statusEl.style.display = 'none'; buildFallback(); }
-
-        createWorld();
-        wireButtons();
-        resize();
-        loop();
-    }
-    init();
+    });
     </script>
 </body>
 </html>
