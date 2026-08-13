@@ -233,12 +233,141 @@
 
         .map-hint { text-align: center; color: #64748b; font-size: 0.72rem; margin-top: 12px; }
 
+        /* ── Zoe 浮窗按鈕 ─────────────────────────────── */
+        #zoe-fab {
+            position: fixed;
+            bottom: 28px; right: 28px;
+            z-index: 999;
+            width: 60px; height: 60px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            background: linear-gradient(135deg, #fb7185, #f97316);
+            box-shadow: 0 0 0 4px rgba(251,113,133,0.25), 0 8px 28px rgba(249,115,22,0.5);
+            font-size: 1.55rem;
+            display: flex; align-items: center; justify-content: center;
+            transition: transform 0.22s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.22s ease;
+            animation: fabPulse 3s ease-in-out infinite;
+        }
+        #zoe-fab:hover {
+            transform: scale(1.12) translateY(-2px);
+            box-shadow: 0 0 0 6px rgba(251,113,133,0.3), 0 12px 36px rgba(249,115,22,0.65);
+        }
+        @keyframes fabPulse {
+            0%,100% { box-shadow: 0 0 0 4px rgba(251,113,133,0.25), 0 8px 28px rgba(249,115,22,0.5); }
+            50%      { box-shadow: 0 0 0 8px rgba(251,113,133,0.15), 0 8px 28px rgba(249,115,22,0.4); }
+        }
+
+        /* ── Zoe 面板 ──────────────────────────────────── */
+        #zoe-overlay {
+            position: fixed; inset: 0;
+            z-index: 1000;
+            background: rgba(0,0,0,0.65);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            display: flex; align-items: flex-end; justify-content: center;
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        #zoe-overlay.open { opacity: 1; pointer-events: auto; }
+
+        #zoe-panel {
+            width: 100%; max-width: 680px;
+            max-height: 92vh;
+            border-radius: 24px 24px 0 0;
+            background: linear-gradient(160deg, rgba(26,15,18,0.98) 0%, rgba(14,10,24,0.98) 100%);
+            border: 1px solid rgba(251,113,133,0.2);
+            border-bottom: none;
+            box-shadow: 0 -8px 60px rgba(251,113,133,0.18);
+            display: flex; flex-direction: column;
+            transform: translateY(100%);
+            transition: transform 0.4s cubic-bezier(0.32,0.72,0,1);
+            overflow: hidden;
+        }
+        #zoe-overlay.open #zoe-panel { transform: translateY(0); }
+
+        @media (min-width: 700px) {
+            #zoe-overlay { align-items: center; }
+            #zoe-panel {
+                max-height: 88vh;
+                border-radius: 24px;
+                border-bottom: 1px solid rgba(251,113,133,0.2);
+                width: calc(100% - 48px);
+            }
+        }
+
+        .zoe-header {
+            flex-shrink: 0;
+            padding: 18px 20px 14px;
+            display: flex; align-items: center; justify-content: space-between;
+            border-bottom: 1px solid rgba(255,255,255,0.07);
+            background: linear-gradient(90deg, rgba(251,113,133,0.12), rgba(249,115,22,0.08));
+        }
+        .zoe-title h2 {
+            font-size: 1.1rem; font-weight: 800;
+            background: linear-gradient(90deg, #fb7185, #f97316);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .zoe-title p { font-size: 0.72rem; color: #94a3b8; margin-top: 1px; }
+        .zoe-close {
+            width: 34px; height: 34px; border-radius: 50%;
+            background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1);
+            color: #94a3b8; font-size: 1.1rem; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s;
+        }
+        .zoe-close:hover { background: rgba(255,255,255,0.14); color: #fff; }
+
+        .zoe-body { flex: 1; overflow-y: auto; scrollbar-width: thin; scrollbar-color: rgba(251,113,133,0.3) transparent; }
+
+        #zoe-map-container { width: 100%; height: 280px; position: relative; }
+        #zoe-gmap { position: absolute; inset: 0; }
+
+        .zoe-list { padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+        .zoe-card {
+            display: flex; align-items: flex-start; gap: 12px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 14px; padding: 12px 14px;
+            cursor: pointer; transition: all 0.2s;
+        }
+        .zoe-card:hover { background: rgba(251,113,133,0.08); border-color: rgba(251,113,133,0.25); transform: translateX(3px); }
+        .zoe-card-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; box-shadow: 0 0 8px currentColor; }
+        .zoe-card-body { flex: 1; min-width: 0; }
+        .zoe-card-name { font-size: 0.92rem; font-weight: 700; color: #fff; }
+        .zoe-card-cat  { font-size: 0.72rem; color: #fb7185; margin: 1px 0 3px; }
+        .zoe-card-addr { font-size: 0.7rem; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .zoe-card-note { font-size: 0.72rem; color: #94a3b8; margin-top: 4px; line-height: 1.4; }
+        .zoe-card-arrow { color: #475569; font-size: 0.85rem; flex-shrink: 0; align-self: center; }
+        .zoe-loading { text-align: center; padding: 40px 20px; color: #64748b; font-size: 0.85rem; }
+
     </style>
 </head>
 <body class="relative">
 
     <!-- Floating particles -->
     <div id="particles"></div>
+
+    <!-- ── Zoe 浮窗按鈕 ───────────────────────────────── -->
+    <button id="zoe-fab" onclick="openZoePanel()" title="給 Zoe 的台中推薦">🧡</button>
+
+    <!-- ── Zoe 面板 ───────────────────────────────────── -->
+    <div id="zoe-overlay" onclick="handleOverlayClick(event)">
+        <div id="zoe-panel">
+            <div class="zoe-header">
+                <div class="zoe-title">
+                    <h2>給 Zoe 的台中推薦 🧡</h2>
+                    <p>台中皮膚科 &amp; 醫美診所 · 點擊卡片跳至地圖</p>
+                </div>
+                <button class="zoe-close" onclick="closeZoePanel()">✕</button>
+            </div>
+            <div class="zoe-body">
+                <div id="zoe-map-container"><div id="zoe-gmap"></div></div>
+                <div class="zoe-list" id="zoe-shop-list"><div class="zoe-loading">載入中…</div></div>
+            </div>
+        </div>
+    </div>
 
     <!-- ── NAV ───────────────────────────────────────────── -->
     <nav class="fixed top-0 left-0 right-0 z-50 glass-dark">
@@ -881,12 +1010,139 @@
     });
     </script>
 
+    <!-- ── Zoe 面板 JS ──────────────────────────────── -->
     <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js');
-            });
-        }
+    const ZOE_SHOPS = [
+        { name: '日安青禾皮膚科診所', cat: '皮膚科',  addr: '台中市東區精武東路92號',          note: '📞 04-22152615' },
+        { name: '菲仕美整形外科診所', cat: '整形外科', addr: '台中市西區台灣大道二段207號7樓',   note: '📞 04-2398800' },
+        { name: '沁安診所',           cat: '醫美診所', addr: '台中市西區健行路1049號8樓之2',     note: '📞 04-23230918' },
+        { name: '聖緹雅時尚診所',     cat: '醫美診所', addr: '台中市西屯區市政北七路171號',      note: '📞 04-22558787' },
+        { name: '守葳診所',           cat: '醫美診所', addr: '台中市西屯區青海南街239號1樓',     note: '📞 04-27062666' },
+        { name: '芙華診所',           cat: '醫美診所', addr: '台中市西屯區市政北三路35號1,2樓',  note: '📞 04-22510105' },
+        { name: '七期時尚診所',       cat: '醫美診所', addr: '台中市西屯區惠來路一段175號',      note: '📞 04-22519123' },
+        { name: '惠來維格診所',       cat: '醫美診所', addr: '台中市西屯區惠來路二段230號',      note: '📞 04-22550616' },
+        { name: '莊詠婷皮膚科診所',   cat: '皮膚科',  addr: '台中市西屯區龍德路二段528號',      note: '📞 04-22500888' },
+        { name: '文心維格診所',       cat: '醫美診所', addr: '台中市南屯區大福街36號',           note: '📞 04-22582308' },
+        { name: '菁澤皮膚專科診所',   cat: '皮膚科',  addr: '台中市南屯區文心南三路358號',      note: '📞 04-24736060' },
+    ];
+
+    const ZOE_COLORS = ['#fb7185','#f97316','#facc15','#4ade80','#38bdf8','#a78bfa','#f472b6','#fb923c','#34d399','#60a5fa','#e879f9'];
+
+    let zoeMap = null, zoeMapReady = false, zoeInfoWindow = null;
+
+    window.openZoePanel = function () {
+        document.getElementById('zoe-overlay').classList.add('open');
+        document.body.style.overflow = 'hidden';
+        if (!zoeMapReady) initZoeMap();
+    };
+    window.closeZoePanel = function () {
+        document.getElementById('zoe-overlay').classList.remove('open');
+        document.body.style.overflow = '';
+    };
+    window.handleOverlayClick = function (e) {
+        if (e.target === document.getElementById('zoe-overlay')) closeZoePanel();
+    };
+
+    function initZoeMap () {
+        if (!window.google?.maps) { setTimeout(initZoeMap, 500); return; }
+        zoeMap = new google.maps.Map(document.getElementById('zoe-gmap'), {
+            center: { lat: 24.148, lng: 120.673 },
+            zoom: 13,
+            mapId: 'DEMO_MAP_ID',
+            gestureHandling: 'cooperative',
+            disableDefaultUI: false,
+            zoomControl: true,
+            styles: [
+                { elementType: 'geometry',          stylers: [{ color: '#0d1b2a' }] },
+                { elementType: 'labels.text.fill',  stylers: [{ color: '#8ab4d4' }] },
+                { elementType: 'labels.text.stroke',stylers: [{ color: '#0d1b2a' }] },
+                { featureType: 'road',    elementType: 'geometry', stylers: [{ color: '#1a3a5c' }] },
+                { featureType: 'water',   elementType: 'geometry', stylers: [{ color: '#061622' }] },
+                { featureType: 'poi',     elementType: 'geometry', stylers: [{ color: '#0e2235' }] },
+                { featureType: 'poi.park',elementType: 'geometry', stylers: [{ color: '#0a2515' }] },
+            ],
+        });
+        zoeInfoWindow = new google.maps.InfoWindow();
+        zoeMapReady = true;
+        geocodeAndRender();
+    }
+
+    async function geocodeAndRender () {
+        const geocoder = new google.maps.Geocoder();
+        const AME = google.maps.marker?.AdvancedMarkerElement;
+        const bounds = new google.maps.LatLngBounds();
+
+        await Promise.all(ZOE_SHOPS.map(async (shop, i) => {
+            try {
+                const { results } = await geocoder.geocode({ address: shop.addr + ' 台中', region: 'TW' });
+                if (!results?.length) throw new Error('no result');
+                shop._lat = results[0].geometry.location.lat();
+                shop._lng = results[0].geometry.location.lng();
+            } catch { shop._lat = null; shop._lng = null; }
+        }));
+
+        ZOE_SHOPS.forEach((shop, i) => {
+            if (shop._lat == null) return;
+            const color = ZOE_COLORS[i % ZOE_COLORS.length];
+            const pos = { lat: shop._lat, lng: shop._lng };
+            bounds.extend(pos);
+
+            const dot = document.createElement('div');
+            dot.style.cssText = `width:14px;height:14px;border-radius:50%;background:${color};border:2px solid #fff;box-shadow:0 0 10px ${color},0 0 20px ${color}88;cursor:pointer;`;
+
+            const marker = AME
+                ? new AME({ map: zoeMap, position: pos, content: dot, title: shop.name })
+                : new google.maps.Marker({ map: zoeMap, position: pos, title: shop.name,
+                    icon: { path: google.maps.SymbolPath.CIRCLE, scale: 8, fillColor: color, fillOpacity: 1, strokeColor: '#fff', strokeWeight: 2 } });
+
+            const clickFn = () => {
+                zoeInfoWindow.setContent(`
+                    <div style="font-family:'Noto Sans TC',sans-serif;padding:8px 10px;min-width:160px;line-height:1.7;color:#1e293b">
+                        <b style="color:${color};font-size:14px;">${shop.name}</b>
+                        <span style="color:#64748b;font-size:11px;"> · ${shop.cat}</span><br>
+                        <span style="font-size:11px;color:#475569;">${shop.addr}</span><br>
+                        <span style="font-size:11px;color:#0f766e;">${shop.note}</span><br>
+                        <a href="https://maps.google.com/?q=${encodeURIComponent(shop.name+' '+shop.addr)}"
+                           target="_blank" style="color:#e11d48;font-size:11px;font-weight:600;text-decoration:none;">
+                           Google Maps 導航 →</a>
+                    </div>`);
+                zoeInfoWindow.open({ map: zoeMap, anchor: marker });
+                zoeMap.panTo(pos);
+            };
+            marker.addListener('click', clickFn);
+            if (AME) dot.addEventListener('click', clickFn);
+            shop._marker = marker; shop._color = color;
+        });
+
+        if (!bounds.isEmpty()) zoeMap.fitBounds(bounds, 60);
+        renderShopList();
+    }
+
+    function renderShopList () {
+        document.getElementById('zoe-shop-list').innerHTML = ZOE_SHOPS.map((s, i) => `
+            <div class="zoe-card" onclick="zoeCardClick(${i})">
+                <div class="zoe-card-dot" style="background:${s._color||ZOE_COLORS[i%ZOE_COLORS.length]};color:${s._color||ZOE_COLORS[i%ZOE_COLORS.length]};"></div>
+                <div class="zoe-card-body">
+                    <div class="zoe-card-name">${s.name}</div>
+                    <div class="zoe-card-cat">${s.cat}</div>
+                    <div class="zoe-card-addr">📍 ${s.addr}</div>
+                    <div class="zoe-card-note">${s.note}</div>
+                </div>
+                <span class="zoe-card-arrow">›</span>
+            </div>`).join('');
+    }
+
+    window.zoeCardClick = function (i) {
+        const s = ZOE_SHOPS[i];
+        if (!s?._marker) return;
+        zoeMap.panTo({ lat: s._lat, lng: s._lng });
+        zoeMap.setZoom(16);
+        google.maps.event.trigger(s._marker, 'click');
+    };
+
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js'));
+    }
     </script>
 </body>
 </html>
