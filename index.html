@@ -321,25 +321,47 @@
 
         .zoe-body { flex: 1; overflow-y: auto; scrollbar-width: thin; scrollbar-color: rgba(251,113,133,0.3) transparent; }
 
-        #zoe-map-container { width: 100%; height: 280px; position: relative; }
+        #zoe-map-container { width: 100%; height: 340px; position: relative; }
         #zoe-gmap { position: absolute; inset: 0; }
 
-        .zoe-list { padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+        .zoe-list { padding: 14px 16px 20px; display: flex; flex-direction: column; gap: 10px; }
         .zoe-card {
             display: flex; align-items: flex-start; gap: 12px;
             background: rgba(255,255,255,0.04);
             border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 14px; padding: 12px 14px;
-            cursor: pointer; transition: all 0.2s;
+            border-left: 3px solid transparent;
+            border-radius: 14px; padding: 12px 14px 12px 12px;
+            cursor: pointer; transition: all 0.22s ease;
         }
-        .zoe-card:hover { background: rgba(251,113,133,0.08); border-color: rgba(251,113,133,0.25); transform: translateX(3px); }
-        .zoe-card-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; box-shadow: 0 0 8px currentColor; }
+        .zoe-card:hover {
+            background: rgba(251,113,133,0.07);
+            border-color: rgba(251,113,133,0.2);
+            transform: translateX(3px);
+        }
+        .zoe-card.active {
+            background: rgba(251,113,133,0.11);
+            border-color: rgba(251,113,133,0.45) !important;
+            transform: translateX(4px);
+        }
+        /* Number badge (replaces dot) */
+        .zoe-num-badge {
+            width: 28px; height: 28px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.72rem; font-weight: 800; color: #fff;
+            flex-shrink: 0; margin-top: 1px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+        }
+        /* Category pill */
+        .zoe-cat-pill {
+            display: inline-block;
+            padding: 1px 8px; border-radius: 999px;
+            font-size: 0.64rem; font-weight: 700; letter-spacing: 0.04em;
+        }
         .zoe-card-body { flex: 1; min-width: 0; }
-        .zoe-card-name { font-size: 0.92rem; font-weight: 700; color: #fff; }
-        .zoe-card-cat  { font-size: 0.72rem; color: #fb7185; margin: 1px 0 3px; }
-        .zoe-card-addr { font-size: 0.7rem; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .zoe-card-note { font-size: 0.72rem; color: #94a3b8; margin-top: 4px; line-height: 1.4; }
-        .zoe-card-arrow { color: #475569; font-size: 0.85rem; flex-shrink: 0; align-self: center; }
+        .zoe-card-name { font-size: 0.9rem; font-weight: 700; color: #f1f5f9; line-height: 1.3; margin-bottom: 3px; }
+        .zoe-card-addr { font-size: 0.68rem; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .zoe-card-note { font-size: 0.7rem; color: #94a3b8; margin-top: 4px; line-height: 1.4; }
+        .zoe-card-arrow { color: #475569; font-size: 1rem; flex-shrink: 0; align-self: center; font-weight: 300; }
         .zoe-loading { text-align: center; padding: 40px 20px; color: #64748b; font-size: 0.85rem; }
 
     </style>
@@ -1070,62 +1092,100 @@
         addMarkers();
     }
 
+    // ── 自訂淚滴形 SVG pin（含編號）──────────────────────
+    function makePinSvg(num, color) {
+        const label = String(num);
+        const fs = label.length > 1 ? 9 : 12;
+        const svg =
+            '<svg xmlns="http://www.w3.org/2000/svg" width="34" height="44" viewBox="0 0 34 44">' +
+            '<defs>' +
+            '<radialGradient id="rg" cx="40%" cy="30%" r="62%">' +
+            '<stop offset="0%" stop-color="#fff" stop-opacity="0.35"/>' +
+            '<stop offset="100%" stop-color="' + color + '" stop-opacity="0"/>' +
+            '</radialGradient>' +
+            '</defs>' +
+            '<path d="M17 2C9.268 2 3 8.268 3 16c0 9.8 14 26 14 26S31 25.8 31 16C31 8.268 24.732 2 17 2z"' +
+            ' fill="' + color + '" stroke="#fff" stroke-width="2"/>' +
+            '<path d="M17 2C9.268 2 3 8.268 3 16c0 9.8 14 26 14 26S31 25.8 31 16C31 8.268 24.732 2 17 2z"' +
+            ' fill="url(#rg)"/>' +
+            '<text x="17" y="21" text-anchor="middle"' +
+            ' font-family="Arial,Helvetica,sans-serif"' +
+            ' font-size="' + fs + '" font-weight="800" fill="#fff">' + label + '</text>' +
+            '</svg>';
+        return 'data:image/svg+xml,' + encodeURIComponent(svg);
+    }
+
     function addMarkers () {
         const bounds = new google.maps.LatLngBounds();
-
         ZOE_SHOPS.forEach((shop, i) => {
             const color = ZOE_COLORS[i % ZOE_COLORS.length];
             const pos   = { lat: shop.lat, lng: shop.lng };
             bounds.extend(pos);
             shop._color = color;
-
-            // SVG 圓點 marker
-            const svgIcon = {
-                path: google.maps.SymbolPath.CIRCLE,
-                scale: 10,
-                fillColor: color,
-                fillOpacity: 0.92,
-                strokeColor: '#ffffff',
-                strokeWeight: 2.5,
+            const icon = {
+                url: makePinSvg(i + 1, color),
+                scaledSize: new google.maps.Size(34, 44),
+                anchor: new google.maps.Point(17, 44),
             };
             const marker = new google.maps.Marker({
-                map: zoeMap, position: pos, title: shop.name, icon: svgIcon,
+                map: zoeMap, position: pos, title: shop.name,
+                icon, optimized: false,
             });
             shop._marker = marker;
-
-            marker.addListener('click', () => {
-                zoeInfoWindow.setContent(`
-                    <div style="font-family:'Noto Sans TC',sans-serif;padding:8px 12px;min-width:180px;line-height:1.75;color:#1e293b;">
-                        <b style="color:${color};font-size:14px;">${shop.name}</b>
-                        <span style="color:#64748b;font-size:11px;"> · ${shop.cat}</span><br>
-                        <span style="font-size:11px;color:#475569;">📍 ${shop.addr}</span><br>
-                        <span style="font-size:11px;color:#0f766e;">${shop.note}</span><br>
-                        <a href="https://maps.google.com/?q=${encodeURIComponent(shop.name + ' ' + shop.addr)}"
-                           target="_blank"
-                           style="color:#e11d48;font-size:11px;font-weight:700;text-decoration:none;">
-                           Google Maps 導航 →</a>
-                    </div>`);
-                zoeInfoWindow.open({ map: zoeMap, anchor: marker });
-                zoeMap.panTo(pos);
-            });
+            marker.addListener('click', () => openZoeInfo(i));
         });
-
-        zoeMap.fitBounds(bounds, { top: 40, right: 20, bottom: 20, left: 20 });
+        zoeMap.fitBounds(bounds, { top: 50, right: 24, bottom: 24, left: 24 });
         renderShopList();
     }
 
+    function openZoeInfo(i) {
+        const shop = ZOE_SHOPS[i];
+        const color = shop._color;
+        const mapsUrl = 'https://maps.google.com/?q=' + encodeURIComponent(shop.name + ' ' + shop.addr);
+        zoeInfoWindow.setContent(
+            '<div style="font-family:\'Noto Sans TC\',Arial,sans-serif;border-radius:12px;overflow:hidden;width:234px;box-shadow:0 6px 24px rgba(0,0,0,0.18);">' +
+            '  <div style="background:' + color + ';padding:10px 14px;display:flex;align-items:center;gap:9px;">' +
+            '    <div style="width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,0.22);' +
+            '         flex-shrink:0;display:flex;align-items:center;justify-content:center;' +
+            '         font-size:11px;font-weight:800;color:#fff;">' + (i + 1) + '</div>' +
+            '    <div style="flex:1;min-width:0;">' +
+            '      <div style="font-size:13px;font-weight:800;color:#fff;line-height:1.3;">' + shop.name + '</div>' +
+            '      <div style="font-size:10px;color:rgba(255,255,255,0.82);margin-top:1px;">' + shop.cat + '</div>' +
+            '    </div>' +
+            '  </div>' +
+            '  <div style="background:#fff;padding:11px 14px;">' +
+            '    <div style="font-size:11px;color:#475569;margin-bottom:4px;line-height:1.5;">📍 ' + shop.addr + '</div>' +
+            '    <div style="font-size:11px;color:#0d9488;margin-bottom:11px;">' + shop.note + '</div>' +
+            '    <a href="' + mapsUrl + '" target="_blank"' +
+            '       style="display:block;text-align:center;padding:7px 10px;border-radius:9px;' +
+            '              background:' + color + ';color:#fff;font-size:12px;font-weight:700;' +
+            '              text-decoration:none;">🗺 Google Maps 導航</a>' +
+            '  </div>' +
+            '</div>'
+        );
+        zoeInfoWindow.open({ map: zoeMap, anchor: shop._marker });
+        zoeMap.panTo({ lat: shop.lat, lng: shop.lng });
+        // 高亮對應卡片
+        document.querySelectorAll('.zoe-card').forEach(c => c.classList.remove('active'));
+        const card = document.getElementById('zoe-card-' + i);
+        if (card) { card.classList.add('active'); card.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }
+    }
+
     function renderShopList () {
-        document.getElementById('zoe-shop-list').innerHTML = ZOE_SHOPS.map((s, i) => `
-            <div class="zoe-card" onclick="zoeCardClick(${i})">
-                <div class="zoe-card-dot" style="background:${s._color};color:${s._color};"></div>
-                <div class="zoe-card-body">
-                    <div class="zoe-card-name">${s.name}</div>
-                    <div class="zoe-card-cat">${s.cat}</div>
-                    <div class="zoe-card-addr">📍 ${s.addr}</div>
-                    <div class="zoe-card-note">${s.note}</div>
-                </div>
-                <span class="zoe-card-arrow">›</span>
-            </div>`).join('');
+        document.getElementById('zoe-shop-list').innerHTML = ZOE_SHOPS.map((s, i) =>
+            '<div class="zoe-card" onclick="zoeCardClick(' + i + ')" id="zoe-card-' + i + '" style="border-left-color:' + s._color + '33;">' +
+            '  <div class="zoe-num-badge" style="background:' + s._color + ';">' + (i + 1) + '</div>' +
+            '  <div class="zoe-card-body">' +
+            '    <div class="zoe-card-name">' + s.name + '</div>' +
+            '    <div style="margin-bottom:5px;">' +
+            '      <span class="zoe-cat-pill" style="color:' + s._color + ';background:' + s._color + '22;border:1px solid ' + s._color + '44;">' + s.cat + '</span>' +
+            '    </div>' +
+            '    <div class="zoe-card-addr">📍 ' + s.addr + '</div>' +
+            '    <div class="zoe-card-note">' + s.note + '</div>' +
+            '  </div>' +
+            '  <span class="zoe-card-arrow">›</span>' +
+            '</div>'
+        ).join('');
     }
 
     window.zoeCardClick = function (i) {
@@ -1133,7 +1193,7 @@
         if (!s?._marker) return;
         zoeMap.panTo({ lat: s.lat, lng: s.lng });
         zoeMap.setZoom(16);
-        google.maps.event.trigger(s._marker, 'click');
+        openZoeInfo(i);
     };
 
     if ('serviceWorker' in navigator) {
