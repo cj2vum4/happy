@@ -1012,18 +1012,19 @@
 
     <!-- ── Zoe 面板 JS ──────────────────────────────── -->
     <script>
+    // 座標直接硬編碼，不依賴 Geocoding API
     const ZOE_SHOPS = [
-        { name: '日安青禾皮膚科診所', cat: '皮膚科',  addr: '台中市東區精武東路92號',          note: '📞 04-22152615' },
-        { name: '菲仕美整形外科診所', cat: '整形外科', addr: '台中市西區台灣大道二段207號7樓',   note: '📞 04-2398800' },
-        { name: '沁安診所',           cat: '醫美診所', addr: '台中市西區健行路1049號8樓之2',     note: '📞 04-23230918' },
-        { name: '聖緹雅時尚診所',     cat: '醫美診所', addr: '台中市西屯區市政北七路171號',      note: '📞 04-22558787' },
-        { name: '守葳診所',           cat: '醫美診所', addr: '台中市西屯區青海南街239號1樓',     note: '📞 04-27062666' },
-        { name: '芙華診所',           cat: '醫美診所', addr: '台中市西屯區市政北三路35號1,2樓',  note: '📞 04-22510105' },
-        { name: '七期時尚診所',       cat: '醫美診所', addr: '台中市西屯區惠來路一段175號',      note: '📞 04-22519123' },
-        { name: '惠來維格診所',       cat: '醫美診所', addr: '台中市西屯區惠來路二段230號',      note: '📞 04-22550616' },
-        { name: '莊詠婷皮膚科診所',   cat: '皮膚科',  addr: '台中市西屯區龍德路二段528號',      note: '📞 04-22500888' },
-        { name: '文心維格診所',       cat: '醫美診所', addr: '台中市南屯區大福街36號',           note: '📞 04-22582308' },
-        { name: '菁澤皮膚專科診所',   cat: '皮膚科',  addr: '台中市南屯區文心南三路358號',      note: '📞 04-24736060' },
+        { name: '日安青禾皮膚科診所', cat: '皮膚科',  addr: '台中市東區精武東路92號',         note: '📞 04-22152615', lat: 24.1378, lng: 120.6999 },
+        { name: '菲仕美整形外科診所', cat: '整形外科', addr: '台中市西區台灣大道二段207號7樓',  note: '📞 04-2398800',  lat: 24.1484, lng: 120.6629 },
+        { name: '沁安診所',           cat: '醫美診所', addr: '台中市西區健行路1049號8樓之2',    note: '📞 04-23230918', lat: 24.1553, lng: 120.6579 },
+        { name: '聖緹雅時尚診所',     cat: '醫美診所', addr: '台中市西屯區市政北七路171號',     note: '📞 04-22558787', lat: 24.1620, lng: 120.6435 },
+        { name: '守葳診所',           cat: '醫美診所', addr: '台中市西屯區青海南街239號1樓',    note: '📞 04-27062666', lat: 24.1555, lng: 120.6366 },
+        { name: '芙華診所',           cat: '醫美診所', addr: '台中市西屯區市政北三路35號',      note: '📞 04-22510105', lat: 24.1634, lng: 120.6460 },
+        { name: '七期時尚診所',       cat: '醫美診所', addr: '台中市西屯區惠來路一段175號',     note: '📞 04-22519123', lat: 24.1602, lng: 120.6450 },
+        { name: '惠來維格診所',       cat: '醫美診所', addr: '台中市西屯區惠來路二段230號',     note: '📞 04-22550616', lat: 24.1548, lng: 120.6368 },
+        { name: '莊詠婷皮膚科診所',   cat: '皮膚科',  addr: '台中市西屯區龍德路二段528號',     note: '📞 04-22500888', lat: 24.1705, lng: 120.6328 },
+        { name: '文心維格診所',       cat: '醫美診所', addr: '台中市南屯區大福街36號',          note: '📞 04-22582308', lat: 24.1412, lng: 120.6488 },
+        { name: '菁澤皮膚專科診所',   cat: '皮膚科',  addr: '台中市南屯區文心南三路358號',     note: '📞 04-24736060', lat: 24.1335, lng: 120.6432 },
     ];
 
     const ZOE_COLORS = ['#fb7185','#f97316','#facc15','#4ade80','#38bdf8','#a78bfa','#f472b6','#fb923c','#34d399','#60a5fa','#e879f9'];
@@ -1044,84 +1045,79 @@
     };
 
     function initZoeMap () {
-        if (!window.google?.maps) { setTimeout(initZoeMap, 500); return; }
+        if (!window.google?.maps) { setTimeout(initZoeMap, 400); return; }
+        // 不混用 mapId + styles；用 styles 做深色主題
         zoeMap = new google.maps.Map(document.getElementById('zoe-gmap'), {
-            center: { lat: 24.148, lng: 120.673 },
+            center: { lat: 24.155, lng: 120.645 },
             zoom: 13,
-            mapId: 'DEMO_MAP_ID',
             gestureHandling: 'cooperative',
-            disableDefaultUI: false,
+            disableDefaultUI: true,
             zoomControl: true,
             styles: [
-                { elementType: 'geometry',          stylers: [{ color: '#0d1b2a' }] },
-                { elementType: 'labels.text.fill',  stylers: [{ color: '#8ab4d4' }] },
-                { elementType: 'labels.text.stroke',stylers: [{ color: '#0d1b2a' }] },
+                { elementType: 'geometry',           stylers: [{ color: '#0d1b2a' }] },
+                { elementType: 'labels.text.fill',   stylers: [{ color: '#8ab4d4' }] },
+                { elementType: 'labels.text.stroke', stylers: [{ color: '#0d1b2a' }] },
                 { featureType: 'road',    elementType: 'geometry', stylers: [{ color: '#1a3a5c' }] },
+                { featureType: 'road',    elementType: 'labels.text.fill', stylers: [{ color: '#4a8ab5' }] },
                 { featureType: 'water',   elementType: 'geometry', stylers: [{ color: '#061622' }] },
                 { featureType: 'poi',     elementType: 'geometry', stylers: [{ color: '#0e2235' }] },
                 { featureType: 'poi.park',elementType: 'geometry', stylers: [{ color: '#0a2515' }] },
+                { featureType: 'transit', elementType: 'geometry', stylers: [{ color: '#0d1b2a' }] },
             ],
         });
         zoeInfoWindow = new google.maps.InfoWindow();
         zoeMapReady = true;
-        geocodeAndRender();
+        addMarkers();
     }
 
-    async function geocodeAndRender () {
-        const geocoder = new google.maps.Geocoder();
-        const AME = google.maps.marker?.AdvancedMarkerElement;
+    function addMarkers () {
         const bounds = new google.maps.LatLngBounds();
 
-        await Promise.all(ZOE_SHOPS.map(async (shop, i) => {
-            try {
-                const { results } = await geocoder.geocode({ address: shop.addr + ' 台中', region: 'TW' });
-                if (!results?.length) throw new Error('no result');
-                shop._lat = results[0].geometry.location.lat();
-                shop._lng = results[0].geometry.location.lng();
-            } catch { shop._lat = null; shop._lng = null; }
-        }));
-
         ZOE_SHOPS.forEach((shop, i) => {
-            if (shop._lat == null) return;
             const color = ZOE_COLORS[i % ZOE_COLORS.length];
-            const pos = { lat: shop._lat, lng: shop._lng };
+            const pos   = { lat: shop.lat, lng: shop.lng };
             bounds.extend(pos);
+            shop._color = color;
 
-            const dot = document.createElement('div');
-            dot.style.cssText = `width:14px;height:14px;border-radius:50%;background:${color};border:2px solid #fff;box-shadow:0 0 10px ${color},0 0 20px ${color}88;cursor:pointer;`;
+            // SVG 圓點 marker
+            const svgIcon = {
+                path: google.maps.SymbolPath.CIRCLE,
+                scale: 10,
+                fillColor: color,
+                fillOpacity: 0.92,
+                strokeColor: '#ffffff',
+                strokeWeight: 2.5,
+            };
+            const marker = new google.maps.Marker({
+                map: zoeMap, position: pos, title: shop.name, icon: svgIcon,
+            });
+            shop._marker = marker;
 
-            const marker = AME
-                ? new AME({ map: zoeMap, position: pos, content: dot, title: shop.name })
-                : new google.maps.Marker({ map: zoeMap, position: pos, title: shop.name,
-                    icon: { path: google.maps.SymbolPath.CIRCLE, scale: 8, fillColor: color, fillOpacity: 1, strokeColor: '#fff', strokeWeight: 2 } });
-
-            const clickFn = () => {
+            marker.addListener('click', () => {
                 zoeInfoWindow.setContent(`
-                    <div style="font-family:'Noto Sans TC',sans-serif;padding:8px 10px;min-width:160px;line-height:1.7;color:#1e293b">
+                    <div style="font-family:'Noto Sans TC',sans-serif;padding:8px 12px;min-width:180px;line-height:1.75;color:#1e293b;">
                         <b style="color:${color};font-size:14px;">${shop.name}</b>
                         <span style="color:#64748b;font-size:11px;"> · ${shop.cat}</span><br>
-                        <span style="font-size:11px;color:#475569;">${shop.addr}</span><br>
+                        <span style="font-size:11px;color:#475569;">📍 ${shop.addr}</span><br>
                         <span style="font-size:11px;color:#0f766e;">${shop.note}</span><br>
-                        <a href="https://maps.google.com/?q=${encodeURIComponent(shop.name+' '+shop.addr)}"
-                           target="_blank" style="color:#e11d48;font-size:11px;font-weight:600;text-decoration:none;">
+                        <a href="https://maps.google.com/?q=${encodeURIComponent(shop.name + ' ' + shop.addr)}"
+                           target="_blank"
+                           style="color:#e11d48;font-size:11px;font-weight:700;text-decoration:none;">
                            Google Maps 導航 →</a>
                     </div>`);
                 zoeInfoWindow.open({ map: zoeMap, anchor: marker });
                 zoeMap.panTo(pos);
-            };
-            marker.addListener('click', clickFn);
-            if (AME) dot.addEventListener('click', clickFn);
-            shop._marker = marker; shop._color = color;
+            });
         });
 
-        if (!bounds.isEmpty()) zoeMap.fitBounds(bounds, 60);
+        zoeMap.fitBounds(bounds, { top: 40, right: 20, bottom: 20, left: 20 });
         renderShopList();
     }
 
     function renderShopList () {
         document.getElementById('zoe-shop-list').innerHTML = ZOE_SHOPS.map((s, i) => `
             <div class="zoe-card" onclick="zoeCardClick(${i})">
-                <div class="zoe-card-dot" style="background:${s._color||ZOE_COLORS[i%ZOE_COLORS.length]};color:${s._color||ZOE_COLORS[i%ZOE_COLORS.length]};"></div>
+                <div class="zoe-card-dot" style="background:${s._color};color:${s._color};"></div>
                 <div class="zoe-card-body">
                     <div class="zoe-card-name">${s.name}</div>
                     <div class="zoe-card-cat">${s.cat}</div>
@@ -1135,7 +1131,7 @@
     window.zoeCardClick = function (i) {
         const s = ZOE_SHOPS[i];
         if (!s?._marker) return;
-        zoeMap.panTo({ lat: s._lat, lng: s._lng });
+        zoeMap.panTo({ lat: s.lat, lng: s.lng });
         zoeMap.setZoom(16);
         google.maps.event.trigger(s._marker, 'click');
     };
