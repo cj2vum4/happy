@@ -262,12 +262,36 @@ canvas{display:block;width:100%;height:100%;touch-action:none}
 .srow .n{flex:1;font-weight:800;color:#fff;letter-spacing:.02em}
 .srow .tm{font-variant-numeric:tabular-nums;color:#ffc9e2;opacity:.85;font-weight:700;font-size:.94em}
 
+/* ── Short landscape phones ──────────────────────────────────────────────
+   A phone held sideways can be as little as ~260 px tall. At that height the
+   results screen (place, standings, two stacked buttons) is taller than the
+   viewport, and because .screen centres with flex the overflow is cut off at
+   BOTH ends — MAIN MENU ends up below the fold and unreachable.
+   Compact the layout so it fits, lay the buttons side by side (which suits a
+   landscape grip anyway), and keep scrolling as a safety net. `safe center`
+   stops a centred flex child from being clipped past the top if it still
+   overflows; browsers without it simply keep plain centring. */
+@media (max-height:440px){
+  .screen{overflow-y:auto;justify-content:safe center;-webkit-overflow-scrolling:touch}
+  #placeBig{font-size:clamp(30px,9.5vmin,64px)}
+  #placeSub{font-size:clamp(8px,1.9vmin,11px);margin-top:.35em;letter-spacing:.18em;text-indent:.18em}
+  .standings{margin:clamp(6px,1.5vh,12px) 0;gap:3px;width:min(430px,88vw)}
+  .srow{padding:4px 10px;border-radius:10px;gap:8px;font-size:clamp(9px,1.9vmin,11.5px)}
+  .srow .sw{width:9px;height:9px;border-radius:3px}
+  #results .menu{flex-direction:row;gap:8px;width:min(430px,88vw)}
+  #results .btn{padding:9px 12px;font-size:clamp(10px,2.1vmin,13px)}
+  #results .btn-play{padding:10px 12px;font-size:clamp(12px,2.7vmin,16px)}
+}
+
 /* rotate hint */
 #rotate{position:absolute;inset:0;z-index:90;display:none;align-items:center;justify-content:center;
   flex-direction:column;gap:16px;background:#150a14;color:#ffc9e2;text-align:center;padding:24px}
 #rotate .ph{font-size:52px;animation:rot 2.2s ease-in-out infinite}
 @keyframes rot{0%,42%{transform:rotate(0)}62%,100%{transform:rotate(-90deg)}}
 #rotate .tx{font-size:14px;font-weight:900;letter-spacing:.16em}
+#rotate .paused{font-size:11px;font-weight:900;letter-spacing:.22em;color:#ffd54a;
+  padding:5px 14px;border-radius:999px;background:rgba(255,213,74,.12);
+  border:1px solid rgba(255,213,74,.4);text-indent:.22em}
 @media (orientation:portrait) and (max-width:900px){
   #rotate{display:flex}
   #hud,#controls{opacity:0;pointer-events:none}
@@ -364,7 +388,7 @@ canvas{display:block;width:100%;height:100%;touch-action:none}
     </div>
   </div>
 
-  <div id="rotate"><div class="ph">📱</div><div class="tx">ROTATE YOUR DEVICE</div></div>
+  <div id="rotate"><div class="ph">📱</div><div class="tx">ROTATE YOUR DEVICE</div><div class="paused" id="rotPaused" hidden>RACE PAUSED</div></div>
 </div>
 
 <script type="importmap">
@@ -2728,6 +2752,7 @@ class UI {
     $('btnAgain').onclick=()=>{ tapAudio(); AUDIO.ui(); HAPTIC.tap(); this.g.startRace(); };
     $('btnMenu').onclick=()=>{ AUDIO.ui(); HAPTIC.tap(); this.g.toMenu(); };
   }
+  setRotatePaused(on){ const e=document.getElementById('rotPaused'); if(e) e.hidden=!on; }
   progress(p){ this.el.loadFill.style.width=(p*100)+'%'; }
   hideLoader(){
     this.el.loader.style.opacity='0';
@@ -2837,11 +2862,21 @@ class Game {
     this.camera=new THREE.PerspectiveCamera(62,1,.6,3000);
     this.cam=new CamRig(this.camera);
     this.clock=0; this.state='boot'; this.phase=0; this.raceTime=0;
+    // Must mirror the #rotate media query in the stylesheet exactly.
+    this.rotateMQ=matchMedia('(orientation:portrait) and (max-width:900px)');
+    this.rotHeld=false;
     this.fpsAcc=0; this.fpsN=0; this.degraded=false;
     this.ambT=0; this.eruptT=0; this.debrisT=0;
+    this.stageEl=document.getElementById('stage');
     this.onResize=this.onResize.bind(this);
     addEventListener('resize',this.onResize);
     addEventListener('orientationchange',()=>setTimeout(this.onResize,250));
+    // The visual viewport changes without firing window resize when a mobile
+    // toolbar slides in or out, so listen to it directly as well.
+    if(window.visualViewport){
+      visualViewport.addEventListener('resize',this.onResize);
+      visualViewport.addEventListener('scroll',this.onResize);
+    }
     document.addEventListener('visibilitychange',()=>{
       if(document.hidden){ AUDIO.skidStop(); }
     });
@@ -2882,10 +2917,22 @@ class Game {
   }
   frame(){ return new Promise(r=>requestAnimationFrame(()=>r())); }
   onResize(){
-    const w=innerWidth,h=innerHeight;
+    // Mobile browsers expose two viewports. `innerHeight` follows the VISUAL
+    // viewport, which shrinks while an auto-hiding toolbar is on screen, but a
+    // position:fixed element sizes to the LAYOUT viewport, which does not. When
+    // those disagree the canvas CSS box and the drawing buffer disagree too:
+    // the render stretches, and the bottom row of controls slides underneath
+    // the browser chrome. Driving the stage and the renderer from the same
+    // measurement keeps them locked together on every browser.
+    // Measure the stage's own box rather than pinning it to a JS-computed size:
+    // #stage keeps inset:0 so it always tracks the viewport by itself and can
+    // never hold a stale value, and measuring it guarantees the drawing buffer
+    // matches the element the canvas actually fills.
+    const r=this.stageEl?this.stageEl.getBoundingClientRect():null;
+    const w=Math.max(1,Math.round(r&&r.width ?r.width :innerWidth));
+    const h=Math.max(1,Math.round(r&&r.height?r.height:innerHeight));
     this.renderer.setSize(w,h,false);
     this.camera.aspect=w/h;
-    // keep a sane vertical FOV on very wide phones
     this.camera.updateProjectionMatrix();
   }
 
@@ -3083,6 +3130,21 @@ class Game {
         this.onResize();
       }
     }
+
+    // ── Portrait hold.
+    // The stylesheet covers the screen with "rotate your device" and disables
+    // the controls under exactly this condition. Freeze the simulation to match:
+    // otherwise the kart keeps driving at full speed, unsteerable, behind an
+    // opaque overlay — turn your phone for a moment and you lose the race.
+    if(this.rotateMQ.matches && this.state!=='title'){
+      if(!this.rotHeld){
+        this.rotHeld=true;
+        INPUT.reset(); AUDIO.skidStop(); AUDIO.engineUpdate(0,0);
+        this.ui.setRotatePaused(true);
+      }
+      return;                              // overlay is opaque; skip rendering too
+    }
+    if(this.rotHeld){ this.rotHeld=false; this.ui.setRotatePaused(false); }
 
     switch(this.state){
       case 'title':     this.tickTitle(dt);     break;
