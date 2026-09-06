@@ -816,7 +816,22 @@ class InputMan {
     this.anyInteraction=false;
     this._bind();
   }
-  get steer(){ return (this.right?1:0)-(this.left?1:0); }
+  /**
+   * Steering sign convention — read this before touching it.
+   *
+   * A kart's forward vector is (sin heading, 0, cos heading), so increasing
+   * `heading` swings the nose toward +X. The chase camera looks along that
+   * same forward vector, and screen-right for such a view is
+   * forward × up = (-cos h, 0, sin h) — i.e. -X. Increasing heading therefore
+   * turns the kart LEFT on screen, not right.
+   *
+   * So throughout the simulation: positive steer = turn left on screen. The AI
+   * is naturally consistent with this (its steer is a heading error), and every
+   * kart visual — front wheels, steering wheel, driver lean, drift yaw — is
+   * keyed to the same sign. Only the physical buttons need the mapping, which
+   * is why LEFT produces +1 here.
+   */
+  get steer(){ return (this.left?1:0)-(this.right?1:0); }
   consumeItem(){ const v=this.itemEdge; this.itemEdge=false; return v; }
   _btn(el,onDown,onUp){
     const down=e=>{ e.preventDefault(); e.stopPropagation(); el.classList.add('on'); this.anyInteraction=true; onDown(); };
