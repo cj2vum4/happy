@@ -939,10 +939,12 @@ class TrackPath {
     // banking follows curvature; width opens on fast sections, tightens in corners
     for(let i=0;i<N;i++){
       this.bank[i]=clamp(this.curv[i]*46,-.20,.20);
-      // Narrow through medium corners for rhythm, then open back out at the
-      // hairpins: a drift runs wide on the exit and needs the road to be there.
+      // Narrow as the corner tightens. Widening the hairpins (an earlier attempt
+      // at "giving the drift room") was backwards: a wide corner can simply be
+      // straight-lined, which is exactly why the drift button had no purpose.
+      // A drift turns TIGHTER than grip does, so it needs less road, not more.
       const ac=Math.abs(this.curv[i]);
-      this.width[i]=lerp(31,25,smoothstep(.004,.016,ac))+smoothstep(.019,.030,ac)*7;
+      this.width[i]=lerp(30,20,smoothstep(.004,.026,ac));
     }
     this._smooth(this.bank,6); this._smooth(this.width,10);
     // Y at each sample, plus derived right vectors
@@ -1517,7 +1519,26 @@ class World {
   constructor(scene,quality){
     this.scene=scene; this.q=quality;
     this.lavaMats=[]; this.smokeAnchors=[]; this.glowLights=[];
+    // The cone must stand in the circuit's infield without overlapping the road.
+    // The largest circle that fits inside this layout is centred here with a
+    // radius of 213, so the base is sized under that with margin to spare.
+    this.vPos=new THREE.Vector3(-28,-6,96);
+    // Base kept well inside the infield: the closest the road comes to this
+    // axis is ~229, so a 150 base leaves ~65 units of daylight rather than the
+    // ~20 that made the flank read as a wall standing at the track edge.
+    this.vBase=150; this.vTop=26; this.vHeight=176;
     this.build();
+  }
+  /** True when (x,z) is clear of every part of the circuit by `pad`.
+   *  Decorative geometry has no collision, so anything overlapping the road is
+   *  a wall the player drives straight through — and it blocks the view. */
+  clearOfTrack(x,z,pad){
+    for(let i=0;i<PATH.N;i+=3){
+      const dx=PATH.pts[i].x-x, dz=PATH.pts[i].z-z;
+      const need=PATH.width[i]*.5+pad;
+      if(dx*dx+dz*dz<need*need) return false;
+    }
+    return true;
   }
   build(){
     this.buildSky();
@@ -1570,7 +1591,7 @@ class World {
     this.rim=new THREE.DirectionalLight(0xff5f7a,.5); this.rim.position.set(220,120,-320); S.add(this.rim);
     // crater glow
     this.craterLight=new THREE.PointLight(0xff5522,2.4,700,1.7);
-    this.craterLight.position.set(0,178,-30); S.add(this.craterLight);
+    this.craterLight.position.set(this.vPos.x,this.vPos.y+170,this.vPos.z); S.add(this.craterLight);
     this.ambient=new THREE.AmbientLight(0xffe0f0,.18); S.add(this.ambient);
     this.fog=new THREE.FogExp2(0xf3a8c4,0.00092); this.scene.fog=this.fog;
   }
@@ -1583,19 +1604,19 @@ class World {
     const res={};
     for(let i=0;i<p.count;i++){
       const x=p.getX(i), z=p.getZ(i);
-      const d=Math.hypot(x,z);
+      const d=Math.hypot(x-this.vPos.x,z-this.vPos.z);
       // large rolling hills
       let y = Math.sin(x*.0042)*Math.cos(z*.0037)*26
             + Math.sin(x*.0101+1.7)*Math.cos(z*.0089-.6)*11
             + Math.sin(d*.0067)*7;
       // volcano skirt rises toward centre
-      y += smoothstep(560,150,d)*54;
+      y += smoothstep(300,105,d)*44;
       // outer ring lifts to hide the world edge
-      y += smoothstep(760,1240,d)*180;
+      y += smoothstep(760,1240,Math.hypot(x,z))*180;
       // flatten a corridor under the track so nothing pokes through the road
       const pr=PATH.project(_v3.set(x,0,z),undefined,res);
       const dist=Math.abs(res.lat);
-      const band=smoothstep(112,40,dist);
+      const band=smoothstep(155,55,dist);
       y = lerp(y, res.fr.pos.y-4.2, band);
       p.setY(i,y);
     }
@@ -1606,54 +1627,62 @@ class World {
   }
   /* ── The volcano: layered lathe cone, crater, lava, smoke source ── */
   buildVolcano(){
-    const V=new THREE.Group(); V.position.set(0,-6,-30); this.scene.add(V); this.volcano=V;
+    const V=new THREE.Group(); V.position.copy(this.vPos); this.scene.add(V); this.volcano=V;
+    const BASE=this.vBase, TOPR=this.vTop, H=this.vHeight;
     const rockM=new THREE.MeshStandardMaterial({map:TEX.rock,color:0xfff0e4,roughness:.86,metalness:.02});
     // main cone
-    const cone=new THREE.Mesh(new THREE.LatheGeometry(coneProfile(300,46,208,22,.035,7),40),rockM);
+    const cone=new THREE.Mesh(new THREE.LatheGeometry(coneProfile(BASE,TOPR,H,22,.035,7),40),rockM);
     cone.castShadow=this.q.shadows; cone.receiveShadow=this.q.shadows; V.add(cone);
     // secondary spur for silhouette interest
-    const spur=new THREE.Mesh(new THREE.LatheGeometry(coneProfile(120,20,96,14,.09,19),24),rockM);
-    spur.position.set(-196,4,96); spur.rotation.z=.1; spur.castShadow=this.q.shadows; V.add(spur);
-    const spur2=new THREE.Mesh(new THREE.LatheGeometry(coneProfile(88,16,74,12,.11,31),22),rockM);
-    spur2.position.set(178,2,120); spur2.rotation.z=-.08; V.add(spur2);
+    const spur=new THREE.Mesh(new THREE.LatheGeometry(coneProfile(BASE*.34,14,H*.42,14,.09,19),24),rockM);
+    spur.position.set(-BASE*.62,4,BASE*.30); spur.rotation.z=.1; spur.castShadow=this.q.shadows; V.add(spur);
+    const spur2=new THREE.Mesh(new THREE.LatheGeometry(coneProfile(BASE*.26,12,H*.34,12,.11,31),22),rockM);
+    spur2.position.set(BASE*.56,2,BASE*.38); spur2.rotation.z=-.08; V.add(spur2);
 
     // crater rim — ring of chocolate boulders
     const rimM=new THREE.MeshStandardMaterial({map:TEX.rock,color:0xffdfc8,roughness:.9});
     const rimEnts=[];
     for(let i=0;i<20;i++){
-      const a=i/20*Math.PI*2, r=48+Math.sin(i*2.3)*7, sc=9+Math.sin(i*1.9)*4.2;
-      rimEnts.push({p:[Math.cos(a)*r,205+Math.sin(i*3.1)*4,Math.sin(a)*r],
+      const a=i/20*Math.PI*2, r=TOPR*1.12+Math.sin(i*2.3)*6, sc=8+Math.sin(i*1.9)*3.6;
+      rimEnts.push({p:[Math.cos(a)*r,H*.985+Math.sin(i*3.1)*4,Math.sin(a)*r],
                     r:[rand(0,7),rand(0,7),rand(0,7)], s:[sc,sc,sc]});
     }
     makeInstanced(V,blobGeo(1,0,.42,11),rimM,rimEnts,{cast:this.q.shadows});
     // crater lava pool
-    const craterLava=new THREE.Mesh(new THREE.CircleGeometry(46,28),this.lavaMat(1.9));
-    craterLava.rotation.x=-Math.PI/2; craterLava.position.y=200; V.add(craterLava);
+    const craterLava=new THREE.Mesh(new THREE.CircleGeometry(TOPR*1.05,28),this.lavaMat(1.9));
+    craterLava.rotation.x=-Math.PI/2; craterLava.position.y=H*.96; V.add(craterLava);
     this.craterLava=craterLava;
-    this.smokeAnchors.push(new THREE.Vector3(0,206,-30));
+    this.smokeAnchors.push(new THREE.Vector3(this.vPos.x,this.vPos.y+H*1.0,this.vPos.z));
 
     // frozen strawberry-syrup flows down the flank
     for(let i=0;i<5;i++){
       const a=(i/5)*Math.PI*2+.6;
       const pts=[];
       for(let k=0;k<=7;k++){
-        const t=k/7, rr=lerp(44,268,Math.pow(t,.82));
-        const wob=Math.sin(t*5+i*2.1)*22;
-        pts.push(new THREE.Vector3(Math.cos(a)*rr+Math.cos(a+1.57)*wob, lerp(198,6,Math.pow(t,.62)), Math.sin(a)*rr+Math.sin(a+1.57)*wob));
+        const t=k/7, rr=lerp(TOPR*1.3,BASE*.9,Math.pow(t,.82));
+        const wob=Math.sin(t*5+i*2.1)*18;
+        pts.push(new THREE.Vector3(Math.cos(a)*rr+Math.cos(a+1.57)*wob, lerp(H*.95,6,Math.pow(t,.62)), Math.sin(a)*rr+Math.sin(a+1.57)*wob));
       }
       const curve=new THREE.CatmullRomCurve3(pts);
-      const tube=new THREE.Mesh(new THREE.TubeGeometry(curve,26,lerp(7,15,i/5),7,false),this.lavaMat(1.35));
+      const tube=new THREE.Mesh(new THREE.TubeGeometry(curve,26,lerp(6,12,i/5),7,false),this.lavaMat(1.35));
       V.add(tube);
     }
     // glowing sugar-crystal veins on the flanks
     const crystM=new THREE.MeshStandardMaterial({color:0xff86c8,emissive:0xff3d86,emissiveIntensity:.85,
       roughness:.12,metalness:0,transparent:true,opacity:.86});
+    // Crystals sit on the volcano flank, which the circuit now runs close to;
+    // reject any that would grow up through the road and try another spot.
     const vcEnts=[];
     for(let i=0;i<30;i++){
-      const a=rand(0,Math.PI*2), t=rand(.15,.72), s=rand(4,13);
-      const rr=lerp(46,290,Math.pow(t,.85)), yy=lerp(198,4,Math.pow(t,.62));
-      vcEnts.push({p:[Math.cos(a)*rr,yy+s*.6,Math.sin(a)*rr],
-                   r:[rand(-.3,.3),rand(0,7),rand(-.3,.3)], s:[s*.5,s*1.7,s*.5]});
+      for(let tries=0;tries<16;tries++){
+        const a=rand(0,Math.PI*2), t=rand(.15,.72), sz=rand(4,13);
+        const rr=lerp(TOPR*1.35,BASE*.96,Math.pow(t,.85)), yy=lerp(H*.95,4,Math.pow(t,.62));
+        const wx=Math.cos(a)*rr+V.position.x, wz=Math.sin(a)*rr+V.position.z;
+        if(!this.clearOfTrack(wx,wz,sz*.5+8)) continue;
+        vcEnts.push({p:[Math.cos(a)*rr,yy+sz*.6,Math.sin(a)*rr],
+                     r:[rand(-.3,.3),rand(0,7),rand(-.3,.3)], s:[sz*.5,sz*1.7,sz*.5]});
+        break;
+      }
     }
     makeInstanced(V,GEO.octa,crystM,vcEnts);
     this.crystalMat=crystM;
@@ -1804,16 +1833,20 @@ class World {
     const s0=t0*PATH.len, s1=t1*PATH.len, n=15, segs=9;
     for(let i=0;i<=n;i++){
       PATH.frameAtS(lerp(s0,s1,i/n),fr);
-      const hw=fr.width*.5+3.2;
+      // Spring the arch from clear of the barrier, not from the road edge: at
+      // +3.2 the base blobs (radius ~5) hung several units over the racing line
+      // at windscreen height, swallowing the view of the corner ahead.
+      const hw=fr.width*.5+10;
       const yaw=Math.atan2(fr.tan.x,fr.tan.z);
       const cs=Math.cos(yaw), sn=Math.sin(yaw);
       for(let k=0;k<=segs;k++){
         const a=Math.PI*k/segs;
-        const lx=Math.cos(a)*hw, ly=Math.sin(a)*(hw*.78)+1.5;
+        const lx=Math.cos(a)*hw, ly=Math.sin(a)*(hw*.86)+2.2;
         const sc=3.4+Math.sin(k*1.7+i)*.8;
-        // rotate the local offset into world space around the arch's yaw
-        ents.push({p:[fr.pos.x+lx*cs, fr.pos.y+ly, fr.pos.z-lx*sn],
-                   r:[0,yaw,0], s:[sc,sc,sc]});
+        const wx=fr.pos.x+lx*cs, wz=fr.pos.z-lx*sn;
+        // belt and braces: skip any blob still reaching the road below roof height
+        if(ly-sc*1.2 < 9 && !this.clearOfTrack(wx,wz,sc*1.2+2)) continue;
+        ents.push({p:[wx, fr.pos.y+ly, wz], r:[0,yaw,0], s:[sc,sc,sc]});
       }
     }
     makeInstanced(this.scene,blobGeo(1,1,.2,29),mm,ents,{cast:this.q.shadows});
@@ -1833,14 +1866,7 @@ class World {
     // loops back on itself: a large lateral offset can drop a lollipop right
     // beside a completely different straight, close enough to clip the chase
     // camera. Reject any candidate that lands inside another stretch of road.
-    const clearOfTrack=(x,z,pad)=>{
-      for(let i=0;i<PATH.N;i+=3){
-        const dx=PATH.pts[i].x-x, dz=PATH.pts[i].z-z;
-        const need=PATH.width[i]*.5+pad;
-        if(dx*dx+dz*dz<need*need) return false;
-      }
-      return true;
-    };
+    const clearOfTrack=(x,z,pad)=>this.clearOfTrack(x,z,pad);
     // place a prop beside the track, retrying until it clears the whole circuit
     const beside=(minOff,maxOff,pad=9)=>{
       for(let tries=0;tries<10;tries++){
@@ -2455,7 +2481,7 @@ class AIBrain {
     const k=this.k, g=k.game, t=g.clock;
     // ── Racing line: drift toward the inside of the coming corner
     const curvAhead=PATH.maxCurvAhead(k.s,14+k.speed*.34);
-    const inside=-Math.sign(curvAhead)*clamp(Math.abs(curvAhead)*620,0,6.2);
+    const inside=-Math.sign(curvAhead)*clamp(Math.abs(curvAhead)*620,0,5.0);
     // personality lane wander
     this.laneT-=dt;
     if(this.laneT<=0){
@@ -2476,7 +2502,11 @@ class AIBrain {
       }
     }
     const noise=Math.sin(t*.7+this.noiseSeed)*1.5+Math.sin(t*1.9+this.noiseSeed*2)*.7;
-    this.lane=damp(this.lane,clamp(this.laneTarget*.45+inside+avoid+noise,-9.5,9.5),2.6,dt);
+    // Lane offsets have to scale with the local road: a fixed +/-9.5 put the AI
+    // against the barrier on the narrowed hairpins, where the half-width is ~10.
+    const halfW=PATH.frameAtS(k.s,this._fr).width*.5;
+    const laneMax=Math.max(2.5,halfW-4.5);
+    this.lane=damp(this.lane,clamp(this.laneTarget*.45+inside+avoid+noise,-laneMax,laneMax),2.6,dt);
 
     // Aim closer the tighter the corner. A lookahead sized for a fast sweeper
     // points straight across a hairpin apex, which walks the kart into the
