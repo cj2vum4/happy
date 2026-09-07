@@ -406,10 +406,18 @@ const CFG = {
   laps: 3,
   racers: 4,
   accel: 36, dragK: 0.0078, rollRes: 2.2,      // → top speed ≈ 65
-  topSpeed: 65, boostAccel: 74, boostCap: 94,
-  steerRate: 2.35, driftSteerMul: 1.5,
-  driftChargeRate: 1.15, driftTiers: [0.45, 0.95, 1.6],
-  boostDur: [0.85, 1.35, 1.95], boostPow: [1.0, 1.28, 1.55],
+  topSpeed: 65,
+  // Drift yaw = (steer*0.75 + driftDir*0.35) * steerRate * authority * mul.
+  // At full lock that is ~2.6 rad/s, i.e. a 25-unit minimum radius against 38
+  // when gripping — the whole point of the hairpins. The old formula carried a
+  // 0.85 fixed bias that forced a 17-unit radius, so holding drift through an
+  // ordinary corner speared the kart into the inside barrier.
+  steerRate: 2.35, driftSteerMul: 1.35, driftSteerIn: .75, driftSteerBias: .35,
+  driftScrub: 3.0,
+  driftChargeRate: 1.15, driftTiers: [0.6, 1.4, 2.3],
+  // Absolute per-tier ceilings rather than a multiplier on a shared cap: the
+  // old form multiplied 94 by up to 1.55 and let a tier-3 turbo reach 145.
+  boostDur: [0.7, 1.15, 1.7], boostTop: [73, 81, 89], boostAcc: [70, 82, 94],
   kartRadius: 2.1, wallBounce: 0.42,
   hitSpinTime: 0.95, hitSpeedMul: 0.32,
   rouletteTime: 0.72,
@@ -931,7 +939,10 @@ class TrackPath {
     // banking follows curvature; width opens on fast sections, tightens in corners
     for(let i=0;i<N;i++){
       this.bank[i]=clamp(this.curv[i]*46,-.20,.20);
-      this.width[i]=lerp(31,24.5,smoothstep(.004,.028,Math.abs(this.curv[i])));
+      // Narrow through medium corners for rhythm, then open back out at the
+      // hairpins: a drift runs wide on the exit and needs the road to be there.
+      const ac=Math.abs(this.curv[i]);
+      this.width[i]=lerp(31,25,smoothstep(.004,.016,ac))+smoothstep(.019,.030,ac)*7;
     }
     this._smooth(this.bank,6); this._smooth(this.width,10);
     // Y at each sample, plus derived right vectors
@@ -1024,16 +1035,91 @@ class TrackPath {
   }
 }
 
-// ── Circuit layout: Candy Village → Chocolate Canyon → Strawberry Lava Bend
-//    → Lollipop Ridge → Marshmallow Tunnel → Crystal Hairpin → Sugar Straight
-const TRACK_CTRL = [
-  [   0,  0,  340], [ 132,  0,  331], [ 243,  3,  287], [ 322, 11,  203],
-  [ 352, 20,  102], [ 300, 30,   22], [ 347, 39,  -70], [ 302, 49, -172],
-  [ 202, 58, -252], [  70, 64, -302], [ -72, 64, -301], [-192, 57, -246],
-  [-266, 47, -151], [-321, 35,  -41], [-300, 23,   71], [-346, 13,  166],
-  [-249,  5,  251], [-131,  0,  326],
+/* ── Circuit layout ────────────────────────────────────────────────────────
+ * Defined as a closed polygon whose corners are rounded to an exact radius,
+ * rather than as hand-placed spline points, because the layout has to hit
+ * specific numbers for the drifting mechanic to matter:
+ *
+ *   a kart holds  TOP/OMEGA          ≈ 38 units of radius flat out
+ *   and           TOP/(OMEGA*1.5)    ≈ 25 units while drifting
+ *
+ * so a corner between those two figures can ONLY be taken at full speed by
+ * drifting through it — that band is what gives the button a reason to exist.
+ * The two hairpins sit at ~31; the esses sit just above at ~42 so they reward
+ * a drift without punishing a player who does not; and the Lollipop Ridge
+ * sweepers are long enough (2.2 s) to charge a full tier-3 turbo.
+ *
+ * [x, z, cornerRadius, elevation]
+ */
+const TRACK_POLY = [
+  [   0,  380, 130,  0],   // T1  fast right off the start straight
+  [ 320,  300,  62, 10],   // T2  Chocolate Canyon entry
+  [ 232,  158,  42, 22],   // T3  canyon esses — left
+  [ 372,   52,  42, 32],   // T4  canyon esses — right
+  [ 300, -120,  31, 46],   // T5  Strawberry Lava hairpin  ← drift or lift
+  [ 128,  -50,  52, 56],   // T6  flick back onto the ridge
+  [  46, -252, 105, 64],   // T7  Lollipop Ridge sweeper (entry)
+  [-170, -286, 105, 62],   // T8  Lollipop Ridge sweeper (exit)
+  [-306, -150,  86, 50],   // T9  Marshmallow Smoke Tunnel
+  [-238,   14,  32, 30],   // T10 Sugar Crystal hairpin    ← drift or lift
+  [-386,  118,  58, 16],   // T11 crystal exit
+  [-196,  262, 100,  4],   // T12 onto the Sugar Straight
 ];
-const PATH = new TrackPath(TRACK_CTRL);
+
+/**
+ * Round every polygon corner into an arc tangent to both edges and sample the
+ * result into spline control points. A corner radius is reduced automatically
+ * if the adjoining straights are too short to fit its tangents.
+ */
+function buildCircuit(poly){
+  const n=poly.length;
+  const V=poly.map(p=>({x:p[0],z:p[1],r:p[2],y:p[3]}));
+  const geo=V.map((v,i)=>{
+    const a=V[(i-1+n)%n], b=V[(i+1)%n];
+    const ux=a.x-v.x, uz=a.z-v.z, ul=Math.hypot(ux,uz);
+    const wx=b.x-v.x, wz=b.z-v.z, wl=Math.hypot(wx,wz);
+    const u={x:ux/ul,z:uz/ul}, w={x:wx/wl,z:wz/wl};
+    const phi=Math.acos(clamp(u.x*w.x+u.z*w.z,-.9999,.9999));
+    let r=v.r, t=r/Math.tan(phi/2);
+    const cap=0.46*Math.min(ul,wl);
+    if(t>cap){ t=cap; r=t*Math.tan(phi/2); }
+    return {u,w,phi,r,t};
+  });
+  const pts=[];
+  for(let i=0;i<n;i++){
+    const v=V[i], g=geo[i];
+    const P1={x:v.x+g.u.x*g.t, z:v.z+g.u.z*g.t};   // arc entry
+    const P2={x:v.x+g.w.x*g.t, z:v.z+g.w.z*g.t};   // arc exit
+    let bx=g.u.x+g.w.x, bz=g.u.z+g.w.z;
+    const bl=Math.hypot(bx,bz)||1e-6; bx/=bl; bz/=bl;
+    const C={x:v.x+bx*(g.r/Math.sin(g.phi/2)), z:v.z+bz*(g.r/Math.sin(g.phi/2))};
+    const a1=Math.atan2(P1.z-C.z,P1.x-C.x);
+    let sweep=Math.atan2(P2.z-C.z,P2.x-C.x)-a1;
+    while(sweep> Math.PI) sweep-=Math.PI*2;
+    while(sweep<-Math.PI) sweep+=Math.PI*2;
+
+    // straight running from the previous arc's exit into this arc's entry;
+    // elevation ramps here and stays level through the corner itself
+    const pi=(i-1+n)%n, pv=V[pi], pg=geo[pi];
+    const from={x:pv.x+pg.w.x*pg.t, z:pv.z+pg.w.z*pg.t};
+    const segLen=Math.hypot(P1.x-from.x,P1.z-from.z);
+    const steps=Math.max(1,Math.round(segLen/11));
+    for(let k=0;k<steps;k++){
+      const t=k/steps;
+      pts.push([from.x+(P1.x-from.x)*t,
+                lerp(pv.y,v.y,t*t*(3-2*t)),
+                from.z+(P1.z-from.z)*t]);
+    }
+    const arcLen=Math.abs(sweep)*g.r;
+    const asteps=Math.max(2,Math.round(arcLen/9));
+    for(let k=0;k<asteps;k++){
+      const a=a1+sweep*(k/asteps);
+      pts.push([C.x+Math.cos(a)*g.r, v.y, C.z+Math.sin(a)*g.r]);
+    }
+  }
+  return pts;
+}
+const PATH = new TrackPath(buildCircuit(TRACK_POLY));
 
 /* ═══════════════ 7. PARTICLES ═══════════════ */
 /** Pooled GPU point sprites. One draw call per pool, zero per-frame allocation. */
@@ -1394,15 +1480,15 @@ const RACERS=[
   { name:'MIA',   player:false, hex:'#57e6c8',
     pal:{body:'#57e6c8',trim:'#0d6a5c',rim:'#fff4e6',seat:'#0b4a41',glow:'#c8fff2',
          suit:'#17a98c',suit2:'#0d6a5c',skin:'#8b5a3c',hair:'#241318',lens:'#ffd54a'},
-    ai:{ skill:1.015, aggro:.5,  drift:.5,  lane:-4.5, err:.05, itemHold:.9 } },
+    ai:{ skill:1.03, aggro:.5,  drift:.62, lane:-4.5, err:.05, itemHold:.9 } },
   { name:'KAI',   player:false, hex:'#ffb02e',
     pal:{body:'#ffb02e',trim:'#7a3a00',rim:'#3a1d22',seat:'#5c2a00',glow:'#fff08a',
          suit:'#e07a00',suit2:'#7a3a00',skin:'#e8b08a',hair:'#1a0f14',lens:'#ff4f9a'},
-    ai:{ skill:1.042, aggro:.95, drift:.45, lane:4.5,  err:.10, itemHold:.28 } },
+    ai:{ skill:1.055, aggro:.95, drift:.55, lane:4.5,  err:.10, itemHold:.28 } },
   { name:'LEO',   player:false, hex:'#a86bff',
     pal:{body:'#a86bff',trim:'#f0e6ff',rim:'#57e6c8',seat:'#3d1a70',glow:'#e2c9ff',
          suit:'#8b46e0',suit2:'#f0e6ff',skin:'#c98f6a',hair:'#f2e9ff',lens:'#ffb02e'},
-    ai:{ skill:1.025, aggro:.68, drift:1.0, lane:0,    err:.14, itemHold:.55 } },
+    ai:{ skill:1.04, aggro:.68, drift:1.0, lane:0,    err:.12, itemHold:.55 } },
 ];
 
 /* ═══════════════ 10. ITEMS ═══════════════ */
@@ -1743,19 +1829,35 @@ class World {
     // instance buckets
     const B={ stick:[], head:[], swirlA:[], swirlB:[], rock:[], gum:[], cryst:[],
               caneShaft:[], caneHook:[], hutWrap:[], hutIcing:[], hutCherry:[], hutDoor:[], lakeRock:[] };
-    // place a prop beside the track at arc-length s
-    const beside=(minOff,maxOff)=>{
-      const s=Math.random()*PATH.len; PATH.frameAtS(s,fr);
-      const side=Math.random()<.5?-1:1;
-      const off=side*(fr.width*.5+rand(minOff,maxOff));
-      const p=_v1.copy(fr.pos).addScaledVector(fr.right,off);
-      return {x:p.x, z:p.z, y:fr.pos.y+Math.sin(fr.bank)*off, s};
+    // Props are positioned relative to the local track frame, but the circuit
+    // loops back on itself: a large lateral offset can drop a lollipop right
+    // beside a completely different straight, close enough to clip the chase
+    // camera. Reject any candidate that lands inside another stretch of road.
+    const clearOfTrack=(x,z,pad)=>{
+      for(let i=0;i<PATH.N;i+=3){
+        const dx=PATH.pts[i].x-x, dz=PATH.pts[i].z-z;
+        const need=PATH.width[i]*.5+pad;
+        if(dx*dx+dz*dz<need*need) return false;
+      }
+      return true;
+    };
+    // place a prop beside the track, retrying until it clears the whole circuit
+    const beside=(minOff,maxOff,pad=9)=>{
+      for(let tries=0;tries<10;tries++){
+        const s=Math.random()*PATH.len; PATH.frameAtS(s,fr);
+        const side=Math.random()<.5?-1:1;
+        const off=side*(fr.width*.5+rand(minOff,maxOff));
+        const p=_v1.copy(fr.pos).addScaledVector(fr.right,off);
+        if(clearOfTrack(p.x,p.z,pad))
+          return {x:p.x, z:p.z, y:fr.pos.y+Math.sin(fr.bank)*off, s};
+      }
+      return null;                      // crowded spot — skip this prop
     };
 
     // ── Lollipop groves
     for(let i=0;i<190;i++){
-      const q=beside(11,60);
       const h=rand(7,19), R=rand(2.6,5.6);
+      const q=beside(11,60,11+R); if(!q) continue;
       const tilt=rand(-.1,.1), lean=rand(-.08,.08);
       const col=LOLLI[randi(LOLLI.length)];
       const hy=q.y-1.4;
@@ -1768,13 +1870,14 @@ class World {
     }
     // ── Chocolate boulders
     for(let i=0;i<170;i++){
-      const q=beside(9,86); const sc=rand(2.4,10);
+      const sc=rand(2.4,10);
+      const q=beside(9,86,9+sc*1.4); if(!q) continue;
       B.rock.push({p:[q.x,q.y-1.6+sc*.3,q.z], r:[rand(0,7),rand(0,7),rand(0,7)],
                    s:[sc,sc*rand(.5,.95),sc*rand(.75,1.2)]});
     }
     // ── Gumdrop clusters
     for(let i=0;i<115;i++){
-      const q=beside(10,48);
+      const q=beside(10,48,14); if(!q) continue;
       const col=LOLLI[randi(LOLLI.length)];
       for(let k=0;k<2+randi(3);k++){
         const sc=rand(1.1,3.1);
@@ -1784,13 +1887,15 @@ class World {
     }
     // ── Glowing sugar crystals
     for(let i=0;i<140;i++){
-      const q=beside(9,54); const sc=rand(1.1,4.4);
+      const sc=rand(1.1,4.4);
+      const q=beside(9,54,9+sc*.6); if(!q) continue;
       B.cryst.push({p:[q.x,q.y-1+sc*.9,q.z], r:[rand(-.26,.26),rand(0,7),rand(-.26,.26)],
                     s:[sc*.46,sc*rand(1.6,3.1),sc*.46]});
     }
     // ── Candy canes
     for(let i=0;i<64;i++){
-      const q=beside(10,34); const h=rand(6,13), tilt=rand(-.14,.14);
+      const q=beside(10,34,13); if(!q) continue;
+      const h=rand(6,13), tilt=rand(-.14,.14);
       B.caneShaft.push({p:[q.x,q.y-1.4+h/2,q.z], r:[0,0,tilt], s:[.42,h,.42]});
       B.caneHook.push({p:[q.x-Math.sin(tilt)*h,q.y-1.4+h,q.z], r:[0,Math.PI/2,tilt], s:[1,1,1]});
     }
@@ -1800,6 +1905,7 @@ class World {
       const side=i%2?1:-1;
       const off=side*rand(32,66), along=rand(-100,130);
       const b=_v1.copy(fr.pos).addScaledVector(fr.right,off).addScaledVector(fr.tan,along);
+      if(!clearOfTrack(b.x,b.z,14)) continue;
       const y=fr.pos.y-1.6, spin=rand(0,7);
       B.hutWrap.push({p:[b.x,y+1.8,b.z], r:[0,spin,0], s:[1,1,1]});
       B.hutIcing.push({p:[b.x,y+4.6,b.z], r:[0,spin,0], s:[3.9,2.7,3.9], c:LOLLI[i%LOLLI.length]});
@@ -1808,8 +1914,25 @@ class World {
     }
     // ── Lava lakes (unique meshes — each needs its own animated material)
     const LAKES=[[0.60,72,44],[0.62,-86,34],[0.30,80,40],[0.05,-96,30],[0.86,90,36]];
-    for(const [t,off,r] of LAKES){
+    // The circuit loops back on itself, so a fixed lateral offset can drop a lake
+    // straight onto another part of the road. Push each one outward (and flip
+    // sides if need be) until it clears every stretch of track.
+    const clears=(x,z,r)=>{
+      for(let i=0;i<PATH.N;i+=2){
+        const dx=PATH.pts[i].x-x, dz=PATH.pts[i].z-z;
+        const need=r+PATH.width[i]*.5+8;
+        if(dx*dx+dz*dz<need*need) return false;
+      }
+      return true;
+    };
+    for(const [t,off0,r] of LAKES){
       PATH.frameAtS(t*PATH.len,fr);
+      let off=off0;
+      for(const k of [1,1.18,1.38,1.6,1.85,-1,-1.2,-1.45,-1.7]){
+        const cand=off0*k;
+        const cx=fr.pos.x+fr.right.x*cand, cz=fr.pos.z+fr.right.z*cand;
+        if(clears(cx,cz,r)){ off=cand; break; }
+      }
       const p=_v1.copy(fr.pos).addScaledVector(fr.right,off);
       const geo=new THREE.CircleGeometry(r,26);
       const pa=geo.attributes.position;   // ripple the rim so it isn't a flat disc
@@ -1906,7 +2029,7 @@ class Kart {
     this.pos=new THREE.Vector3(); this.heading=0;
     this.speed=0; this.steerSm=0; this.wheelSpin=0;
     this.drifting=false; this.driftDir=0; this.driftCharge=0; this.driftTier=0;
-    this.boostT=0; this.boostPow=1; this.boostTier=0;
+    this.boostT=0; this.boostTier=0;
     this.spinT=0; this.hitCool=0; this.shield=0; this.shieldMesh=null;
     this.item=-1; this.rolling=0; this.rollIdx=0; this.rollTick=0;
     this.lap=1; this.s=0; this.prevS=0; this.lat=0; this.progress=0;
@@ -1929,7 +2052,7 @@ class Kart {
     this.heading=Math.atan2(fr.tan.x,fr.tan.z);
     this.lat=off;
     this.speed=0; this.steerSm=0; this.drifting=false; this.driftCharge=0; this.driftTier=0;
-    this.boostT=0; this.boostPow=1; this.spinT=0; this.hitCool=0;
+    this.boostT=0; this.boostTier=0; this.spinT=0; this.hitCool=0;
     this.setShield(0); this.item=-1; this.rolling=0;
     this.lap=1; this.finished=false; this.finishTime=0; this.progress=0;
     this.sector=0; this.trackIdx=undefined; this.offTrack=0; this.stuckT=0; this.wrongWay=0;
@@ -1939,7 +2062,7 @@ class Kart {
     if(this.ai) this.ai.reset();
   }
   get boosting(){ return this.boostT>0; }
-  get topSpeed(){ return this.boosting?CFG.boostCap*this.boostPow:CFG.topSpeed; }
+  get topSpeed(){ return this.boosting?CFG.boostTop[this.boostTier-1]:CFG.topSpeed; }
 
   setShield(t){
     this.shield=t;
@@ -2028,7 +2151,8 @@ class Kart {
         if(!wantDrift||this.speed<12){
           this.releaseDrift();
         } else {
-          this.driftCharge+=dt*CFG.driftChargeRate*(0.72+Math.abs(steer)*0.5);
+          this.driftCharge=Math.min(CFG.driftTiers[2],
+            this.driftCharge+dt*CFG.driftChargeRate*(0.72+Math.abs(steer)*0.5));
           let tier=0;
           for(let i=0;i<CFG.driftTiers.length;i++) if(this.driftCharge>=CFG.driftTiers[i]) tier=i+1;
           if(tier!==this.driftTier){
@@ -2049,7 +2173,8 @@ class Kart {
     let rate=CFG.steerRate*auth;
     let turn=this.steerSm*rate;
     if(this.drifting){
-      turn = (this.steerSm*.62+this.driftDir*.85)*rate*CFG.driftSteerMul;
+      turn = (this.steerSm*CFG.driftSteerIn + this.driftDir*CFG.driftSteerBias)
+             *rate*CFG.driftSteerMul;
     }
     if(this.spinT>0) turn=(CFG.hitSpinTime-this.spinT>0?1:1)*Math.PI*2/CFG.hitSpinTime*.85;
     this.heading+=turn*dt;
@@ -2059,15 +2184,15 @@ class Kart {
     let acc;
     if(this.boostT>0){
       this.boostT-=dt;
-      acc=CFG.boostAccel*this.boostPow;
-      if(this.boostT<=0){ this.boostPow=1; this.boostTier=0; }
+      acc=CFG.boostAcc[this.boostTier-1];
+      if(this.boostT<=0) this.boostTier=0;
     } else {
       acc=CFG.accel*throttle;
     }
     if(this.spinT>0) acc=0;
     if(this.ai) acc*=this.ai.throttleMul;
     // drifting scrubs a little speed; off-track is heavily penalised
-    const scrub=this.drifting?3.4:0;
+    const scrub=this.drifting?CFG.driftScrub:0;
     const offPen=this.offTrack>0?15:0;
     this.speed += (acc - this.speed*this.speed*CFG.dragK - CFG.rollRes - scrub - offPen)*dt;
     this.speed=clamp(this.speed,0,this.topSpeed);
@@ -2091,8 +2216,7 @@ class Kart {
     this.drifting=false;
     const tier=this.driftTier;
     if(grantBoost&&tier>0){
-      this.boostT=Math.max(this.boostT,CFG.boostDur[tier-1]);
-      this.boostPow=CFG.boostPow[tier-1]; this.boostTier=tier;
+      this.applyBoost(tier);
       this.speed=Math.max(this.speed,CFG.topSpeed*(.94+tier*.045));
       if(this.isPlayer){ AUDIO.turbo(tier); HAPTIC.turbo(); this.game.cam.punch(.42+tier*.2); }
       else AUDIO.turbo(tier);
@@ -2101,8 +2225,14 @@ class Kart {
     this.driftCharge=0; this.driftTier=0;
     if(this.isPlayer) AUDIO.skidStop();
   }
-  giveBoost(dur,pow,tier){
-    this.boostT=Math.max(this.boostT,dur); this.boostPow=pow; this.boostTier=tier||2;
+  /** Start (or extend) a turbo at the given tier. */
+  applyBoost(tier){
+    tier=clamp(tier,1,3);
+    this.boostTier=Math.max(this.boostTier,tier);
+    this.boostT=Math.max(this.boostT,CFG.boostDur[this.boostTier-1]);
+  }
+  giveBoost(tier){
+    this.applyBoost(tier);
     this.speed=Math.max(this.speed,CFG.topSpeed*1.02);
     if(this.isPlayer){ AUDIO.turbo(2); HAPTIC.turbo(); this.game.cam.punch(.6); }
     this.game.fx.turboBurst(this,2);
@@ -2319,13 +2449,13 @@ class AIBrain {
     const k=this.k;
     const dx=target.x-k.pos.x, dz=target.z-k.pos.z;
     const local = Math.atan2(dx,dz);
-    return clamp(angleDiff(local-k.heading)*2.35,-1,1);
+    return clamp(angleDiff(local-k.heading)*2.9,-1,1);
   }
   update(dt){
     const k=this.k, g=k.game, t=g.clock;
     // ── Racing line: drift toward the inside of the coming corner
-    const curvAhead=PATH.maxCurvAhead(k.s,18+k.speed*.42);
-    const inside=-Math.sign(curvAhead)*clamp(Math.abs(curvAhead)*950,0,7.6);
+    const curvAhead=PATH.maxCurvAhead(k.s,14+k.speed*.34);
+    const inside=-Math.sign(curvAhead)*clamp(Math.abs(curvAhead)*620,0,6.2);
     // personality lane wander
     this.laneT-=dt;
     if(this.laneT<=0){
@@ -2348,7 +2478,11 @@ class AIBrain {
     const noise=Math.sin(t*.7+this.noiseSeed)*1.5+Math.sin(t*1.9+this.noiseSeed*2)*.7;
     this.lane=damp(this.lane,clamp(this.laneTarget*.45+inside+avoid+noise,-9.5,9.5),2.6,dt);
 
-    const look=13+k.speed*.44;
+    // Aim closer the tighter the corner. A lookahead sized for a fast sweeper
+    // points straight across a hairpin apex, which walks the kart into the
+    // inside barrier — that alone was a quarter of their lap in wall contact.
+    const tight=clamp(Math.abs(curvAhead)/0.028,0,1);
+    const look=lerp(13+k.speed*.44, 9+k.speed*.17, tight);
     const tp=PATH.posAt(k.s+look,this.lane,_v4);
     let steer=this._steerTo(tp);
 
@@ -2359,7 +2493,10 @@ class AIBrain {
     // this circuit is fast enough that only the tightest corners need lifting.
     const cAbs=Math.abs(curvAhead);
     const OMEGA=1.72;                      // ≈ steerRate × high-speed authority
-    let target = cAbs>1e-5 ? (OMEGA/cAbs)*0.92 : CFG.topSpeed;
+    // While drifting the yaw limit rises, so the same corner supports a higher
+    // entry speed — without this the AI lifts for a corner it is about to drift.
+    const omega=OMEGA*(k.drifting?CFG.driftSteerMul:1);
+    let target = cAbs>1e-5 ? (omega/cAbs)*0.97 : CFG.topSpeed;
     target=clamp(target,32,CFG.topSpeed);
     target*=this.c.skill*g.rubber(k);
     // occasional believable mistake
@@ -2489,7 +2626,7 @@ class ItemSystem {
   }
   fire(owner,id){
     const g=this.g;
-    if(id==='boost'){ owner.giveBoost(1.7,1.34,2); return; }
+    if(id==='boost'){ owner.giveBoost(2); return; }
     if(id==='shield'){ owner.setShield(8); if(owner.isPlayer){AUDIO.shieldUp();} return; }
     const fwd=_v1.set(Math.sin(owner.heading),0,Math.cos(owner.heading));
     const p=this._get();
@@ -3235,7 +3372,7 @@ class Game {
 /* ═══════════════ 19. BOOT ═══════════════ */
 const GAME=new Game();
 // diagnostic handles (also what the QA harness drives)
-Object.assign(window,{__G:GAME,__PATH:PATH,__INPUT:INPUT,__AUDIO:AUDIO,__Kart:Kart,__ITEMS:ITEMS,__THREE:THREE});
+Object.assign(window,{__G:GAME,__PATH:PATH,__INPUT:INPUT,__AUDIO:AUDIO,__Kart:Kart,__ITEMS:ITEMS,__THREE:THREE,__CFG:CFG});
 GAME.boot().catch(err=>{
   console.error(err);
   const l=$('loader');
