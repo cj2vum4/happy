@@ -1,0 +1,5 @@
+node_modules
+*.local
+
+# dist/ IS committed: this repo is served straight from the branch by GitHub
+# Pages with no build step, so the built game has to be in git to be playable.
